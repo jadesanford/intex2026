@@ -24,18 +24,64 @@ public class IncidentsController(SupabaseService db) : ControllerBase
         if (safehouseId.HasValue) filters.Add($"safehouse_id=eq.{safehouseId}");
 
         var filterStr = filters.Count > 0 ? string.Join("&", filters) + "&" : "";
-        var incidents = await db.GetAllAsync<dynamic>("incident_reports",
-            $"select=*,residents(case_control_no,internal_code),safehouses(name,city)&{filterStr}order=incident_date.desc");
-        return Ok(incidents);
+
+        var incidentsTask = db.GetAllAsync<IncidentReport>("incident_reports",
+            $"select=*&{filterStr}order=incident_date.desc");
+        var residentsTask = db.GetAllAsync<Resident>("residents",
+            "select=resident_id,case_control_no,internal_code");
+        var safehousesTask = db.GetAllAsync<Safehouse>("safehouses",
+            "select=safehouse_id,name,city");
+
+        await Task.WhenAll(incidentsTask, residentsTask, safehousesTask);
+        var incidents = await incidentsTask;
+        var residentsMap = (await residentsTask).ToDictionary(r => r.ResidentId);
+        var safehousesMap = (await safehousesTask).ToDictionary(s => s.SafehouseId);
+
+        var result = incidents.Select(i =>
+        {
+            residentsMap.TryGetValue(i.ResidentId ?? -1, out var res);
+            safehousesMap.TryGetValue(i.SafehouseId ?? -1, out var sh);
+            return new
+            {
+                i.IncidentId, i.ResidentId, i.SafehouseId, i.IncidentDate,
+                i.IncidentType, i.Severity, i.Description, i.ResponseTaken,
+                i.Resolved, i.ResolutionDate, i.ReportedBy, i.FollowUpRequired,
+                residents = res != null ? new { res.CaseControlNo, res.InternalCode } : null,
+                safehouses = sh != null ? new { sh.Name, sh.City } : null
+            };
+        });
+
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var incident = await db.GetOneAsync<IncidentReport>("incident_reports",
-            $"incident_id=eq.{id}&select=*,residents(case_control_no,internal_code),safehouses(name,city)");
+        var incidentTask = db.GetOneAsync<IncidentReport>("incident_reports",
+            $"incident_id=eq.{id}&select=*");
+        var residentsTask = db.GetAllAsync<Resident>("residents",
+            "select=resident_id,case_control_no,internal_code");
+        var safehousesTask = db.GetAllAsync<Safehouse>("safehouses",
+            "select=safehouse_id,name,city");
+
+        await Task.WhenAll(incidentTask, residentsTask, safehousesTask);
+        var incident = await incidentTask;
         if (incident == null) return NotFound();
-        return Ok(incident);
+
+        var residentsMap = (await residentsTask).ToDictionary(r => r.ResidentId);
+        var safehousesMap = (await safehousesTask).ToDictionary(s => s.SafehouseId);
+
+        residentsMap.TryGetValue(incident.ResidentId ?? -1, out var res);
+        safehousesMap.TryGetValue(incident.SafehouseId ?? -1, out var sh);
+
+        return Ok(new
+        {
+            incident.IncidentId, incident.ResidentId, incident.SafehouseId, incident.IncidentDate,
+            incident.IncidentType, incident.Severity, incident.Description, incident.ResponseTaken,
+            incident.Resolved, incident.ResolutionDate, incident.ReportedBy, incident.FollowUpRequired,
+            residents = res != null ? new { res.CaseControlNo, res.InternalCode } : null,
+            safehouses = sh != null ? new { sh.Name, sh.City } : null
+        });
     }
 
     [HttpPost]

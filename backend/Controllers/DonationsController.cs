@@ -25,9 +25,31 @@ public class DonationsController(SupabaseService db) : ControllerBase
 
         var filterStr = filters.Count > 0 ? string.Join("&", filters) + "&" : "";
         var offset = (page - 1) * pageSize;
-        var donations = await db.GetAllAsync<dynamic>("donations",
-            $"select=*,supporters(display_name,supporter_type,organization_name)&{filterStr}order=donation_date.desc&limit={pageSize}&offset={offset}");
-        return Ok(donations);
+
+        var donationsTask = db.GetAllAsync<Donation>("donations",
+            $"select=*&{filterStr}order=donation_date.desc&limit={pageSize}&offset={offset}");
+        var supportersTask = db.GetAllAsync<Supporter>("supporters",
+            "select=supporter_id,display_name,organization_name,supporter_type");
+
+        await Task.WhenAll(donationsTask, supportersTask);
+        var donations = await donationsTask;
+        var supportersMap = (await supportersTask).ToDictionary(s => s.SupporterId);
+
+        var result = donations.Select(d =>
+        {
+            supportersMap.TryGetValue(d.SupporterId ?? -1, out var sup);
+            return new
+            {
+                d.DonationId, d.SupporterId, d.DonationType, d.DonationDate,
+                d.ChannelSource, d.CurrencyCode, d.Amount, d.EstimatedValue,
+                d.ImpactUnit, d.IsRecurring, d.CampaignName, d.Notes,
+                supporters = sup != null
+                    ? new { sup.DisplayName, sup.OrganizationName, sup.SupporterType }
+                    : null
+            };
+        });
+
+        return Ok(result);
     }
 
     [HttpGet("summary")]

@@ -170,9 +170,29 @@ public class AnalyticsController(SupabaseService db) : ControllerBase
     [HttpGet("at-risk")]
     public async Task<IActionResult> AtRisk()
     {
-        var residents = await db.GetAllAsync<Resident>("residents",
-            "select=*,safehouses(name,city)&current_risk_level=in.(High,Critical)&case_status=eq.Active&order=current_risk_level.asc");
-        return Ok(residents);
+        var residentsTask = db.GetAllAsync<Resident>("residents",
+            "select=resident_id,case_control_no,internal_code,safehouse_id,current_risk_level,case_status,reintegration_status&case_status=eq.Active&order=current_risk_level.asc");
+        var safehousesTask = db.GetAllAsync<Safehouse>("safehouses",
+            "select=safehouse_id,name,city");
+
+        await Task.WhenAll(residentsTask, safehousesTask);
+        var allResidents = await residentsTask;
+        var safehousesMap = (await safehousesTask).ToDictionary(s => s.SafehouseId);
+
+        var atRisk = allResidents
+            .Where(r => r.CurrentRiskLevel is "High" or "Critical")
+            .Select(r =>
+            {
+                safehousesMap.TryGetValue(r.SafehouseId ?? -1, out var sh);
+                return new
+                {
+                    r.ResidentId, r.CaseControlNo, r.InternalCode,
+                    r.CurrentRiskLevel, r.CaseStatus, r.ReintegrationStatus,
+                    safehouses = sh != null ? new { sh.Name, sh.City } : null
+                };
+            });
+
+        return Ok(atRisk);
     }
 
     [HttpGet("social-media-impact")]

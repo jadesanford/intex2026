@@ -26,11 +26,27 @@ public class PartnersController(SupabaseService db) : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var partner = await db.GetOneAsync<Partner>("partners", $"partner_id=eq.{id}&select=*");
+        var partnerTask = db.GetOneAsync<Partner>("partners", $"partner_id=eq.{id}&select=*");
+        var assignmentsTask = db.GetAllAsync<PartnerAssignment>("partner_assignments",
+            $"partner_id=eq.{id}&select=*&order=assignment_start.desc");
+        var safehousesTask = db.GetAllAsync<Safehouse>("safehouses",
+            "select=safehouse_id,name,city");
+
+        await Task.WhenAll(partnerTask, assignmentsTask, safehousesTask);
+        var partner = await partnerTask;
         if (partner == null) return NotFound();
 
-        var assignments = await db.GetAllAsync<PartnerAssignment>("partner_assignments",
-            $"partner_id=eq.{id}&select=*,safehouses(name,city)&order=assignment_start.desc");
+        var safehousesMap = (await safehousesTask).ToDictionary(s => s.SafehouseId);
+        var assignments = (await assignmentsTask).Select(a =>
+        {
+            safehousesMap.TryGetValue(a.SafehouseId ?? -1, out var sh);
+            return new
+            {
+                a.AssignmentId, a.PartnerId, a.SafehouseId, a.ProgramArea,
+                a.AssignmentStart, a.AssignmentEnd, a.ResponsibilityNotes, a.IsPrimary, a.Status,
+                safehouses = sh != null ? new { sh.Name, sh.City } : null
+            };
+        });
 
         return Ok(new { partner, assignments });
     }

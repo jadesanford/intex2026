@@ -25,19 +25,61 @@ public class ResidentsController(SupabaseService db) : ControllerBase
 
         var filterStr = filters.Count > 0 ? string.Join("&", filters) + "&" : "";
         var offset = (page - 1) * pageSize;
-        var query = $"select=*,safehouses(name,city)&{filterStr}order=created_at.desc&limit={pageSize}&offset={offset}";
 
-        var residents = await db.GetAllAsync<dynamic>("residents", query);
-        return Ok(residents);
+        var residentsTask = db.GetAllAsync<Resident>("residents",
+            $"select=*&{filterStr}order=created_at.desc&limit={pageSize}&offset={offset}");
+        var safehousesTask = db.GetAllAsync<Safehouse>("safehouses", "select=safehouse_id,name,city");
+
+        await Task.WhenAll(residentsTask, safehousesTask);
+        var residents = await residentsTask;
+        var safehouses = (await safehousesTask).ToDictionary(s => s.SafehouseId);
+
+        var result = residents.Select(r => new
+        {
+            r.ResidentId, r.CaseControlNo, r.InternalCode, r.SafehouseId,
+            r.CaseStatus, r.Sex, r.DateOfBirth, r.PresentAge, r.CaseCategory,
+            r.CurrentRiskLevel, r.ReintegrationStatus, r.AssignedSocialWorker,
+            r.DateOfAdmission, r.CreatedAt, r.SubCatTrafficked, r.SubCatSexualAbuse,
+            r.SubCatPhysicalAbuse, r.SubCatOsaec,
+            safehouses = r.SafehouseId.HasValue && safehouses.TryGetValue(r.SafehouseId.Value, out var sh)
+                ? new { sh.Name, sh.City } : null
+        });
+
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var resident = await db.GetOneAsync<Resident>("residents",
-            $"resident_id=eq.{id}&select=*,safehouses(name,city,region,province)");
+        var residentTask = db.GetOneAsync<Resident>("residents", $"resident_id=eq.{id}&select=*");
+        var safehousesTask = db.GetAllAsync<Safehouse>("safehouses", "select=safehouse_id,name,city,region,province");
+
+        await Task.WhenAll(residentTask, safehousesTask);
+        var resident = await residentTask;
         if (resident == null) return NotFound();
-        return Ok(resident);
+
+        var safehouses = (await safehousesTask).ToDictionary(s => s.SafehouseId);
+        var sh = resident.SafehouseId.HasValue && safehouses.TryGetValue(resident.SafehouseId.Value, out var found) ? found : null;
+
+        return Ok(new
+        {
+            resident.ResidentId, resident.CaseControlNo, resident.InternalCode, resident.SafehouseId,
+            resident.CaseStatus, resident.Sex, resident.DateOfBirth, resident.BirthStatus,
+            resident.PlaceOfBirth, resident.Religion, resident.CaseCategory,
+            resident.SubCatOrphaned, resident.SubCatTrafficked, resident.SubCatChildLabor,
+            resident.SubCatPhysicalAbuse, resident.SubCatSexualAbuse, resident.SubCatOsaec,
+            resident.SubCatCicl, resident.SubCatAtRisk, resident.SubCatStreetChild,
+            resident.IsPwd, resident.PwdType, resident.HasSpecialNeeds, resident.SpecialNeedsDiagnosis,
+            resident.FamilyIs4ps, resident.FamilySoloParent, resident.FamilyIndigenous,
+            resident.FamilyParentPwd, resident.FamilyInformalSettler,
+            resident.DateOfAdmission, resident.AgeUponAdmission, resident.PresentAge, resident.LengthOfStay,
+            resident.ReferralSource, resident.ReferringAgencyPerson,
+            resident.AssignedSocialWorker, resident.InitialCaseAssessment,
+            resident.ReintegrationType, resident.ReintegrationStatus,
+            resident.InitialRiskLevel, resident.CurrentRiskLevel,
+            resident.DateEnrolled, resident.DateClosed, resident.CreatedAt, resident.NotesRestricted,
+            safehouses = sh != null ? new { sh.Name, sh.City, sh.Region, sh.Province } : null
+        });
     }
 
     [HttpPost]
