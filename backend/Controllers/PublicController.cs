@@ -11,21 +11,11 @@ public class PublicController(SupabaseService db) : ControllerBase
     [HttpGet("impact-snapshot")]
     public async Task<IActionResult> ImpactSnapshot()
     {
-        // Try to use pre-computed snapshots first
-        var snapshots = await db.GetAllAsync<PublicImpactSnapshot>("public_impact_snapshots",
-            "select=*&is_published=eq.true&order=snapshot_date.desc&limit=1");
-
-        if (snapshots.Count > 0)
-        {
-            var snap = snapshots[0];
-            return Ok(new { snapshot = snap, lastUpdated = DateTime.UtcNow });
-        }
-
-        // Fallback: compute live
+        // Always compute live from actual data
         var residents = await db.GetAllAsync<Resident>("residents",
             "select=resident_id,case_status,reintegration_status,current_risk_level");
         var safehouses = await db.GetAllAsync<Safehouse>("safehouses",
-            "select=safehouse_id,status,capacity_girls,current_occupancy");
+            "select=safehouse_id,status,capacity_girls,current_occupancy,name,city,region");
         var donations = await db.GetAllAsync<Donation>("donations",
             "select=amount,donation_type");
 
@@ -34,7 +24,8 @@ public class PublicController(SupabaseService db) : ControllerBase
         var reintegrated = residents.Count(r => r.ReintegrationStatus == "Completed");
         var totalDonations = donations.Where(d => d.DonationType == "Monetary").Sum(d => d.Amount ?? 0);
         var activeSafehouses = safehouses.Count(s => s.Status == "Active");
-        var totalCapacity = safehouses.Sum(s => s.CapacityGirls ?? 0);
+        var totalCapacity = safehouses.Where(s => s.Status == "Active").Sum(s => s.CapacityGirls ?? 0);
+        var totalOccupancy = safehouses.Where(s => s.Status == "Active").Sum(s => s.CurrentOccupancy ?? 0);
 
         return Ok(new
         {
@@ -44,6 +35,7 @@ public class PublicController(SupabaseService db) : ControllerBase
             reintegrationRate = total > 0 ? Math.Round((double)reintegrated / total * 100, 1) : 0,
             totalSafehouses = activeSafehouses,
             totalCapacity,
+            totalOccupancy,
             totalDonationsReceived = totalDonations,
             lastUpdated = DateTime.UtcNow
         });

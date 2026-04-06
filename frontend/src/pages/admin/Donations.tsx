@@ -76,7 +76,7 @@ export default function Donations() {
           </div>
           <div className="card" style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--navy)' }}>
-              {formatPHP(summary.count > 0 && summary.monetary > 0 ? (summary.total / summary.monetary) : 0)}
+              {formatPHP(summary.monetaryCount > 0 ? (summary.total / summary.monetaryCount) : 0)}
             </div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Average Gift</div>
           </div>

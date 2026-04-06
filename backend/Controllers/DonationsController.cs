@@ -58,7 +58,8 @@ public class DonationsController(SupabaseService db) : ControllerBase
             .Select(g => new { campaign = g.Key, total = g.Sum(d => d.Amount ?? 0) })
             .OrderByDescending(x => x.total).Take(10);
 
-        return Ok(new { total, monthly, byChannel, byType, byCampaign, count = donations.Count });
+        var monetaryCount = monetary.Count;
+        return Ok(new { total, monthly, byChannel, byType, byCampaign, count = donations.Count, monetaryCount });
     }
 
     [HttpPost]

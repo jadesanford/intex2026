@@ -108,28 +108,30 @@ export default function Impact({ lang }: { lang: 'en' | 'id' }) {
             <h2 style={{ fontSize: 28, textAlign: 'center', marginBottom: 8 }}>{tx.safehouseTitle}</h2>
             <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: 32 }}>{tx.safehouseSub}</p>
             <div className="grid-3">
-              {safehouses.map((s: { id: number; name: string; city: string; region: string; capacity: number; currentResidents: number }) => (
-                <div key={s.id} className="card">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              {safehouses.map((s: { safehouseId: number; name: string; city: string; region: string; province: string; capacityGirls: number; currentOccupancy: number }) => {
+                const pct = s.capacityGirls > 0 ? Math.round((s.currentOccupancy / s.capacityGirls) * 100) : 0
+                return (
+                <div key={s.safehouseId} className="card">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--sage)', flexShrink: 0 }} />
                     <span style={{ fontSize: 15, fontWeight: 600, fontFamily: 'Playfair Display, serif' }}>{s.name}</span>
                   </div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 12 }}>{s.city}, {s.region}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Capacity: {s.capacity}</span>
-                    <span style={{ color: 'var(--terracotta)', fontWeight: 600 }}>{s.currentResidents} in care</span>
+                  <div style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 12 }}>{s.city}{s.province ? `, ${s.province}` : ''} · {s.region}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 8 }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Capacity: {s.capacityGirls ?? 0}</span>
+                    <span style={{ color: 'var(--terracotta)', fontWeight: 600 }}>{s.currentOccupancy ?? 0} in care</span>
                   </div>
-                  <div style={{
-                    height: 4, background: '#f3f4f6', borderRadius: 2, marginTop: 10,
-                    overflow: 'hidden'
-                  }}>
+                  <div style={{ height: 4, background: '#f3f4f6', borderRadius: 2, overflow: 'hidden' }}>
                     <div style={{
-                      height: '100%', borderRadius: 2, background: 'var(--terracotta)',
-                      width: `${Math.min(100, (s.currentResidents / s.capacity) * 100)}%`
+                      height: '100%', borderRadius: 2,
+                      background: pct > 85 ? 'var(--danger)' : 'var(--terracotta)',
+                      width: `${Math.min(100, pct)}%`
                     }} />
                   </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>{pct}% occupied</div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </section>
