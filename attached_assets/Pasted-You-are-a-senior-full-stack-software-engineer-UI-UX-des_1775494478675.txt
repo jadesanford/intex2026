@@ -1,0 +1,434 @@
+You are a senior full-stack software engineer, UI/UX designer, and secure systems architect.
+
+Your task is to design and scaffold a polished, production-style web application called **Open Arms**.
+
+## Project Overview
+
+Open Arms is a nonprofit-style organization presented as serving girls who are survivors of sexual abuse and trafficking. The public-facing brand is positioned for **Indonesia**, with a gentle, trustworthy, and professional tone. The purpose of the web app is to support:
+
+1. survivors seeking help,
+2. donors wanting to support the mission,
+3. staff managing safehouse operations and case records,
+4. leadership using analytics to make better decisions.
+
+This is a class project for **IS 413 – Enterprise Application Development**.
+
+## Core Design Direction
+
+The website should feel:
+
+* **professional**
+* **safe and soft for girls**
+* **modern nonprofit**
+* **hopeful, calm, and welcoming**
+* not cold, not corporate-heavy, not overly clinical
+
+Use:
+
+* **flat modern nonprofit illustrations**
+* **rounded cards**
+* **soft shadows**
+* clean spacing
+* a polished and consistent design system
+
+### Branding
+
+* Organization name: **Open Arms**
+* Tagline: **A safe place to heal**
+* Public-facing audience: girls needing help, donors, supporters, and partners
+* Tone: compassionate, respectful, calming, trustworthy
+
+### Religious Theme
+
+Include a **gentle “Faith & Hope” section** on the public-facing site only.
+The Christian theme should be **subtle and contained**, not dominant across the whole product.
+Use themes of:
+
+* love
+* hope
+* healing
+* open arms
+* compassion
+
+Do **not** make the site look like a church website. It should still feel like a polished nonprofit organization.
+
+## Tech Stack Requirements
+
+Use:
+
+* **Backend:** .NET 10 / ASP.NET Core Web API / C#
+* **Frontend:** React + TypeScript + Vite
+* **Database:** PostgreSQL preferred
+* **Authentication:** ASP.NET Identity
+* **ORM:** Entity Framework Core
+* **Charts:** modern charting library suitable for React
+* **Map:** interactive safehouse map using **fake/sample locations only** for privacy and demo safety
+
+## Important Data Instruction
+
+I already have the full data dictionary and want the app structure built around it.
+
+Use the following tables exactly as the operational data model:
+
+* safehouses
+* partners
+* partner_assignments
+* supporters
+* donations
+* in_kind_donation_items
+* donation_allocations
+* residents
+* process_recordings
+* home_visitations
+* education_records
+* health_wellbeing_records
+* intervention_plans
+* incident_reports
+* social_media_posts
+* safehouse_monthly_metrics
+* public_impact_snapshots
+
+Important:
+
+* Keep the dataset structure **as-is for class/demo purposes**
+* Do not try to localize or rename the underlying data model
+* It is okay if some operational data references the Philippines schema because the supplied dataset is being reused for the academic project
+* However, the **public-facing branding and website copy** should present the organization as **Open Arms** and be written in a way that feels appropriate for a modern support nonprofit
+
+## Required User Experience Priorities
+
+### Public site priority
+
+The homepage should prioritize **helping survivors find support first**, then donations second.
+
+### Top homepage CTA buttons
+
+Use these two primary hero buttons:
+
+* **Get Help**
+* **Donate**
+
+## Language Support
+
+The site should support **both English and Bahasa Indonesia** with a visible language toggle in the navbar.
+
+Implement the structure so text is easily translatable.
+Prefer a clean i18n-friendly setup.
+
+## Public Pages Required
+
+### 1. Home / Landing Page
+
+Create a beautiful modern landing page with:
+
+* hero section
+* tagline: “A safe place to heal”
+* primary buttons: Get Help and Donate
+* mission section
+* anonymous survivor stories section
+* a gentle Faith & Hope section
+* contact/help form
+* section explaining services/support
+* footer with privacy policy link and cookie notice access
+
+Design goals:
+
+* calm, safe, soft
+* welcoming to girls in crisis
+* accessible and mobile-friendly
+* visually polished enough to impress judges
+
+### 2. Impact / Donor-Facing Dashboard
+
+Public-facing dashboard that displays **aggregated, anonymized data only**.
+Include:
+
+* residents helped
+* donations received
+* outcomes over time
+* safehouse impact by region
+* service categories
+* program outcomes
+* resource allocation visuals
+
+Use:
+
+* summary cards
+* clean charts
+* interactive data elements
+* **interactive map of safehouses using fake/sample demo locations only**
+
+Do not expose resident identities or sensitive operational details.
+
+### 3. Login Page
+
+Include:
+
+* username/password authentication
+* validation
+* error handling
+* polished design matching the site
+
+### 4. Privacy Policy + Cookie Consent
+
+Create:
+
+* GDPR-style privacy policy page tailored to the project
+* cookie consent banner
+* clearly note whether cookie consent is cosmetic or functional if implementation is limited
+
+## Authenticated Portal Required
+
+The staff/admin side should feel like:
+
+* a **calm nonprofit dashboard**
+* easy for limited staff to use
+* simple, clear, and efficient
+* less emotionally branded than the public site
+* still visually polished and consistent
+
+### Admin Dashboard
+
+Include:
+
+* active residents
+* current safehouse occupancy
+* recent donations
+* upcoming case conferences
+* alerts for high-risk residents
+* summarized trends
+* quick links to key sections
+
+### Donors & Contributions
+
+Allow staff to:
+
+* view supporter profiles
+* create and edit supporter records
+* classify supporters by type
+* track donations and all contribution types
+* review donation allocations
+* view trends by campaign, channel, and type
+
+### Caseload Inventory
+
+This is the core case management page.
+Allow staff to:
+
+* view all resident records
+* search and filter by status, safehouse, case category, risk level, referral source
+* create and update resident profiles
+* review reintegration tracking
+* protect restricted fields appropriately
+
+### Process Recording
+
+Provide:
+
+* form for counseling session entries
+* chronological resident session history
+* emotional state tracking
+* intervention notes
+* follow-up actions
+* clean timeline or grouped history view
+
+### Home Visitation & Case Conferences
+
+Provide:
+
+* home/field visit logging
+* visit history per resident
+* observations and safety concern tracking
+* follow-up actions
+* case conference scheduling/history UI if needed
+
+### Reports & Analytics
+
+Build a reporting page with:
+
+* donation trends over time
+* donor retention and lapse indicators
+* resident outcome metrics
+* education progress
+* health/wellbeing trends
+* safehouse comparisons
+* reintegration success rates
+* social media performance insights
+
+## AI/Decision-Support Style Features
+
+Include placeholder analytics logic or dashboard insights for:
+
+* donors likely to lapse
+* donors who may give more if asked
+* campaign performance
+* which social media content leads to donations
+* residents at risk of regression
+* residents progressing toward reintegration
+* interventions correlated with positive outcomes
+
+These do not need to be true machine learning models.
+Rule-based or analytics-driven indicators are acceptable and preferred for a class project.
+
+## Security and Privacy Requirements
+
+Because the system contains highly sensitive data involving minors and abuse survivors, prioritize privacy and security in all design choices.
+
+Implement:
+
+* HTTPS enforcement
+* HTTP to HTTPS redirect
+* secure password policy stronger than default ASP.NET Identity settings
+* RBAC with roles such as Admin, Staff, Donor
+* authenticated and authorized API access
+* restricted access to sensitive resident data
+* delete confirmation flows
+* input validation and sanitization
+* CSP header
+* HSTS if possible
+* secure handling of secrets using environment variables or secrets manager
+* safe handling of cookies
+* no sensitive data exposed publicly
+
+Sensitive notes fields should be protected and only shown to authorized users.
+
+## Role Design
+
+Use these roles:
+
+* Public / unauthenticated
+* Donor
+* Staff
+* Admin
+
+Permissions:
+
+* Public: public site only
+* Donor: personal donation history and donor impact views
+* Staff: operational read/update access where appropriate
+* Admin: create, update, and carefully delete records
+
+## UI Expectations
+
+The project should look polished and modern enough to impress judges.
+
+### Public site style
+
+* warm but professional
+* soft illustrations
+* rounded cards
+* accessible typography
+* inviting empty states
+* thoughtful spacing
+* clean navbar and footer
+* bilingual toggle
+* mobile and desktop friendly
+
+### Staff portal style
+
+* cleaner and more data-focused
+* calm colors
+* summary cards
+* simple navigation
+* clear tables
+* useful charts
+* consistent form layouts
+* excellent usability
+
+## Layout Guidance
+
+### Public homepage sections
+
+Suggested order:
+
+1. Hero
+2. Mission / What Open Arms does
+3. Get Help section
+4. Anonymous survivor stories
+5. Impact preview
+6. Faith & Hope
+7. Contact/help form
+8. Footer
+
+### Admin dashboard layout
+
+Suggested structure:
+
+* top summary cards
+* alerts / quick actions row
+* charts section
+* recent activity / upcoming tasks
+* map or safehouse overview widget
+
+## Safehouse Map
+
+Include an interactive map that displays **fake/sample demo safehouse locations only**.
+This is a visual wow-factor feature and must not show real locations.
+
+The map should:
+
+* feel polished
+* support hover/click states
+* show safehouse summaries
+* optionally filter by region/status
+* be safe for public demo use
+
+## What I Want You to Generate
+
+Generate the project in organized phases.
+
+### First, provide:
+
+1. a high-level system architecture
+2. frontend page structure
+3. backend architecture
+4. database/entity design based on the provided tables
+5. authentication and authorization design
+6. design system guidance
+7. recommended libraries
+8. folder structure for frontend and backend
+
+### Then generate:
+
+* API endpoints grouped by feature
+* entity models / DTOs
+* sample EF Core configuration
+* sample controllers
+* sample React pages/components
+* dashboard layout
+* multilingual setup
+* cookie consent implementation
+* privacy policy page content
+* CSP and security configuration
+* seed/sample data strategy
+* deployment plan
+
+## Code Quality Expectations
+
+Write production-style code with:
+
+* clean architecture where reasonable
+* validation
+* strong naming
+* comments where helpful
+* pagination for tables
+* loading and error states
+* reusable components
+* type safety
+* robust forms
+* polished UX details
+
+## Important Constraints
+
+* Never use real survivor data
+* Use anonymized/sample data only
+* Public analytics must remain aggregated
+* Staff portal handles sensitive internal records
+* The site should be realistic but safe for a class demo
+
+Now begin by producing:
+
+1. a complete architecture plan,
+2. a page-by-page design plan,
+3. a database mapping plan using my existing tables,
+4. and a development roadmap in phases.
