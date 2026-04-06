@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 
 namespace OpenArms.Api.Services;
@@ -13,8 +15,12 @@ public class SupabaseService
     private static readonly JsonSerializerOptions _opts = new()
     {
         PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
+
+    private static string SanitizeJson(string json) =>
+        Regex.Replace(json, @"""(NaN|Infinity|-Infinity)""", "null");
 
     public SupabaseService(string supabaseUrl, string serviceRoleKey, ILogger<SupabaseService>? logger = null)
     {
@@ -51,11 +57,12 @@ public class SupabaseService
                 _logger?.LogWarning("Supabase GET {Table} failed ({Status}): {Body}", table, (int)res.StatusCode, json);
                 return [];
             }
-            return JsonSerializer.Deserialize<List<T>>(json, _opts) ?? [];
+            return JsonSerializer.Deserialize<List<T>>(SanitizeJson(json), _opts) ?? [];
         }
         catch (Exception ex)
         {
             _logger?.LogError(ex, "Error fetching {Table}", table);
+            Console.Error.WriteLine($"[SupabaseService] GetAllAsync<{typeof(T).Name}> from {table}: {ex.GetType().Name}: {ex.Message}");
             return [];
         }
     }
@@ -72,7 +79,7 @@ public class SupabaseService
                 _logger?.LogWarning("Supabase GET ONE {Table} failed ({Status}): {Body}", table, (int)res.StatusCode, json);
                 return default;
             }
-            var list = JsonSerializer.Deserialize<List<T>>(json, _opts);
+            var list = JsonSerializer.Deserialize<List<T>>(SanitizeJson(json), _opts);
             return list != null && list.Count > 0 ? list[0] : default;
         }
         catch (Exception ex)

@@ -283,39 +283,39 @@ public class SocialMediaPost
     public string? PostUrl { get; set; }
     public DateTime? CreatedAt { get; set; }
     public string? DayOfWeek { get; set; }
-    public int? PostHour { get; set; }
+    public decimal? PostHour { get; set; }
     public string? PostType { get; set; }
     public string? MediaType { get; set; }
     public string? Caption { get; set; }
     public string? Hashtags { get; set; }
-    public int? NumHashtags { get; set; }
-    public int? MentionsCount { get; set; }
+    public decimal? NumHashtags { get; set; }
+    public decimal? MentionsCount { get; set; }
     public bool? HasCallToAction { get; set; }
     public string? CallToActionType { get; set; }
     public string? ContentTopic { get; set; }
     public string? SentimentTone { get; set; }
-    public int? CaptionLength { get; set; }
+    public decimal? CaptionLength { get; set; }
     public bool? FeaturesResidentStory { get; set; }
     public string? CampaignName { get; set; }
     public bool? IsBoosted { get; set; }
     public decimal? BoostBudgetPhp { get; set; }
-    public int? Impressions { get; set; }
-    public int? Reach { get; set; }
-    public int? Likes { get; set; }
-    public int? Comments { get; set; }
-    public int? Shares { get; set; }
-    public int? Saves { get; set; }
-    public int? ClickThroughs { get; set; }
-    public int? VideoViews { get; set; }
+    public decimal? Impressions { get; set; }
+    public decimal? Reach { get; set; }
+    public decimal? Likes { get; set; }
+    public decimal? Comments { get; set; }
+    public decimal? Shares { get; set; }
+    public decimal? Saves { get; set; }
+    public decimal? ClickThroughs { get; set; }
+    public decimal? VideoViews { get; set; }
     public decimal? EngagementRate { get; set; }
-    public int? ProfileVisits { get; set; }
-    public int? DonationReferrals { get; set; }
+    public decimal? ProfileVisits { get; set; }
+    public decimal? DonationReferrals { get; set; }
     public decimal? EstimatedDonationValuePhp { get; set; }
-    public int? FollowerCountAtPost { get; set; }
-    public int? WatchTimeSeconds { get; set; }
-    public int? AvgViewDurationSeconds { get; set; }
-    public int? SubscriberCountAtPost { get; set; }
-    public int? Forwards { get; set; }
+    public decimal? FollowerCountAtPost { get; set; }
+    public decimal? WatchTimeSeconds { get; set; }
+    public decimal? AvgViewDurationSeconds { get; set; }
+    public decimal? SubscriberCountAtPost { get; set; }
+    public decimal? Forwards { get; set; }
 }
 
 public class SafehouseMonthlyMetric
