@@ -89,7 +89,7 @@ export default function SocialMedia() {
 
       <div className="card" style={{ marginBottom: 20, padding: 16 }}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {['', 'Instagram', 'Facebook', 'TikTok', 'YouTube', 'Twitter', 'LinkedIn'].map(p => (
+          {['', 'Instagram', 'Facebook', 'TikTok', 'YouTube', 'Twitter', 'LinkedIn', 'WhatsApp'].map(p => (
             <button key={p} onClick={() => setPlatform(p)} style={{
               padding: '6px 14px', borderRadius: 6, border: '1.5px solid', fontSize: 13, cursor: 'pointer',
               borderColor: platform === p ? 'var(--terracotta)' : 'var(--border)',
