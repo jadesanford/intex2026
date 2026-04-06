@@ -1,0 +1,6 @@
+@OpenArms.Api_HostAddress = http://localhost:5215
+
+GET {{OpenArms.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
