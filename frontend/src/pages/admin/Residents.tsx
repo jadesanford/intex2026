@@ -46,6 +46,7 @@ export default function Residents() {
   const { data: residents, isLoading } = useQuery({
     queryKey: ['residents', filters],
     queryFn: () => getResidents({
+      pageSize: '200',
       ...(filters.safehouseId && { safehouseId: filters.safehouseId }),
       ...(filters.status && { status: filters.status }),
       ...(filters.riskLevel && { riskLevel: filters.riskLevel }),
