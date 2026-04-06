@@ -171,7 +171,7 @@ public class AnalyticsController(SupabaseService db) : ControllerBase
     public async Task<IActionResult> AtRisk()
     {
         var residentsTask = db.GetAllAsync<Resident>("residents",
-            "select=resident_id,case_control_no,internal_code,safehouse_id,current_risk_level,case_status,reintegration_status&case_status=eq.Active&order=current_risk_level.asc");
+            "select=resident_id,case_control_no,internal_code,safehouse_id,current_risk_level,case_status,reintegration_status&case_status=in.(Active,Transferred)&order=current_risk_level.asc");
         var safehousesTask = db.GetAllAsync<Safehouse>("safehouses",
             "select=safehouse_id,name,city");
 
