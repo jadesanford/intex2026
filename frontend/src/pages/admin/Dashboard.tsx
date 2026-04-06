@@ -54,7 +54,7 @@ export default function Dashboard() {
         {/* At-Risk Residents */}
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <h2 style={{ fontSize: 18 }}>High-Risk Cases</h2>
+            <h2 style={{ fontSize: 18 }}>Active High Risk Cases</h2>
             <Link to="/admin/residents" className="btn btn-ghost btn-sm">View all</Link>
           </div>
           {!atRisk || atRisk.length === 0 ? (
