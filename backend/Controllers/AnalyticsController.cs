@@ -179,8 +179,11 @@ public class AnalyticsController(SupabaseService db) : ControllerBase
         var allResidents = await residentsTask;
         var safehousesMap = (await safehousesTask).ToDictionary(s => s.SafehouseId);
 
+        var riskOrder = new Dictionary<string, int> { ["Critical"] = 0, ["High"] = 1 };
+
         var atRisk = allResidents
             .Where(r => r.CurrentRiskLevel is "High" or "Critical")
+            .OrderBy(r => riskOrder.GetValueOrDefault(r.CurrentRiskLevel ?? "", 99))
             .Select(r =>
             {
                 safehousesMap.TryGetValue(r.SafehouseId ?? -1, out var sh);
