@@ -1,0 +1,127 @@
+import axios from 'axios'
+
+export const api = axios.create({
+  baseURL: '/api',
+  headers: { 'Content-Type': 'application/json' },
+})
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('oa_token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+api.interceptors.response.use(
+  (r) => r,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('oa_token')
+      localStorage.removeItem('oa_user')
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(err)
+  }
+)
+
+// Auth
+export const login = (username: string, password: string) =>
+  api.post('/auth/login', { username, password }).then(r => r.data)
+
+export const getMe = () => api.get('/auth/me').then(r => r.data)
+
+// Public
+export const getImpactSnapshot = () => api.get('/public/impact-snapshot').then(r => r.data)
+export const getPublicSafehouses = () => api.get('/public/safehouses').then(r => r.data)
+export const getDonationTrends = () => api.get('/public/donation-trends').then(r => r.data)
+export const getOutcomeMetrics = () => api.get('/public/outcome-metrics').then(r => r.data)
+
+// Residents
+export const getResidents = (params?: Record<string, string | number>) =>
+  api.get('/residents', { params }).then(r => r.data)
+export const getResident = (id: number) => api.get(`/residents/${id}`).then(r => r.data)
+export const createResident = (body: Record<string, unknown>) =>
+  api.post('/residents', body).then(r => r.data)
+export const updateResident = (id: number, body: Record<string, unknown>) =>
+  api.patch(`/residents/${id}`, body).then(r => r.data)
+export const deleteResident = (id: number) => api.delete(`/residents/${id}`)
+
+export const getRecordings = (id: number) => api.get(`/residents/${id}/recordings`).then(r => r.data)
+export const addRecording = (id: number, body: Record<string, unknown>) =>
+  api.post(`/residents/${id}/recordings`, body).then(r => r.data)
+
+export const getVisitations = (id: number) => api.get(`/residents/${id}/visitations`).then(r => r.data)
+export const addVisitation = (id: number, body: Record<string, unknown>) =>
+  api.post(`/residents/${id}/visitations`, body).then(r => r.data)
+
+export const getHealthRecords = (id: number) => api.get(`/residents/${id}/health`).then(r => r.data)
+export const addHealthRecord = (id: number, body: Record<string, unknown>) =>
+  api.post(`/residents/${id}/health`, body).then(r => r.data)
+
+export const getEducationRecords = (id: number) => api.get(`/residents/${id}/education`).then(r => r.data)
+export const addEducationRecord = (id: number, body: Record<string, unknown>) =>
+  api.post(`/residents/${id}/education`, body).then(r => r.data)
+
+// Safehouses
+export const getSafehouses = () => api.get('/safehouses').then(r => r.data)
+export const getSafehouse = (id: number) => api.get(`/safehouses/${id}`).then(r => r.data)
+export const createSafehouse = (body: Record<string, unknown>) =>
+  api.post('/safehouses', body).then(r => r.data)
+export const updateSafehouse = (id: number, body: Record<string, unknown>) =>
+  api.patch(`/safehouses/${id}`, body).then(r => r.data)
+export const deleteSafehouse = (id: number) => api.delete(`/safehouses/${id}`)
+
+// Supporters / Donors
+export const getSupporters = (params?: Record<string, string>) =>
+  api.get('/supporters', { params }).then(r => r.data)
+export const getSupporter = (id: number) => api.get(`/supporters/${id}`).then(r => r.data)
+export const createSupporter = (body: Record<string, unknown>) =>
+  api.post('/supporters', body).then(r => r.data)
+export const updateSupporter = (id: number, body: Record<string, unknown>) =>
+  api.patch(`/supporters/${id}`, body).then(r => r.data)
+export const deleteSupporter = (id: number) => api.delete(`/supporters/${id}`)
+
+// Donations
+export const getDonations = (params?: Record<string, string | number>) =>
+  api.get('/donations', { params }).then(r => r.data)
+export const getDonationSummary = () => api.get('/donations/summary').then(r => r.data)
+export const createDonation = (body: Record<string, unknown>) =>
+  api.post('/donations', body).then(r => r.data)
+export const updateDonation = (id: number, body: Record<string, unknown>) =>
+  api.patch(`/donations/${id}`, body).then(r => r.data)
+export const deleteDonation = (id: number) => api.delete(`/donations/${id}`)
+
+// Partners
+export const getPartners = () => api.get('/partners').then(r => r.data)
+export const createPartner = (body: Record<string, unknown>) =>
+  api.post('/partners', body).then(r => r.data)
+export const updatePartner = (id: number, body: Record<string, unknown>) =>
+  api.patch(`/partners/${id}`, body).then(r => r.data)
+export const deletePartner = (id: number) => api.delete(`/partners/${id}`)
+
+// Incidents
+export const getIncidents = (params?: Record<string, string | boolean>) =>
+  api.get('/incidents', { params }).then(r => r.data)
+export const createIncident = (body: Record<string, unknown>) =>
+  api.post('/incidents', body).then(r => r.data)
+export const updateIncident = (id: number, body: Record<string, unknown>) =>
+  api.patch(`/incidents/${id}`, body).then(r => r.data)
+export const deleteIncident = (id: number) => api.delete(`/incidents/${id}`)
+
+// Analytics
+export const getDashboardAnalytics = () => api.get('/analytics/dashboard').then(r => r.data)
+export const getSafehouseComparison = () => api.get('/analytics/safehouse-comparison').then(r => r.data)
+export const getAnalyticsDonationTrends = () => api.get('/analytics/donation-trends').then(r => r.data)
+export const getResidentOutcomes = () => api.get('/analytics/resident-outcomes').then(r => r.data)
+export const getAtRiskResidents = () => api.get('/analytics/at-risk').then(r => r.data)
+
+// Social Media
+export const getSocialMedia = (params?: Record<string, string>) =>
+  api.get('/social-media', { params }).then(r => r.data)
+export const getSocialMetrics = () => api.get('/social-media/metrics').then(r => r.data)
+export const createSocialPost = (body: Record<string, unknown>) =>
+  api.post('/social-media', body).then(r => r.data)
+export const updateSocialPost = (id: number, body: Record<string, unknown>) =>
+  api.patch(`/social-media/${id}`, body).then(r => r.data)
+export const deleteSocialPost = (id: number) => api.delete(`/social-media/${id}`)
