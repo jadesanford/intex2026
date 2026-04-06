@@ -69,7 +69,7 @@ export default function PublicLayout({ children, lang, setLang }: Props) {
           <Heart size={16} color="var(--terracotta)" fill="var(--terracotta)" />
           <span style={{ fontFamily: 'Playfair Display, serif', color: 'white', fontSize: 18 }}>Open Arms</span>
         </div>
-        <p style={{ fontSize: 13, marginBottom: 12 }}>Supporting survivors of sexual abuse and trafficking in Indonesia.</p>
+        <p style={{ fontSize: 13, marginBottom: 12 }}>Supporting survivors of sexual abuse and trafficking in the Philippines.</p>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', fontSize: 13 }}>
           <Link to="/privacy" style={{ color: 'rgba(255,255,255,0.7)' }}>Privacy Policy</Link>
           <Link to="/impact" style={{ color: 'rgba(255,255,255,0.7)' }}>Our Impact</Link>

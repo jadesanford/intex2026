@@ -14,34 +14,51 @@ public class DonationsController(SupabaseService db) : ControllerBase
     public async Task<IActionResult> GetAll(
         [FromQuery] string? campaign,
         [FromQuery] string? channel,
+        [FromQuery] string? type,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 30)
     {
         var filters = new List<string>();
-        if (!string.IsNullOrEmpty(campaign)) filters.Add($"campaign=eq.{campaign}");
-        if (!string.IsNullOrEmpty(channel)) filters.Add($"channel=eq.{channel}");
+        if (!string.IsNullOrEmpty(campaign)) filters.Add($"campaign_name=eq.{campaign}");
+        if (!string.IsNullOrEmpty(channel)) filters.Add($"channel_source=eq.{channel}");
+        if (!string.IsNullOrEmpty(type)) filters.Add($"donation_type=eq.{type}");
 
         var filterStr = filters.Count > 0 ? string.Join("&", filters) + "&" : "";
         var offset = (page - 1) * pageSize;
         var donations = await db.GetAllAsync<dynamic>("donations",
-            $"select=*,supporters(name,type)&{filterStr}order=donated_at.desc&limit={pageSize}&offset={offset}");
+            $"select=*,supporters(display_name,supporter_type,organization_name)&{filterStr}order=donation_date.desc&limit={pageSize}&offset={offset}");
         return Ok(donations);
     }
 
     [HttpGet("summary")]
     public async Task<IActionResult> Summary()
     {
-        var donations = await db.GetAllAsync<Donation>("donations", "select=amount,currency,donated_at,channel");
-        var total = donations.Sum(d => d.Amount ?? 0);
-        var monthly = donations
-            .Where(d => !string.IsNullOrEmpty(d.DonatedAt))
-            .GroupBy(d => d.DonatedAt![..7])
+        var donations = await db.GetAllAsync<Donation>("donations",
+            "select=amount,currency_code,donation_date,channel_source,donation_type,campaign_name");
+
+        var monetary = donations.Where(d => d.DonationType == "Monetary").ToList();
+        var total = monetary.Sum(d => d.Amount ?? 0);
+
+        var monthly = monetary
+            .Where(d => !string.IsNullOrEmpty(d.DonationDate))
+            .GroupBy(d => d.DonationDate![..7])
             .Select(g => new { month = g.Key, total = g.Sum(d => d.Amount ?? 0), count = g.Count() })
             .OrderBy(x => x.month)
             .ToList();
-        var byChannel = donations.GroupBy(d => d.Channel)
-            .Select(g => new { channel = g.Key, total = g.Sum(d => d.Amount ?? 0) });
-        return Ok(new { total, monthly, byChannel, count = donations.Count });
+
+        var byChannel = donations.GroupBy(d => d.ChannelSource)
+            .Select(g => new { channel = g.Key, total = g.Sum(d => d.Amount ?? 0), count = g.Count() });
+
+        var byType = donations.GroupBy(d => d.DonationType)
+            .Select(g => new { type = g.Key, count = g.Count() });
+
+        var byCampaign = monetary
+            .Where(d => !string.IsNullOrEmpty(d.CampaignName))
+            .GroupBy(d => d.CampaignName)
+            .Select(g => new { campaign = g.Key, total = g.Sum(d => d.Amount ?? 0) })
+            .OrderByDescending(x => x.total).Take(10);
+
+        return Ok(new { total, monthly, byChannel, byType, byCampaign, count = donations.Count });
     }
 
     [HttpPost]
@@ -50,14 +67,17 @@ public class DonationsController(SupabaseService db) : ControllerBase
         var result = await db.InsertAsync<Donation>("donations", new
         {
             supporter_id = req.SupporterId,
+            donation_type = req.DonationType ?? "Monetary",
+            donation_date = req.DonationDate,
+            channel_source = req.ChannelSource,
+            currency_code = req.CurrencyCode ?? "PHP",
             amount = req.Amount,
-            currency = req.Currency ?? "IDR",
-            donation_type = req.DonationType,
-            campaign = req.Campaign,
-            channel = req.Channel,
-            donated_at = req.DonatedAt,
-            receipt_issued = req.ReceiptIssued ?? false,
-            notes = req.Notes
+            estimated_value = req.EstimatedValue,
+            impact_unit = req.ImpactUnit,
+            is_recurring = req.IsRecurring ?? false,
+            campaign_name = req.CampaignName,
+            notes = req.Notes,
+            created_by_partner_id = req.CreatedByPartnerId
         });
         return Ok(result);
     }
@@ -65,16 +85,18 @@ public class DonationsController(SupabaseService db) : ControllerBase
     [HttpPatch("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] DonationRequest req)
     {
-        var result = await db.UpdateAsync<Donation>("donations", $"id=eq.{id}", new
+        var result = await db.UpdateAsync<Donation>("donations", $"donation_id=eq.{id}", new
         {
             supporter_id = req.SupporterId,
-            amount = req.Amount,
-            currency = req.Currency,
             donation_type = req.DonationType,
-            campaign = req.Campaign,
-            channel = req.Channel,
-            donated_at = req.DonatedAt,
-            receipt_issued = req.ReceiptIssued,
+            donation_date = req.DonationDate,
+            channel_source = req.ChannelSource,
+            currency_code = req.CurrencyCode,
+            amount = req.Amount,
+            estimated_value = req.EstimatedValue,
+            impact_unit = req.ImpactUnit,
+            is_recurring = req.IsRecurring,
+            campaign_name = req.CampaignName,
             notes = req.Notes
         });
         return Ok(result);
@@ -84,7 +106,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        await db.DeleteAsync("donations", $"id=eq.{id}");
+        await db.DeleteAsync("donations", $"donation_id=eq.{id}");
         return NoContent();
     }
 }

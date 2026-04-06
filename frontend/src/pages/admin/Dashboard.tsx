@@ -2,17 +2,27 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { getDashboardAnalytics, getDonations, getAtRiskResidents } from '../../lib/api'
 import StatCard from '../../components/StatCard'
-import { Users, DollarSign, Building2, AlertTriangle, Heart, TrendingUp } from 'lucide-react'
+import { Users, Building2, AlertTriangle, Heart, TrendingUp } from 'lucide-react'
 
-function formatIDR(n: number) {
-  if (n >= 1_000_000_000) return `Rp ${(n / 1_000_000_000).toFixed(1)}B`
-  if (n >= 1_000_000) return `Rp ${(n / 1_000_000).toFixed(0)}M`
-  return `Rp ${n.toLocaleString('id-ID')}`
+function formatPHP(n: number) {
+  if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `₱${(n / 1_000).toFixed(0)}K`
+  return `₱${n.toLocaleString()}`
 }
 
 const RISK_BADGE: Record<string, string> = {
-  critical: 'badge badge-red', high: 'badge badge-orange',
-  medium: 'badge badge-yellow', low: 'badge badge-green'
+  Critical: 'badge badge-red', High: 'badge badge-orange',
+  Medium: 'badge badge-yellow', Low: 'badge badge-green'
+}
+
+type AtRiskRow = {
+  residentId: number; caseControlNo: string; internalCode: string;
+  currentRiskLevel: string; caseStatus: string; safehouses?: { name: string; city: string }
+}
+
+type DonationRow = {
+  donationId: number; amount: number; donationDate: string;
+  supporters?: { displayName: string; organizationName: string }; campaignName: string
 }
 
 export default function Dashboard() {
@@ -34,8 +44,8 @@ export default function Dashboard() {
       {dash && (
         <div className="grid-4" style={{ marginBottom: 24 }}>
           <StatCard label="Active Residents" value={dash.residents.active} sub={`${dash.residents.total} total`} icon={<Users size={22} />} />
-          <StatCard label="Reintegrated" value={dash.residents.reintegrated} sub="success stories" icon={<Heart size={22} />} color="var(--sage)" />
-          <StatCard label="This Month Donations" value={formatIDR(dash.donations.thisMonth)} sub={`${dash.donations.count} total`} icon={<DollarSign size={22} />} color="#1e2d4a" />
+          <StatCard label="Reintegrated" value={dash.residents.reintegrationCompleted} sub="completed reintegration" icon={<Heart size={22} />} color="var(--sage)" />
+          <StatCard label="This Month" value={formatPHP(dash.donations.thisMonth)} sub={`${dash.donations.count} total records`} icon={<TrendingUp size={22} />} color="#1e2d4a" />
           <StatCard label="High Risk Cases" value={dash.residents.highRisk} sub={`${dash.residents.critical} critical`} icon={<AlertTriangle size={22} />} color={dash.residents.critical > 0 ? 'var(--danger)' : 'var(--warning)'} />
         </div>
       )}
@@ -45,24 +55,24 @@ export default function Dashboard() {
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <h2 style={{ fontSize: 18 }}>High-Risk Cases</h2>
-            <Link to="/admin/residents?riskLevel=high" className="btn btn-ghost btn-sm">View all</Link>
+            <Link to="/admin/residents" className="btn btn-ghost btn-sm">View all</Link>
           </div>
           {!atRisk || atRisk.length === 0 ? (
             <div className="empty-state"><p>No high-risk cases at this time.</p></div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {atRisk.slice(0, 6).map((r: { id: number; caseCode: string; riskLevel: string; status: string; safehouses?: { name: string } }) => (
-                <div key={r.id} style={{
+              {atRisk.slice(0, 6).map((r: AtRiskRow) => (
+                <div key={r.residentId} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '10px 14px', background: '#fafafa', borderRadius: 8
                 }}>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{r.caseCode}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14, fontFamily: 'monospace' }}>{r.caseControlNo || r.internalCode || `#${r.residentId}`}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.safehouses?.name || '—'}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <span className={RISK_BADGE[r.riskLevel] || 'badge badge-gray'}>{r.riskLevel}</span>
-                    <Link to={`/admin/residents/${r.id}`} style={{ fontSize: 12, color: 'var(--terracotta)' }}>View →</Link>
+                    <span className={RISK_BADGE[r.currentRiskLevel] || 'badge badge-gray'}>{r.currentRiskLevel}</span>
+                    <Link to={`/admin/residents/${r.residentId}`} style={{ fontSize: 12, color: 'var(--terracotta)' }}>View →</Link>
                   </div>
                 </div>
               ))}
@@ -80,17 +90,20 @@ export default function Dashboard() {
             <div className="empty-state"><p>No donations recorded yet.</p></div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {recentDonations.slice(0, 6).map((d: { id: number; amount: number; currency: string; donatedAt: string; supporters?: { name: string }; campaign: string }) => (
-                <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#fafafa', borderRadius: 8 }}>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{d.supporters?.name || 'Anonymous'}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{d.donatedAt?.slice(0, 10)} · {d.campaign}</div>
+              {recentDonations.slice(0, 6).map((d: DonationRow) => {
+                const donorName = d.supporters?.displayName || d.supporters?.organizationName || 'Anonymous'
+                return (
+                  <div key={d.donationId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#fafafa', borderRadius: 8 }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 14 }}>{donorName}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                        {d.donationDate?.slice(0, 10)} {d.campaignName ? `· ${d.campaignName}` : ''}
+                      </div>
+                    </div>
+                    <span style={{ fontWeight: 700, color: 'var(--sage)' }}>{formatPHP(d.amount || 0)}</span>
                   </div>
-                  <span style={{ fontWeight: 700, color: 'var(--sage)' }}>
-                    {formatIDR(d.amount || 0)}
-                  </span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
@@ -101,17 +114,21 @@ export default function Dashboard() {
           <div className="card" style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, fontWeight: 700, color: 'var(--terracotta)', fontFamily: 'Playfair Display, serif' }}>{dash.safehouses.total}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>Active Safehouses</div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>Capacity: {dash.safehouses.totalCapacity}</div>
+            <div style={{ fontSize: 13, marginTop: 4 }}>
+              {dash.safehouses.totalOccupancy} / {dash.safehouses.totalCapacityGirls} capacity used
+            </div>
           </div>
           <div className="card" style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, fontWeight: 700, color: 'var(--warning)', fontFamily: 'Playfair Display, serif' }}>{dash.incidents.unresolved}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>Unresolved Incidents</div>
-            <div style={{ fontSize: 13, marginTop: 4, color: 'var(--danger)' }}>{dash.incidents.critical} critical</div>
+            <div style={{ fontSize: 13, marginTop: 4, color: dash.incidents.high > 0 ? 'var(--danger)' : 'var(--text-muted)' }}>
+              {dash.incidents.high} high severity
+            </div>
           </div>
           <div className="card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 40, fontWeight: 700, color: 'var(--sage)', fontFamily: 'Playfair Display, serif' }}>{dash.supporters.recurring}</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>Recurring Donors</div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>{dash.supporters.total} total supporters</div>
+            <div style={{ fontSize: 40, fontWeight: 700, color: 'var(--sage)', fontFamily: 'Playfair Display, serif' }}>{dash.supporters.active}</div>
+            <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>Active Supporters</div>
+            <div style={{ fontSize: 13, marginTop: 4 }}>{dash.supporters.monetary} donors · {dash.supporters.volunteers} volunteers</div>
           </div>
         </div>
       )}

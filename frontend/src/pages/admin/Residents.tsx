@@ -2,19 +2,40 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { getResidents, getSafehouses, createResident } from '../../lib/api'
-import { Plus, Search, Filter, Users } from 'lucide-react'
+import { Plus, Search, Users } from 'lucide-react'
 
 const RISK_BADGE: Record<string, string> = {
-  critical: 'badge badge-red', high: 'badge badge-orange',
-  medium: 'badge badge-yellow', low: 'badge badge-green'
+  Critical: 'badge badge-red', High: 'badge badge-orange',
+  Medium: 'badge badge-yellow', Low: 'badge badge-green'
 }
 const STATUS_BADGE: Record<string, string> = {
-  active: 'badge badge-blue', reintegrated: 'badge badge-green',
-  transferred: 'badge badge-purple', discharged: 'badge badge-gray'
+  Active: 'badge badge-blue', Closed: 'badge badge-gray',
+  Transferred: 'badge badge-purple'
 }
 
-interface ResidentForm { caseCode: string; safehouseId: string; age: string; admissionDate: string; status: string; riskLevel: string; caseCategory: string; referralSource: string; notes: string }
-const emptyForm: ResidentForm = { caseCode: '', safehouseId: '', age: '', admissionDate: '', status: 'active', riskLevel: 'medium', caseCategory: 'trafficking', referralSource: '', notes: '' }
+type ResidentRow = {
+  residentId: number; caseControlNo: string; internalCode: string;
+  caseStatus: string; currentRiskLevel: string; caseCategory: string;
+  presentAge: string; reintegrationStatus: string;
+  safehouses?: { name: string; city: string }
+}
+
+type SafehouseRow = { safehouseId: number; name: string; city: string }
+
+interface ResidentForm {
+  caseControlNo: string; safehouseId: string; dateOfBirth: string;
+  caseStatus: string; currentRiskLevel: string; caseCategory: string;
+  referralSource: string; assignedSocialWorker: string; dateOfAdmission: string;
+  subCatTrafficked: boolean; subCatSexualAbuse: boolean; subCatPhysicalAbuse: boolean;
+  subCatOsaec: boolean;
+}
+
+const emptyForm: ResidentForm = {
+  caseControlNo: '', safehouseId: '', dateOfBirth: '', caseStatus: 'Active',
+  currentRiskLevel: 'Medium', caseCategory: 'Neglected',
+  referralSource: 'Government Agency', assignedSocialWorker: '', dateOfAdmission: '',
+  subCatTrafficked: false, subCatSexualAbuse: false, subCatPhysicalAbuse: false, subCatOsaec: false
+}
 
 export default function Residents() {
   const qc = useQueryClient()
@@ -34,12 +55,29 @@ export default function Residents() {
   const { data: safehouses } = useQuery({ queryKey: ['safehouses'], queryFn: getSafehouses })
 
   const create = useMutation({
-    mutationFn: () => createResident({ ...form, safehouseId: form.safehouseId ? +form.safehouseId : null, age: form.age ? +form.age : null }),
+    mutationFn: () => createResident({
+      caseControlNo: form.caseControlNo,
+      safehouseId: form.safehouseId ? +form.safehouseId : null,
+      dateOfBirth: form.dateOfBirth || null,
+      caseStatus: form.caseStatus,
+      currentRiskLevel: form.currentRiskLevel,
+      initialRiskLevel: form.currentRiskLevel,
+      caseCategory: form.caseCategory,
+      referralSource: form.referralSource,
+      assignedSocialWorker: form.assignedSocialWorker,
+      dateOfAdmission: form.dateOfAdmission || null,
+      subCatTrafficked: form.subCatTrafficked,
+      subCatSexualAbuse: form.subCatSexualAbuse,
+      subCatPhysicalAbuse: form.subCatPhysicalAbuse,
+      subCatOsaec: form.subCatOsaec,
+    }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['residents'] }); setShowModal(false); setForm(emptyForm) }
   })
 
-  const filtered = (residents ?? []).filter((r: { caseCode: string }) =>
-    !filters.search || r.caseCode.toLowerCase().includes(filters.search.toLowerCase())
+  const filtered = (residents ?? []).filter((r: ResidentRow) =>
+    !filters.search ||
+    r.caseControlNo?.toLowerCase().includes(filters.search.toLowerCase()) ||
+    r.internalCode?.toLowerCase().includes(filters.search.toLowerCase())
   )
 
   return (
@@ -58,7 +96,7 @@ export default function Residents() {
           <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
             <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input
-              placeholder="Search case code..." value={filters.search}
+              placeholder="Search case no. or code..." value={filters.search}
               onChange={e => setFilters(p => ({ ...p, search: e.target.value }))}
               style={{ paddingLeft: 36, width: '100%', padding: '8px 8px 8px 36px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14 }}
             />
@@ -66,17 +104,17 @@ export default function Residents() {
           <select value={filters.safehouseId} onChange={e => setFilters(p => ({ ...p, safehouseId: e.target.value }))}
             style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
             <option value="">All Safehouses</option>
-            {(safehouses ?? []).map((s: { id: number; name: string }) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            {(safehouses ?? []).map((s: SafehouseRow) => <option key={s.safehouseId} value={s.safehouseId}>{s.name}</option>)}
           </select>
           <select value={filters.status} onChange={e => setFilters(p => ({ ...p, status: e.target.value }))}
             style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
             <option value="">All Status</option>
-            {['active', 'reintegrated', 'transferred', 'discharged'].map(s => <option key={s} value={s}>{s}</option>)}
+            {['Active', 'Closed', 'Transferred'].map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <select value={filters.riskLevel} onChange={e => setFilters(p => ({ ...p, riskLevel: e.target.value }))}
             style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
             <option value="">All Risk Levels</option>
-            {['low', 'medium', 'high', 'critical'].map(r => <option key={r} value={r}>{r}</option>)}
+            {['Low', 'Medium', 'High', 'Critical'].map(r => <option key={r} value={r}>{r}</option>)}
           </select>
         </div>
       </div>
@@ -89,27 +127,24 @@ export default function Residents() {
               <table>
                 <thead>
                   <tr>
-                    <th>Case Code</th><th>Age</th><th>Safehouse</th><th>Category</th><th>Status</th><th>Risk Level</th><th>Progress</th><th></th>
+                    <th>Case No.</th><th>Age</th><th>Safehouse</th><th>Category</th>
+                    <th>Status</th><th>Risk Level</th><th>Reintegration</th><th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((r: { id: number; caseCode: string; age: number; status: string; riskLevel: string; caseCategory: string; reintegrationProgress: number; safehouses?: { name: string } }) => (
-                    <tr key={r.id}>
-                      <td style={{ fontWeight: 600, fontFamily: 'monospace' }}>{r.caseCode}</td>
-                      <td>{r.age ?? '—'}</td>
-                      <td>{r.safehouses?.name || '—'}</td>
-                      <td style={{ textTransform: 'capitalize' }}>{r.caseCategory?.replace('_', ' ') || '—'}</td>
-                      <td><span className={STATUS_BADGE[r.status] || 'badge badge-gray'}>{r.status}</span></td>
-                      <td><span className={RISK_BADGE[r.riskLevel] || 'badge badge-gray'}>{r.riskLevel}</span></td>
+                  {filtered.map((r: ResidentRow) => (
+                    <tr key={r.residentId}>
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ flex: 1, height: 6, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden', minWidth: 60 }}>
-                            <div style={{ height: '100%', background: 'var(--sage)', borderRadius: 3, width: `${r.reintegrationProgress || 0}%` }} />
-                          </div>
-                          <span style={{ fontSize: 12, color: 'var(--text-muted)', minWidth: 32 }}>{r.reintegrationProgress || 0}%</span>
-                        </div>
+                        <div style={{ fontWeight: 600, fontFamily: 'monospace', fontSize: 13 }}>{r.caseControlNo || '—'}</div>
+                        {r.internalCode && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{r.internalCode}</div>}
                       </td>
-                      <td><Link to={`/admin/residents/${r.id}`} style={{ color: 'var(--terracotta)', fontSize: 13, fontWeight: 500 }}>View →</Link></td>
+                      <td style={{ fontSize: 13 }}>{r.presentAge || '—'}</td>
+                      <td style={{ fontSize: 13 }}>{r.safehouses?.name || '—'}</td>
+                      <td style={{ fontSize: 13 }}>{r.caseCategory || '—'}</td>
+                      <td><span className={STATUS_BADGE[r.caseStatus] || 'badge badge-gray'}>{r.caseStatus}</span></td>
+                      <td><span className={RISK_BADGE[r.currentRiskLevel] || 'badge badge-gray'}>{r.currentRiskLevel}</span></td>
+                      <td style={{ fontSize: 13, color: 'var(--text-muted)' }}>{r.reintegrationStatus || 'Not Started'}</td>
+                      <td><Link to={`/admin/residents/${r.residentId}`} style={{ color: 'var(--terracotta)', fontSize: 13, fontWeight: 500 }}>View →</Link></td>
                     </tr>
                   ))}
                 </tbody>
@@ -126,41 +161,57 @@ export default function Residents() {
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}>✕</button>
             </div>
             <div className="grid-2">
-              <div className="form-group"><label>Case Code *</label><input value={form.caseCode} onChange={e => setForm(p => ({ ...p, caseCode: e.target.value }))} placeholder="OA-2024-XXX" /></div>
-              <div className="form-group"><label>Age</label><input type="number" value={form.age} onChange={e => setForm(p => ({ ...p, age: e.target.value }))} /></div>
+              <div className="form-group"><label>Case Control No. *</label><input value={form.caseControlNo} onChange={e => setForm(p => ({ ...p, caseControlNo: e.target.value }))} placeholder="C0001" /></div>
+              <div className="form-group"><label>Date of Birth</label><input type="date" value={form.dateOfBirth} onChange={e => setForm(p => ({ ...p, dateOfBirth: e.target.value }))} /></div>
               <div className="form-group"><label>Safehouse</label>
                 <select value={form.safehouseId} onChange={e => setForm(p => ({ ...p, safehouseId: e.target.value }))}>
                   <option value="">Select safehouse</option>
-                  {(safehouses ?? []).map((s: { id: number; name: string }) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  {(safehouses ?? []).map((s: SafehouseRow) => <option key={s.safehouseId} value={s.safehouseId}>{s.name}</option>)}
                 </select>
               </div>
-              <div className="form-group"><label>Admission Date</label><input type="date" value={form.admissionDate} onChange={e => setForm(p => ({ ...p, admissionDate: e.target.value }))} /></div>
+              <div className="form-group"><label>Admission Date</label><input type="date" value={form.dateOfAdmission} onChange={e => setForm(p => ({ ...p, dateOfAdmission: e.target.value }))} /></div>
               <div className="form-group"><label>Case Category</label>
                 <select value={form.caseCategory} onChange={e => setForm(p => ({ ...p, caseCategory: e.target.value }))}>
-                  {['trafficking', 'sexual_abuse', 'physical_abuse', 'neglect', 'other'].map(c => <option key={c} value={c}>{c.replace('_', ' ')}</option>)}
+                  {['Abandoned', 'Foundling', 'Surrendered', 'Neglected'].map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div className="form-group"><label>Risk Level</label>
-                <select value={form.riskLevel} onChange={e => setForm(p => ({ ...p, riskLevel: e.target.value }))}>
-                  {['low', 'medium', 'high', 'critical'].map(r => <option key={r} value={r}>{r}</option>)}
+                <select value={form.currentRiskLevel} onChange={e => setForm(p => ({ ...p, currentRiskLevel: e.target.value }))}>
+                  {['Low', 'Medium', 'High', 'Critical'].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
-              <div className="form-group"><label>Status</label>
-                <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))}>
-                  {['active', 'reintegrated', 'transferred', 'discharged'].map(s => <option key={s} value={s}>{s}</option>)}
+              <div className="form-group"><label>Case Status</label>
+                <select value={form.caseStatus} onChange={e => setForm(p => ({ ...p, caseStatus: e.target.value }))}>
+                  {['Active', 'Closed', 'Transferred'].map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div className="form-group"><label>Referral Source</label>
                 <select value={form.referralSource} onChange={e => setForm(p => ({ ...p, referralSource: e.target.value }))}>
-                  <option value="">Select</option>
-                  {['police_referral', 'hospital_referral', 'ngo_partner', 'community_referral', 'school_referral', 'self_referral'].map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+                  {['Government Agency', 'NGO', 'Police', 'Self-Referral', 'Community', 'Court Order'].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
+              <div className="form-group" style={{ gridColumn: '1/-1' }}><label>Assigned Social Worker</label><input value={form.assignedSocialWorker} onChange={e => setForm(p => ({ ...p, assignedSocialWorker: e.target.value }))} /></div>
             </div>
-            <div className="form-group"><label>Notes</label><textarea rows={3} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} style={{ resize: 'vertical' }} /></div>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+            <div style={{ marginTop: 8, marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)' }}>Sub-categories</div>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                {[
+                  ['subCatTrafficked', 'Trafficked'],
+                  ['subCatSexualAbuse', 'Sexual Abuse'],
+                  ['subCatPhysicalAbuse', 'Physical Abuse'],
+                  ['subCatOsaec', 'OSAEC/CSAEM']
+                ].map(([key, label]) => (
+                  <label key={key} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={form[key as keyof ResidentForm] as boolean}
+                      onChange={e => setForm(p => ({ ...p, [key]: e.target.checked }))} />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <button className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={() => create.mutate()} disabled={!form.caseCode || create.isPending}>
+              <button className="btn btn-primary" onClick={() => create.mutate()} disabled={!form.caseControlNo || create.isPending}>
                 {create.isPending ? 'Saving...' : 'Add Resident'}
               </button>
             </div>

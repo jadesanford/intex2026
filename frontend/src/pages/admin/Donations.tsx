@@ -1,31 +1,60 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getDonations, getDonationSummary, getSupporters, createDonation } from '../../lib/api'
-import { Plus, DollarSign } from 'lucide-react'
+import { Plus, PhilippinePeso } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-function formatIDR(n: number) {
-  if (n >= 1_000_000_000) return `Rp ${(n / 1_000_000_000).toFixed(1)}B`
-  if (n >= 1_000_000) return `Rp ${(n / 1_000_000).toFixed(0)}M`
-  return `Rp ${n.toLocaleString('id-ID')}`
+function formatPHP(n: number) {
+  if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `₱${(n / 1_000).toFixed(0)}K`
+  return `₱${n.toLocaleString()}`
 }
+
+type DonationRow = {
+  donationId: number; donationDate: string; channelSource: string; campaignName: string;
+  donationType: string; amount: number; estimatedValue: number; currencyCode: string; isRecurring: boolean;
+  supporters?: { displayName: string; organizationName: string; supporterType: string }
+}
+
+type SupporterRow = { supporterId: number; displayName: string; organizationName: string }
 
 export default function Donations() {
   const qc = useQueryClient()
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ supporterId: '', amount: '', currency: 'IDR', donationType: 'bank_transfer', campaign: '', channel: 'website', donatedAt: new Date().toISOString().slice(0, 10), receiptIssued: 'false', notes: '' })
+  const [form, setForm] = useState({
+    supporterId: '', amount: '', donationType: 'Monetary', channelSource: 'Website',
+    campaignName: '', donationDate: new Date().toISOString().slice(0, 10),
+    isRecurring: 'false', notes: ''
+  })
 
-  const { data: donations, isLoading } = useQuery({ queryKey: ['all-donations'], queryFn: () => getDonations({ pageSize: 100 }) })
+  const { data: donations, isLoading } = useQuery({
+    queryKey: ['all-donations'],
+    queryFn: () => getDonations({ pageSize: 100 })
+  })
   const { data: summary } = useQuery({ queryKey: ['donation-summary'], queryFn: getDonationSummary })
   const { data: supporters } = useQuery({ queryKey: ['supporters'], queryFn: () => getSupporters() })
 
   const create = useMutation({
-    mutationFn: () => createDonation({ ...form, supporterId: form.supporterId ? +form.supporterId : null, amount: form.amount ? +form.amount : null, receiptIssued: form.receiptIssued === 'true' }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['all-donations'] }); qc.invalidateQueries({ queryKey: ['donation-summary'] }); setShowModal(false) }
+    mutationFn: () => createDonation({
+      supporterId: form.supporterId ? +form.supporterId : null,
+      amount: form.amount ? +form.amount : null,
+      donationType: form.donationType,
+      channelSource: form.channelSource,
+      campaignName: form.campaignName,
+      donationDate: form.donationDate,
+      isRecurring: form.isRecurring === 'true',
+      currencyCode: 'PHP',
+      notes: form.notes
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['all-donations'] })
+      qc.invalidateQueries({ queryKey: ['donation-summary'] })
+      setShowModal(false)
+    }
   })
 
   const chartData = (summary?.monthly ?? []).map((m: { month: string; total: number }) => ({
-    month: m.month?.slice(5), amount: Math.round(m.total / 1_000_000)
+    month: m.month?.slice(5), amount: Math.round(m.total / 1_000)
   })).slice(-8)
 
   return (
@@ -38,15 +67,17 @@ export default function Donations() {
       {summary && (
         <div className="grid-3" style={{ marginBottom: 24 }}>
           <div className="card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--sage)' }}>{formatIDR(summary.total || 0)}</div>
-            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Total Donations</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--sage)' }}>{formatPHP(summary.total || 0)}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Total Monetary</div>
           </div>
           <div className="card" style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--terracotta)' }}>{summary.count}</div>
-            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Total Transactions</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Total Records</div>
           </div>
           <div className="card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--navy)' }}>{formatIDR(summary.count > 0 ? (summary.total / summary.count) : 0)}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--navy)' }}>
+              {formatPHP(summary.count > 0 && summary.monetary > 0 ? (summary.total / summary.monetary) : 0)}
+            </div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Average Gift</div>
           </div>
         </div>
@@ -54,13 +85,13 @@ export default function Donations() {
 
       {chartData.length > 0 && (
         <div className="card" style={{ marginBottom: 24 }}>
-          <h3 style={{ fontSize: 16, marginBottom: 20 }}>Monthly Donation Trend (Rp Million)</h3>
+          <h3 style={{ fontSize: 16, marginBottom: 20 }}>Monthly Donation Trend (₱ Thousands)</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `${v}M`} />
-              <Tooltip formatter={(v: number) => [`Rp ${v}M`, 'Total']} />
+              <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `₱${v}K`} />
+              <Tooltip formatter={(v: number) => [`₱${v}K`, 'Total']} />
               <Bar dataKey="amount" fill="var(--terracotta)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -72,19 +103,23 @@ export default function Donations() {
           : (
             <div className="table-wrapper">
               <table>
-                <thead><tr><th>Date</th><th>Donor</th><th>Amount</th><th>Type</th><th>Campaign</th><th>Channel</th><th>Receipt</th></tr></thead>
+                <thead><tr><th>Date</th><th>Donor</th><th>Amount</th><th>Type</th><th>Campaign</th><th>Channel</th><th>Recurring</th></tr></thead>
                 <tbody>
-                  {(donations ?? []).map((d: { id: number; donatedAt: string; supporters?: { name: string }; amount: number; currency: string; donationType: string; campaign: string; channel: string; receiptIssued: boolean }) => (
-                    <tr key={d.id}>
-                      <td style={{ fontSize: 13 }}>{d.donatedAt?.slice(0, 10)}</td>
-                      <td style={{ fontWeight: 500 }}>{d.supporters?.name || 'Anonymous'}</td>
-                      <td style={{ fontWeight: 700, color: 'var(--sage)' }}>{formatIDR(d.amount || 0)}</td>
-                      <td style={{ fontSize: 13, textTransform: 'capitalize' }}>{d.donationType}</td>
-                      <td style={{ fontSize: 13 }}>{d.campaign || '—'}</td>
-                      <td style={{ fontSize: 13, textTransform: 'capitalize' }}>{d.channel || '—'}</td>
-                      <td style={{ fontSize: 13 }}>{d.receiptIssued ? <span style={{ color: 'var(--success)' }}>✓</span> : '—'}</td>
-                    </tr>
-                  ))}
+                  {(donations ?? []).map((d: DonationRow) => {
+                    const donorName = d.supporters?.displayName || d.supporters?.organizationName || 'Anonymous'
+                    const val = d.donationType === 'Monetary' ? d.amount : d.estimatedValue
+                    return (
+                      <tr key={d.donationId}>
+                        <td style={{ fontSize: 13 }}>{d.donationDate?.slice(0, 10)}</td>
+                        <td style={{ fontWeight: 500 }}>{donorName}</td>
+                        <td style={{ fontWeight: 700, color: 'var(--sage)' }}>{val ? formatPHP(val) : '—'}</td>
+                        <td><span className={d.donationType === 'Monetary' ? 'badge badge-green' : 'badge badge-blue'}>{d.donationType}</span></td>
+                        <td style={{ fontSize: 13 }}>{d.campaignName || '—'}</td>
+                        <td style={{ fontSize: 13 }}>{d.channelSource || '—'}</td>
+                        <td style={{ fontSize: 13 }}>{d.isRecurring ? <span style={{ color: 'var(--success)' }}>✓</span> : '—'}</td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -99,24 +134,26 @@ export default function Donations() {
               <div className="form-group" style={{ gridColumn: '1/-1' }}><label>Donor</label>
                 <select value={form.supporterId} onChange={e => setForm(p => ({ ...p, supporterId: e.target.value }))}>
                   <option value="">Anonymous</option>
-                  {(supporters ?? []).map((s: { id: number; name: string }) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  {(supporters ?? []).map((s: SupporterRow) => (
+                    <option key={s.supporterId} value={s.supporterId}>{s.displayName || s.organizationName}</option>
+                  ))}
                 </select>
               </div>
-              <div className="form-group"><label>Amount (IDR) *</label><input type="number" value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} placeholder="0" /></div>
-              <div className="form-group"><label>Date</label><input type="date" value={form.donatedAt} onChange={e => setForm(p => ({ ...p, donatedAt: e.target.value }))} /></div>
+              <div className="form-group"><label>Amount (₱)</label><input type="number" value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} placeholder="0" /></div>
+              <div className="form-group"><label>Date</label><input type="date" value={form.donationDate} onChange={e => setForm(p => ({ ...p, donationDate: e.target.value }))} /></div>
               <div className="form-group"><label>Type</label>
                 <select value={form.donationType} onChange={e => setForm(p => ({ ...p, donationType: e.target.value }))}>
-                  {['bank_transfer', 'online', 'cash', 'in_kind', 'check'].map(t => <option key={t} value={t}>{t.replace('_', ' ')}</option>)}
+                  {['Monetary', 'InKind'].map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div className="form-group"><label>Channel</label>
-                <select value={form.channel} onChange={e => setForm(p => ({ ...p, channel: e.target.value }))}>
-                  {['website', 'bank_transfer', 'corporate', 'church', 'referral', 'foundation', 'direct'].map(c => <option key={c} value={c}>{c.replace('_', ' ')}</option>)}
+                <select value={form.channelSource} onChange={e => setForm(p => ({ ...p, channelSource: e.target.value }))}>
+                  {['Website', 'BankTransfer', 'GCash', 'Maya', 'Church', 'Corporate', 'DirectGiving', 'Event', 'SocialMedia', 'PartnerReferral'].map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <div className="form-group"><label>Campaign</label><input value={form.campaign} onChange={e => setForm(p => ({ ...p, campaign: e.target.value }))} placeholder="e.g. Year-end Appeal" /></div>
-              <div className="form-group"><label>Receipt Issued</label>
-                <select value={form.receiptIssued} onChange={e => setForm(p => ({ ...p, receiptIssued: e.target.value }))}>
+              <div className="form-group"><label>Campaign</label><input value={form.campaignName} onChange={e => setForm(p => ({ ...p, campaignName: e.target.value }))} placeholder="e.g. Year-end Appeal" /></div>
+              <div className="form-group"><label>Recurring</label>
+                <select value={form.isRecurring} onChange={e => setForm(p => ({ ...p, isRecurring: e.target.value }))}>
                   <option value="false">No</option><option value="true">Yes</option>
                 </select>
               </div>

@@ -11,23 +11,39 @@ public class PublicController(SupabaseService db) : ControllerBase
     [HttpGet("impact-snapshot")]
     public async Task<IActionResult> ImpactSnapshot()
     {
-        var residents = await db.GetAllAsync<Resident>("residents", "select=id,status,reintegration_progress");
-        var safehouses = await db.GetAllAsync<Safehouse>("safehouses", "select=id,status");
-        var donations = await db.GetAllAsync<Donation>("donations", "select=amount");
+        // Try to use pre-computed snapshots first
+        var snapshots = await db.GetAllAsync<PublicImpactSnapshot>("public_impact_snapshots",
+            "select=*&is_published=eq.true&order=snapshot_date.desc&limit=1");
+
+        if (snapshots.Count > 0)
+        {
+            var snap = snapshots[0];
+            return Ok(new { snapshot = snap, lastUpdated = DateTime.UtcNow });
+        }
+
+        // Fallback: compute live
+        var residents = await db.GetAllAsync<Resident>("residents",
+            "select=resident_id,case_status,reintegration_status,current_risk_level");
+        var safehouses = await db.GetAllAsync<Safehouse>("safehouses",
+            "select=safehouse_id,status,capacity_girls,current_occupancy");
+        var donations = await db.GetAllAsync<Donation>("donations",
+            "select=amount,donation_type");
 
         var total = residents.Count;
-        var active = residents.Count(r => r.Status == "active");
-        var reintegrated = residents.Count(r => r.Status == "reintegrated");
-        var totalDonations = donations.Sum(d => d.Amount ?? 0);
-        var activeSafehouses = safehouses.Count(s => s.Status == "active");
+        var active = residents.Count(r => r.CaseStatus == "Active");
+        var reintegrated = residents.Count(r => r.ReintegrationStatus == "Completed");
+        var totalDonations = donations.Where(d => d.DonationType == "Monetary").Sum(d => d.Amount ?? 0);
+        var activeSafehouses = safehouses.Count(s => s.Status == "Active");
+        var totalCapacity = safehouses.Sum(s => s.CapacityGirls ?? 0);
 
         return Ok(new
         {
             totalResidentsHelped = total,
             activeResidents = active,
             reintegratedResidents = reintegrated,
-            reintegrationRate = total > 0 ? (int)Math.Round((double)reintegrated / total * 100) : 0,
+            reintegrationRate = total > 0 ? Math.Round((double)reintegrated / total * 100, 1) : 0,
             totalSafehouses = activeSafehouses,
+            totalCapacity,
             totalDonationsReceived = totalDonations,
             lastUpdated = DateTime.UtcNow
         });
@@ -37,14 +53,12 @@ public class PublicController(SupabaseService db) : ControllerBase
     public async Task<IActionResult> GetSafehouses()
     {
         var safehouses = await db.GetAllAsync<Safehouse>("safehouses",
-            "select=*&status=eq.active");
-        var residents = await db.GetAllAsync<Resident>("residents", "select=safehouse_id,status");
+            "select=*&status=eq.Active&order=name.asc");
 
         var result = safehouses.Select(s => new
         {
-            s.Id, s.Name, s.Region, s.City, s.Capacity,
-            s.Latitude, s.Longitude,
-            currentResidents = residents.Count(r => r.SafehouseId == s.Id && r.Status == "active")
+            s.SafehouseId, s.SafehouseCode, s.Name, s.Region, s.City, s.Province,
+            s.CapacityGirls, s.CurrentOccupancy, s.Status
         });
 
         return Ok(result);
@@ -53,11 +67,12 @@ public class PublicController(SupabaseService db) : ControllerBase
     [HttpGet("donation-trends")]
     public async Task<IActionResult> DonationTrends()
     {
-        var donations = await db.GetAllAsync<Donation>("donations", "select=amount,donated_at&order=donated_at.asc");
+        var donations = await db.GetAllAsync<Donation>("donations",
+            "select=amount,donation_date,donation_type&donation_type=eq.Monetary&order=donation_date.asc");
 
         var grouped = donations
-            .Where(d => !string.IsNullOrEmpty(d.DonatedAt))
-            .GroupBy(d => d.DonatedAt![..7])
+            .Where(d => !string.IsNullOrEmpty(d.DonationDate))
+            .GroupBy(d => d.DonationDate![..7])
             .Select(g => new { month = g.Key, total = g.Sum(d => d.Amount ?? 0), count = g.Count() })
             .OrderBy(x => x.month)
             .ToList();
@@ -68,11 +83,12 @@ public class PublicController(SupabaseService db) : ControllerBase
     [HttpGet("outcome-metrics")]
     public async Task<IActionResult> OutcomeMetrics()
     {
-        var residents = await db.GetAllAsync<Resident>("residents", "select=status,risk_level,case_category");
+        var residents = await db.GetAllAsync<Resident>("residents",
+            "select=case_status,current_risk_level,case_category,reintegration_status");
 
-        var byStatus = residents.GroupBy(r => r.Status)
+        var byStatus = residents.GroupBy(r => r.CaseStatus)
             .Select(g => new { status = g.Key, count = g.Count() });
-        var byRisk = residents.GroupBy(r => r.RiskLevel)
+        var byRisk = residents.GroupBy(r => r.CurrentRiskLevel)
             .Select(g => new { riskLevel = g.Key, count = g.Count() });
         var byCategory = residents.GroupBy(r => r.CaseCategory)
             .Select(g => new { category = g.Key, count = g.Count() });

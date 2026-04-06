@@ -5,26 +5,26 @@ import { Users, Home, TrendingUp, DollarSign } from 'lucide-react'
 
 const COLORS = ['#c1694f', '#6b8f71', '#1e2d4a', '#d4856e', '#4b6c8c', '#a05540']
 
-function formatIDR(n: number) {
-  if (n >= 1_000_000_000) return `Rp ${(n / 1_000_000_000).toFixed(1)}B`
-  if (n >= 1_000_000) return `Rp ${(n / 1_000_000).toFixed(0)}M`
-  return `Rp ${n.toLocaleString('id-ID')}`
+function formatPHP(n: number) {
+  if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `₱${(n / 1_000).toFixed(0)}K`
+  return `₱${n.toLocaleString()}`
 }
 
 const t = {
   en: {
-    title: 'Our Impact', subtitle: 'Transparency is core to our mission. See how your support translates into real change for survivors across Indonesia.',
+    title: 'Our Impact', subtitle: 'Transparency is core to our mission. See how your support translates into real change for survivors across the Philippines.',
     helped: 'Girls Helped', active: 'Currently in Care', locations: 'Safe Locations', reintegration: 'Reintegration Rate',
     donationTitle: 'Donation Trends', donationSub: 'Monthly support over time',
     outcomesTitle: 'Resident Outcomes', outcomesSub: 'Current status of all cases',
-    safehouseTitle: 'Our Safe Locations', safehouseSub: 'Active shelters across Indonesia',
+    safehouseTitle: 'Our Safe Locations', safehouseSub: 'Active shelters across the Philippines',
   },
   id: {
-    title: 'Dampak Kami', subtitle: 'Transparansi adalah inti dari misi kami. Lihat bagaimana dukungan Anda mengubah kehidupan para penyintas di Indonesia.',
-    helped: 'Gadis Dibantu', active: 'Dalam Perawatan', locations: 'Lokasi Aman', reintegration: 'Tingkat Reintegrasi',
-    donationTitle: 'Tren Donasi', donationSub: 'Dukungan bulanan dari waktu ke waktu',
-    outcomesTitle: 'Status Penghuni', outcomesSub: 'Status semua kasus saat ini',
-    safehouseTitle: 'Lokasi Aman Kami', safehouseSub: 'Shelter aktif di seluruh Indonesia',
+    title: 'Ang Aming Epekto', subtitle: 'Ang transparency ay nasa puso ng aming misyon. Alamin kung paano nakakatulong ang inyong suporta sa mga nakaligtas sa Pilipinas.',
+    helped: 'Mga Nakatulong', active: 'Sa Pag-aalaga', locations: 'Ligtas na Lugar', reintegration: 'Reintegration Rate',
+    donationTitle: 'Trend ng Donasyon', donationSub: 'Buwanang suporta sa paglipas ng panahon',
+    outcomesTitle: 'Resulta ng mga Residente', outcomesSub: 'Kasalukuyang status ng lahat ng kaso',
+    safehouseTitle: 'Aming Ligtas na Lugar', safehouseSub: 'Aktibong shelter sa buong Pilipinas',
   }
 }
 
@@ -47,7 +47,7 @@ export default function Impact({ lang }: { lang: 'en' | 'id' }) {
   })) ?? []
 
   const trendData = (trends ?? []).map((t: { month: string; total: number; count: number }) => ({
-    month: t.month, total: t.total / 1_000_000
+    month: t.month?.slice(5) || t.month, total: Math.round(t.total / 1_000)
   }))
 
   return (
@@ -80,8 +80,8 @@ export default function Impact({ lang }: { lang: 'en' | 'id' }) {
               <AreaChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `${v}M`} />
-                <Tooltip formatter={(v: number) => [`Rp ${v.toFixed(1)}M`, 'Total']} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `₱${v}K`} />
+                <Tooltip formatter={(v: number) => [`₱${v}K`, 'Total']} />
                 <Area type="monotone" dataKey="total" stroke="#c1694f" fill="rgba(193,105,79,0.1)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>

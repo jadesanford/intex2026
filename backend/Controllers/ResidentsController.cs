@@ -20,12 +20,12 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     {
         var filters = new List<string>();
         if (safehouseId.HasValue) filters.Add($"safehouse_id=eq.{safehouseId}");
-        if (!string.IsNullOrEmpty(status)) filters.Add($"status=eq.{status}");
-        if (!string.IsNullOrEmpty(riskLevel)) filters.Add($"risk_level=eq.{riskLevel}");
+        if (!string.IsNullOrEmpty(status)) filters.Add($"case_status=eq.{status}");
+        if (!string.IsNullOrEmpty(riskLevel)) filters.Add($"current_risk_level=eq.{riskLevel}");
 
         var filterStr = filters.Count > 0 ? string.Join("&", filters) + "&" : "";
         var offset = (page - 1) * pageSize;
-        var query = $"select=*,safehouses(name)&{filterStr}order=created_at.desc&limit={pageSize}&offset={offset}";
+        var query = $"select=*,safehouses(name,city)&{filterStr}order=created_at.desc&limit={pageSize}&offset={offset}";
 
         var residents = await db.GetAllAsync<dynamic>("residents", query);
         return Ok(residents);
@@ -35,7 +35,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var resident = await db.GetOneAsync<Resident>("residents",
-            $"id=eq.{id}&select=*,safehouses(name,city,region)");
+            $"resident_id=eq.{id}&select=*,safehouses(name,city,region,province)");
         if (resident == null) return NotFound();
         return Ok(resident);
     }
@@ -45,19 +45,36 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     {
         var resident = await db.InsertAsync<Resident>("residents", new
         {
-            case_code = req.CaseCode,
+            case_control_no = req.CaseControlNo,
+            internal_code = req.InternalCode,
             safehouse_id = req.SafehouseId,
-            age = req.Age,
-            admission_date = req.AdmissionDate,
-            status = req.Status ?? "active",
-            risk_level = req.RiskLevel,
+            case_status = req.CaseStatus ?? "Active",
+            sex = "F",
+            date_of_birth = req.DateOfBirth,
+            place_of_birth = req.PlaceOfBirth,
+            religion = req.Religion,
             case_category = req.CaseCategory,
+            sub_cat_trafficked = req.SubCatTrafficked ?? false,
+            sub_cat_sexual_abuse = req.SubCatSexualAbuse ?? false,
+            sub_cat_physical_abuse = req.SubCatPhysicalAbuse ?? false,
+            sub_cat_osaec = req.SubCatOsaec ?? false,
+            sub_cat_child_labor = req.SubCatChildLabor ?? false,
+            sub_cat_cicl = req.SubCatCicl ?? false,
+            sub_cat_at_risk = req.SubCatAtRisk ?? false,
+            is_pwd = req.IsPwd ?? false,
+            pwd_type = req.PwdType,
+            has_special_needs = req.HasSpecialNeeds ?? false,
+            special_needs_diagnosis = req.SpecialNeedsDiagnosis,
+            date_of_admission = req.DateOfAdmission,
             referral_source = req.ReferralSource,
-            reintegration_progress = req.ReintegrationProgress ?? 0,
-            notes = req.Notes,
-            nationality = req.Nationality,
-            disability_info = req.DisabilityInfo,
-            family_background = req.FamilyBackground
+            referring_agency_person = req.ReferringAgencyPerson,
+            assigned_social_worker = req.AssignedSocialWorker,
+            initial_case_assessment = req.InitialCaseAssessment,
+            reintegration_type = req.ReintegrationType,
+            reintegration_status = req.ReintegrationStatus ?? "Not Started",
+            initial_risk_level = req.InitialRiskLevel,
+            current_risk_level = req.CurrentRiskLevel,
+            notes_restricted = req.NotesRestricted
         });
         return Ok(resident);
     }
@@ -65,21 +82,37 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     [HttpPatch("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ResidentRequest req)
     {
-        var resident = await db.UpdateAsync<Resident>("residents", $"id=eq.{id}", new
+        var resident = await db.UpdateAsync<Resident>("residents", $"resident_id=eq.{id}", new
         {
-            case_code = req.CaseCode,
+            case_control_no = req.CaseControlNo,
+            internal_code = req.InternalCode,
             safehouse_id = req.SafehouseId,
-            age = req.Age,
-            admission_date = req.AdmissionDate,
-            status = req.Status,
-            risk_level = req.RiskLevel,
+            case_status = req.CaseStatus,
+            date_of_birth = req.DateOfBirth,
+            place_of_birth = req.PlaceOfBirth,
+            religion = req.Religion,
             case_category = req.CaseCategory,
+            sub_cat_trafficked = req.SubCatTrafficked,
+            sub_cat_sexual_abuse = req.SubCatSexualAbuse,
+            sub_cat_physical_abuse = req.SubCatPhysicalAbuse,
+            sub_cat_osaec = req.SubCatOsaec,
+            sub_cat_child_labor = req.SubCatChildLabor,
+            sub_cat_cicl = req.SubCatCicl,
+            sub_cat_at_risk = req.SubCatAtRisk,
+            is_pwd = req.IsPwd,
+            pwd_type = req.PwdType,
+            has_special_needs = req.HasSpecialNeeds,
+            special_needs_diagnosis = req.SpecialNeedsDiagnosis,
+            date_of_admission = req.DateOfAdmission,
             referral_source = req.ReferralSource,
-            reintegration_progress = req.ReintegrationProgress,
-            notes = req.Notes,
-            nationality = req.Nationality,
-            disability_info = req.DisabilityInfo,
-            family_background = req.FamilyBackground
+            referring_agency_person = req.ReferringAgencyPerson,
+            assigned_social_worker = req.AssignedSocialWorker,
+            initial_case_assessment = req.InitialCaseAssessment,
+            reintegration_type = req.ReintegrationType,
+            reintegration_status = req.ReintegrationStatus,
+            initial_risk_level = req.InitialRiskLevel,
+            current_risk_level = req.CurrentRiskLevel,
+            notes_restricted = req.NotesRestricted
         });
         return Ok(resident);
     }
@@ -88,7 +121,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        await db.DeleteAsync("residents", $"id=eq.{id}");
+        await db.DeleteAsync("residents", $"resident_id=eq.{id}");
         return NoContent();
     }
 
@@ -108,39 +141,48 @@ public class ResidentsController(SupabaseService db) : ControllerBase
         {
             resident_id = id,
             session_date = req.SessionDate,
-            counselor_name = req.CounselorName,
+            social_worker = req.SocialWorker,
             session_type = req.SessionType,
-            emotional_state = req.EmotionalState,
-            notes = req.Notes,
+            session_duration_minutes = req.SessionDurationMinutes,
+            emotional_state_observed = req.EmotionalStateObserved,
+            emotional_state_end = req.EmotionalStateEnd,
+            session_narrative = req.SessionNarrative,
+            interventions_applied = req.InterventionsApplied,
             follow_up_actions = req.FollowUpActions,
-            interventions = req.Interventions
+            progress_noted = req.ProgressNoted ?? false,
+            concerns_flagged = req.ConcernsFlagged ?? false,
+            referral_made = req.ReferralMade ?? false
         });
         return Ok(rec);
     }
 
-    // Visitations
+    // Home Visitations
     [HttpGet("{id}/visitations")]
     public async Task<IActionResult> GetVisitations(int id)
     {
-        var visits = await db.GetAllAsync<Visitation>("visitations",
+        var visits = await db.GetAllAsync<HomeVisitation>("home_visitations",
             $"resident_id=eq.{id}&select=*&order=visit_date.desc");
         return Ok(visits);
     }
 
     [HttpPost("{id}/visitations")]
-    public async Task<IActionResult> AddVisitation(int id, [FromBody] VisitationRequest req)
+    public async Task<IActionResult> AddVisitation(int id, [FromBody] HomeVisitationRequest req)
     {
-        var visit = await db.InsertAsync<Visitation>("visitations", new
+        var visit = await db.InsertAsync<HomeVisitation>("home_visitations", new
         {
             resident_id = id,
             visit_date = req.VisitDate,
+            social_worker = req.SocialWorker,
             visit_type = req.VisitType,
-            visitor_name = req.VisitorName,
-            home_environment = req.HomeEnvironment,
-            family_cooperation = req.FamilyCooperation,
-            safety_concerns = req.SafetyConcerns,
-            follow_up_actions = req.FollowUpActions,
-            notes = req.Notes
+            location_visited = req.LocationVisited,
+            family_members_present = req.FamilyMembersPresent,
+            purpose = req.Purpose,
+            observations = req.Observations,
+            family_cooperation_level = req.FamilyCooperationLevel,
+            safety_concerns_noted = req.SafetyConcernsNoted ?? false,
+            follow_up_needed = req.FollowUpNeeded ?? false,
+            follow_up_notes = req.FollowUpNotes,
+            visit_outcome = req.VisitOutcome
         });
         return Ok(visit);
     }
@@ -149,24 +191,9 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     [HttpGet("{id}/health")]
     public async Task<IActionResult> GetHealth(int id)
     {
-        var records = await db.GetAllAsync<HealthRecord>("health_records",
-            $"resident_id=eq.{id}&select=*&order=check_date.desc");
+        var records = await db.GetAllAsync<HealthWellbeingRecord>("health_wellbeing_records",
+            $"resident_id=eq.{id}&select=*&order=record_date.desc");
         return Ok(records);
-    }
-
-    [HttpPost("{id}/health")]
-    public async Task<IActionResult> AddHealth(int id, [FromBody] HealthRecord req)
-    {
-        var rec = await db.InsertAsync<HealthRecord>("health_records", new
-        {
-            resident_id = id,
-            check_date = req.CheckDate,
-            condition = req.Condition,
-            treatment = req.Treatment,
-            medical_provider = req.MedicalProvider,
-            notes = req.Notes
-        });
-        return Ok(rec);
     }
 
     // Education
@@ -174,22 +201,16 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     public async Task<IActionResult> GetEducation(int id)
     {
         var records = await db.GetAllAsync<EducationRecord>("education_records",
-            $"resident_id=eq.{id}&select=*&order=enrollment_date.desc");
+            $"resident_id=eq.{id}&select=*&order=record_date.desc");
         return Ok(records);
     }
 
-    [HttpPost("{id}/education")]
-    public async Task<IActionResult> AddEducation(int id, [FromBody] EducationRecord req)
+    // Intervention Plans
+    [HttpGet("{id}/interventions")]
+    public async Task<IActionResult> GetInterventions(int id)
     {
-        var rec = await db.InsertAsync<EducationRecord>("education_records", new
-        {
-            resident_id = id,
-            program_type = req.ProgramType,
-            institution_name = req.InstitutionName,
-            enrollment_date = req.EnrollmentDate,
-            status = req.Status,
-            notes = req.Notes
-        });
-        return Ok(rec);
+        var plans = await db.GetAllAsync<InterventionPlan>("intervention_plans",
+            $"resident_id=eq.{id}&select=*&order=created_at.desc");
+        return Ok(plans);
     }
 }

@@ -14,24 +14,21 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var safehouses = await db.GetAllAsync<Safehouse>("safehouses", "select=*&order=name.asc");
-        var residents = await db.GetAllAsync<Resident>("residents", "select=safehouse_id,status");
-
-        var result = safehouses.Select(s => new
-        {
-            s.Id, s.Name, s.Region, s.City, s.Capacity, s.Status,
-            s.Latitude, s.Longitude, s.ContactPerson, s.ContactPhone, s.CreatedAt,
-            currentResidents = residents.Count(r => r.SafehouseId == s.Id && r.Status == "active"),
-            totalResidents = residents.Count(r => r.SafehouseId == s.Id)
-        });
-        return Ok(result);
+        return Ok(safehouses);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var safehouse = await db.GetOneAsync<Safehouse>("safehouses", $"id=eq.{id}&select=*");
+        var safehouse = await db.GetOneAsync<Safehouse>("safehouses", $"safehouse_id=eq.{id}&select=*");
         if (safehouse == null) return NotFound();
-        return Ok(safehouse);
+
+        var residents = await db.GetAllAsync<Resident>("residents",
+            $"safehouse_id=eq.{id}&select=resident_id,case_status,current_risk_level,case_control_no");
+        var metrics = await db.GetAllAsync<SafehouseMonthlyMetric>("safehouse_monthly_metrics",
+            $"safehouse_id=eq.{id}&select=*&order=month_start.desc&limit=6");
+
+        return Ok(new { safehouse, residents, metrics });
     }
 
     [HttpPost]
@@ -39,10 +36,18 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     {
         var result = await db.InsertAsync<Safehouse>("safehouses", new
         {
-            name = req.Name, region = req.Region, city = req.City,
-            capacity = req.Capacity, status = req.Status ?? "active",
-            latitude = req.Latitude, longitude = req.Longitude,
-            contact_person = req.ContactPerson, contact_phone = req.ContactPhone
+            name = req.Name,
+            safehouse_code = req.SafehouseCode,
+            region = req.Region,
+            city = req.City,
+            province = req.Province,
+            country = "Philippines",
+            open_date = req.OpenDate,
+            status = req.Status ?? "Active",
+            capacity_girls = req.CapacityGirls,
+            capacity_staff = req.CapacityStaff,
+            current_occupancy = req.CurrentOccupancy ?? 0,
+            notes = req.Notes
         });
         return Ok(result);
     }
@@ -50,12 +55,19 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     [HttpPatch("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] SafehouseRequest req)
     {
-        var result = await db.UpdateAsync<Safehouse>("safehouses", $"id=eq.{id}", new
+        var result = await db.UpdateAsync<Safehouse>("safehouses", $"safehouse_id=eq.{id}", new
         {
-            name = req.Name, region = req.Region, city = req.City,
-            capacity = req.Capacity, status = req.Status,
-            latitude = req.Latitude, longitude = req.Longitude,
-            contact_person = req.ContactPerson, contact_phone = req.ContactPhone
+            name = req.Name,
+            safehouse_code = req.SafehouseCode,
+            region = req.Region,
+            city = req.City,
+            province = req.Province,
+            open_date = req.OpenDate,
+            status = req.Status,
+            capacity_girls = req.CapacityGirls,
+            capacity_staff = req.CapacityStaff,
+            current_occupancy = req.CurrentOccupancy,
+            notes = req.Notes
         });
         return Ok(result);
     }
@@ -64,7 +76,7 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        await db.DeleteAsync("safehouses", $"id=eq.{id}");
+        await db.DeleteAsync("safehouses", $"safehouse_id=eq.{id}");
         return NoContent();
     }
 }

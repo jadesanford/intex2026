@@ -48,6 +48,18 @@ public class AuthService
     public static string HashPassword(string password) =>
         BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
 
-    public static bool VerifyPassword(string password, string hash) =>
-        BCrypt.Net.BCrypt.Verify(password, hash);
+    public static bool VerifyPassword(string password, string hash)
+    {
+        // Normalize PHP-style $2y$ and $2x$ hashes to $2a$ which BCrypt.Net supports
+        if (hash.StartsWith("$2y$") || hash.StartsWith("$2x$"))
+            hash = "$2a$" + hash[4..];
+        try
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hash);
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

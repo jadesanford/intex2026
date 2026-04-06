@@ -7,7 +7,7 @@ const t = {
   en: {
     badge: 'A safe place to heal',
     title: 'Open Arms',
-    subtitle: 'Supporting girls who are survivors of sexual abuse and trafficking in Indonesia.',
+    subtitle: 'Supporting girls who are survivors of sexual abuse and trafficking in the Philippines.',
     help: 'Get Help Now',
     impact: 'See Our Impact',
     mission: 'Our Mission',
@@ -22,14 +22,14 @@ const t = {
     faithText: '"He heals the brokenhearted and binds up their wounds." — Psalm 147:3',
     faithSub: 'Every girl who walks through our doors carries immeasurable value. We believe in the possibility of complete healing and restoration.',
     ctaTitle: 'Be Part of the Story',
-    ctaText: 'Your support makes restoration possible for survivors across Indonesia.',
+    ctaText: 'Your support makes restoration possible for survivors across the Philippines.',
     donate: 'Support Our Work',
     contact: 'Contact Us',
   },
   id: {
     badge: 'Tempat aman untuk pulih',
     title: 'Open Arms',
-    subtitle: 'Mendukung perempuan yang selamat dari kekerasan seksual dan perdagangan manusia di Indonesia.',
+    subtitle: 'Tumutulong sa mga kababaihang nakaligtas sa sekswal na pang-aabuso at trafficking sa Pilipinas.',
     help: 'Dapatkan Bantuan',
     impact: 'Lihat Dampak Kami',
     mission: 'Misi Kami',
@@ -44,14 +44,16 @@ const t = {
     faithText: '"Ia menyembuhkan orang-orang yang patah hati dan membalut luka-luka mereka." — Mazmur 147:3',
     faithSub: 'Setiap anak perempuan yang datang kepada kami memiliki nilai yang tak ternilai. Kami percaya pada kemungkinan penyembuhan dan pemulihan yang sempurna.',
     ctaTitle: 'Jadilah Bagian dari Cerita',
-    ctaText: 'Dukungan Anda membuat pemulihan menjadi mungkin bagi para penyintas di seluruh Indonesia.',
+    ctaText: 'Ang inyong suporta ay nagbibigay ng pagbabago para sa mga nakaligtas sa buong Pilipinas.',
     donate: 'Dukung Karya Kami',
     contact: 'Hubungi Kami',
   }
 }
 
-function formatIDR(n: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
+function formatPHP(n: number) {
+  if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `₱${(n / 1_000).toFixed(0)}K`
+  return `₱${n.toLocaleString()}`
 }
 
 export default function Home({ lang }: { lang: 'en' | 'id' }) {
