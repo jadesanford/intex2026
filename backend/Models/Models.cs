@@ -10,7 +10,10 @@ public class User
     public string? DisplayName { get; set; }
     public string? Email { get; set; }
     public string Role { get; set; } = "staff";
+    public bool? IsActive { get; set; }
     public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public int? SupporterId { get; set; }
 }
 
 public class Safehouse
@@ -347,7 +350,22 @@ public class PublicImpactSnapshot
 // Auth DTOs
 public record LoginRequest(string Username, string Password);
 public record RegisterRequest(string Username, string Password, string? DisplayName, string? Email, string Role = "staff");
-public record LoginResponse(string Token, string Username, string DisplayName, string Role, int Id);
+public record LoginResponse(string Token, string Username, string DisplayName, string Role, int Id, int? SupporterId = null);
+public record RegisterDonorRequest(
+    string Username,
+    string Password,
+    string? SupporterType,
+    string? DisplayName,
+    string? OrganizationName,
+    string? FirstName,
+    string? LastName,
+    string? Email,
+    string? Phone,
+    string? Region,
+    string? Country,
+    string? RelationshipType,
+    string? AcquisitionChannel,
+    string? FirstDonationDate);
 
 // Request DTOs
 public record SafehouseRequest(
@@ -369,7 +387,7 @@ public record SupporterRequest(
 public record DonationRequest(
     int? SupporterId, string? DonationType, string? DonationDate, string? ChannelSource,
     string? CurrencyCode, decimal? Amount, decimal? EstimatedValue, string? ImpactUnit,
-    bool? IsRecurring, string? CampaignName, string? Notes, int? CreatedByPartnerId);
+    bool? IsRecurring, string? CampaignName, string? Notes, int? CreatedByPartnerId, int? ReferralPostId);
 
 public record ResidentRequest(
     string? CaseControlNo, string? InternalCode, int? SafehouseId, string? CaseStatus,

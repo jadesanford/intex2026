@@ -31,6 +31,18 @@ export const login = (username: string, password: string) =>
 
 export const getMe = () => api.get('/auth/me').then(r => r.data)
 
+export const registerDonor = (body: {
+  username: string; password: string;
+  supporterType?: string; displayName?: string; organizationName?: string;
+  firstName?: string; lastName?: string;
+  email?: string; phone?: string;
+  region?: string; country?: string;
+  relationshipType?: string; acquisitionChannel?: string;
+  firstDonationDate?: string;
+}) => api.post('/auth/register-donor', body).then(r => r.data)
+
+export const getDonorDonations = () => api.get('/donations/mine').then(r => r.data)
+
 // Public
 export const getImpactSnapshot = () => api.get('/public/impact-snapshot').then(r => r.data)
 export const getPublicSafehouses = () => api.get('/public/safehouses').then(r => r.data)
@@ -62,6 +74,7 @@ export const addHealthRecord = (id: number, body: Record<string, unknown>) =>
 export const getEducationRecords = (id: number) => api.get(`/residents/${id}/education`).then(r => r.data)
 export const addEducationRecord = (id: number, body: Record<string, unknown>) =>
   api.post(`/residents/${id}/education`, body).then(r => r.data)
+export const getInterventionPlans = (id: number) => api.get(`/residents/${id}/interventions`).then(r => r.data)
 
 // Safehouses
 export const getSafehouses = () => api.get('/safehouses').then(r => r.data)

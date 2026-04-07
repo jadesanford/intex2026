@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getResident, getRecordings, addRecording,
   getVisitations, addVisitation, getHealthRecords,
-  getEducationRecords, updateResident, getSafehouses
+  getEducationRecords, getInterventionPlans, updateResident, getSafehouses
 } from '../../lib/api'
 import { ArrowLeft, Plus, ClipboardList, Home, Heart, BookOpen, AlertTriangle } from 'lucide-react'
 
@@ -13,7 +13,7 @@ const RISK_BADGE: Record<string, string> = {
   Medium: 'badge badge-yellow', Low: 'badge badge-green'
 }
 
-type Tab = 'overview' | 'recordings' | 'visitations' | 'health' | 'education'
+type Tab = 'overview' | 'recordings' | 'interventions' | 'visitations' | 'health' | 'education'
 
 type RecordingRow = {
   recordingId: number; sessionDate: string; socialWorker: string; sessionType: string;
@@ -39,6 +39,12 @@ type EducationRow = {
   completionStatus: string; gpaLikeScore: number
 }
 
+type InterventionRow = {
+  planId: number; residentId: number; planCategory: string; planDescription: string;
+  servicesProvided: string; targetValue: number; targetDate: string; status: string;
+  caseConferenceDate: string; createdAt: string; updatedAt: string
+}
+
 type SafehouseRow = { safehouseId: number; name: string }
 
 export default function ResidentDetail() {
@@ -55,6 +61,7 @@ export default function ResidentDetail() {
   const { data: visitations } = useQuery({ queryKey: ['visitations', rid], queryFn: () => getVisitations(rid) })
   const { data: healthRecords } = useQuery({ queryKey: ['health', rid], queryFn: () => getHealthRecords(rid) })
   const { data: educationRecords } = useQuery({ queryKey: ['education', rid], queryFn: () => getEducationRecords(rid) })
+  const { data: interventionPlans } = useQuery({ queryKey: ['interventions', rid], queryFn: () => getInterventionPlans(rid) })
   const { data: safehouses } = useQuery({ queryKey: ['safehouses'], queryFn: getSafehouses })
 
   const [recForm, setRecForm] = useState({
@@ -102,6 +109,7 @@ export default function ResidentDetail() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Overview', icon: <ClipboardList size={15} /> },
     { id: 'recordings', label: `Process Recordings (${recordings?.length ?? 0})`, icon: <ClipboardList size={15} /> },
+    { id: 'interventions', label: `Intervention Plans (${interventionPlans?.length ?? 0})`, icon: <ClipboardList size={15} /> },
     { id: 'visitations', label: `Visitations (${visitations?.length ?? 0})`, icon: <Home size={15} /> },
     { id: 'health', label: `Health (${healthRecords?.length ?? 0})`, icon: <Heart size={15} /> },
     { id: 'education', label: `Education (${educationRecords?.length ?? 0})`, icon: <BookOpen size={15} /> },
@@ -377,6 +385,51 @@ export default function ResidentDetail() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {tab === 'interventions' && (
+        <div>
+          {(interventionPlans ?? []).length === 0
+            ? <div className="empty-state"><h3>No intervention plans yet</h3></div>
+            : <div className="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Description</th>
+                      <th>Services Provided</th>
+                      <th>Target</th>
+                      <th>Status</th>
+                      <th>Target Date</th>
+                      <th>Case Conference</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(interventionPlans ?? []).map((p: InterventionRow) => (
+                      <tr key={p.planId}>
+                        <td>{p.planCategory || '—'}</td>
+                        <td style={{ maxWidth: 360 }}>{p.planDescription || '—'}</td>
+                        <td>{p.servicesProvided || '—'}</td>
+                        <td>{p.targetValue ?? '—'}</td>
+                        <td>
+                          <span className={`badge ${
+                            p.status === 'Achieved' ? 'badge-green'
+                              : p.status === 'In Progress' ? 'badge-blue'
+                              : p.status === 'On Hold' ? 'badge-yellow'
+                              : 'badge-gray'
+                          }`}>
+                            {p.status || '—'}
+                          </span>
+                        </td>
+                        <td>{p.targetDate || '—'}</td>
+                        <td>{p.caseConferenceDate || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+          }
         </div>
       )}
 

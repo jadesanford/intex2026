@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Heart, Shield, BookOpen, Phone, MapPin, Users, TrendingUp, ArrowRight } from 'lucide-react'
+import { Heart, BookOpen, Phone, MapPin, Users, TrendingUp, ArrowRight } from 'lucide-react'
 import { getImpactSnapshot } from '../lib/api'
 
 const t = {
@@ -159,9 +159,9 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
           <h2 style={{ fontSize: 36, marginBottom: 16 }}>{tx.ctaTitle}</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: 17, marginBottom: 40 }}>{tx.ctaText}</p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="mailto:donate@openarms.org" className="btn btn-primary" style={{ padding: '14px 32px', fontSize: 16 }}>
+            <Link to="/donate" className="btn btn-primary" style={{ padding: '14px 32px', fontSize: 16 }}>
               <Heart size={18} /> {tx.donate}
-            </a>
+            </Link>
             <a href="mailto:info@openarms.org" className="btn btn-outline" style={{ padding: '14px 32px', fontSize: 16 }}>
               {tx.contact}
             </a>

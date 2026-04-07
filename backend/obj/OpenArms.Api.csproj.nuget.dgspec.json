@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/jadesanford/Downloads/IntexReplit20/backend/OpenArms.Api.csproj": {}
+    "/Users/jadesanford/Downloads/IntexCursor copy/backend/OpenArms.Api.csproj": {}
   },
   "projects": {
-    "/Users/jadesanford/Downloads/IntexReplit20/backend/OpenArms.Api.csproj": {
+    "/Users/jadesanford/Downloads/IntexCursor copy/backend/OpenArms.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/jadesanford/Downloads/IntexReplit20/backend/OpenArms.Api.csproj",
+        "projectUniqueName": "/Users/jadesanford/Downloads/IntexCursor copy/backend/OpenArms.Api.csproj",
         "projectName": "OpenArms.Api",
-        "projectPath": "/Users/jadesanford/Downloads/IntexReplit20/backend/OpenArms.Api.csproj",
+        "projectPath": "/Users/jadesanford/Downloads/IntexCursor copy/backend/OpenArms.Api.csproj",
         "packagesPath": "/Users/jadesanford/.nuget/packages/",
-        "outputPath": "/Users/jadesanford/Downloads/IntexReplit20/backend/obj/",
+        "outputPath": "/Users/jadesanford/Downloads/IntexCursor copy/backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/jadesanford/.nuget/NuGet/NuGet.Config"

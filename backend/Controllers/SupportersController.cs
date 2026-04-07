@@ -10,6 +10,12 @@ namespace OpenArms.Api.Controllers;
 [Authorize]
 public class SupportersController(SupabaseService db) : ControllerBase
 {
+    private async Task<int> NextSupporterId()
+    {
+        var latest = await db.GetAllAsync<Supporter>("supporters", "select=supporter_id&order=supporter_id.desc&limit=1");
+        return latest.Count == 0 ? 1 : (latest[0].SupporterId + 1);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? type,
@@ -64,6 +70,7 @@ public class SupportersController(SupabaseService db) : ControllerBase
     {
         var result = await db.InsertAsync<Supporter>("supporters", new
         {
+            supporter_id = await NextSupporterId(),
             supporter_type = req.SupporterType,
             display_name = req.DisplayName,
             organization_name = req.OrganizationName,

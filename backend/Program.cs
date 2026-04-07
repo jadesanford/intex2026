@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var port = Environment.GetEnvironmentVariable("BACKEND_PORT")
     ?? Environment.GetEnvironmentVariable("PORT")
-    ?? "8080";
+    ?? "8082";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddControllers();

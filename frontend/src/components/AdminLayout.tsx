@@ -113,7 +113,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>
             Staff Portal — <span style={{ color: 'var(--terracotta)', fontWeight: 600 }}>{user?.displayName}</span>
           </div>
-          <Link to="/" style={{ fontSize: 13, color: 'var(--text-muted)' }}>← Public Site</Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <Link to="/" style={{ fontSize: 13, color: 'var(--text-muted)' }}>← Public Site</Link>
+            <button onClick={logout} style={{
+              display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)',
+              background: 'none', border: '1px solid var(--border)', borderRadius: 8,
+              padding: '5px 12px', cursor: 'pointer', transition: 'all 0.15s'
+            }}>
+              <LogOut size={14} /> Sign Out
+            </button>
+          </div>
         </header>
         <main style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#f9fafb' }}>
           {children}

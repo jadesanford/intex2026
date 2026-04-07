@@ -10,6 +10,67 @@ namespace OpenArms.Api.Controllers;
 [Authorize]
 public class DonationsController(SupabaseService db) : ControllerBase
 {
+    private async Task<int> NextDonationIdAsync()
+    {
+        var latest = await db.GetAllAsync<Donation>("donations", "select=donation_id&order=donation_id.desc&limit=1");
+        return latest.Count == 0 ? 1 : (latest[0].DonationId + 1);
+    }
+
+    private async Task<int> NextSupporterIdAsync()
+    {
+        var latest = await db.GetAllAsync<Supporter>("supporters", "select=supporter_id&order=supporter_id.desc&limit=1");
+        return latest.Count == 0 ? 1 : latest[0].SupporterId + 1;
+    }
+
+    private async Task<int?> ResolveSupporterIdAsync()
+    {
+        var supporterClaim = User.FindFirst("supporter_id")?.Value;
+        if (!string.IsNullOrWhiteSpace(supporterClaim) && int.TryParse(supporterClaim, out var claimSupporterId))
+            return claimSupporterId;
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            return null;
+
+        var user = await db.GetOneAsync<User>("users", $"id=eq.{userId}&select=id,username,display_name,email,supporter_id");
+        if (user == null) return null;
+        if (user.SupporterId != null) return user.SupporterId;
+
+        // Auto-provision a supporter profile for authenticated users missing supporter_id
+        var supporter = await db.InsertAsync<Supporter>("supporters", new
+        {
+            supporter_id = await NextSupporterIdAsync(),
+            supporter_type = "MonetaryDonor",
+            display_name = string.IsNullOrWhiteSpace(user.DisplayName) ? user.Username : user.DisplayName,
+            relationship_type = "Local",
+            country = "Philippines",
+            email = user.Email,
+            status = "Active",
+            acquisition_channel = "Website",
+            created_at = DateTime.UtcNow
+        });
+        if (supporter == null) return null;
+
+        var updatedUser = await db.UpdateAsync<User>("users", $"id=eq.{userId}", new
+        {
+            supporter_id = supporter.SupporterId,
+            updated_at = DateTime.UtcNow
+        });
+        return updatedUser?.SupporterId ?? supporter.SupporterId;
+    }
+
+    [HttpGet("mine")]
+    public async Task<IActionResult> GetMine()
+    {
+        var supporterId = await ResolveSupporterIdAsync();
+        if (supporterId == null)
+            return Ok(Array.Empty<object>());
+
+        var donations = await db.GetAllAsync<Donation>("donations",
+            $"supporter_id=eq.{supporterId.Value}&select=*&order=donation_date.desc");
+        return Ok(donations);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? campaign,
@@ -87,11 +148,17 @@ public class DonationsController(SupabaseService db) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] DonationRequest req)
     {
+        var resolvedSupporterId = await ResolveSupporterIdAsync();
+        var supporterId = resolvedSupporterId ?? req.SupporterId;
+        if (supporterId == null)
+            return BadRequest(new { message = "No supporter profile linked to this account. Please sign in again." });
+
         var result = await db.InsertAsync<Donation>("donations", new
         {
-            supporter_id = req.SupporterId,
+            donation_id = await NextDonationIdAsync(),
+            supporter_id = supporterId,
             donation_type = req.DonationType ?? "Monetary",
-            donation_date = req.DonationDate,
+            donation_date = req.DonationDate ?? DateTime.UtcNow.ToString("yyyy-MM-dd"),
             channel_source = req.ChannelSource,
             currency_code = req.CurrencyCode ?? "PHP",
             amount = req.Amount,
@@ -100,8 +167,10 @@ public class DonationsController(SupabaseService db) : ControllerBase
             is_recurring = req.IsRecurring ?? false,
             campaign_name = req.CampaignName,
             notes = req.Notes,
-            created_by_partner_id = req.CreatedByPartnerId
+            referral_post_id = req.ReferralPostId
         });
+        if (result == null)
+            return BadRequest(new { message = "Unable to save donation. Please verify donation fields and try again." });
         return Ok(result);
     }
 
@@ -120,7 +189,8 @@ public class DonationsController(SupabaseService db) : ControllerBase
             impact_unit = req.ImpactUnit,
             is_recurring = req.IsRecurring,
             campaign_name = req.CampaignName,
-            notes = req.Notes
+            notes = req.Notes,
+            referral_post_id = req.ReferralPostId
         });
         return Ok(result);
     }
