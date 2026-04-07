@@ -198,29 +198,29 @@ export default function Signup() {
                     {isOrg ? (
                       <div>
                         <div className="form-group">
-                          <label><Building2 size={13} style={{ marginRight: 4 }} />Organization Name *</label>
-                          <input value={form.organizationName} onChange={set('organizationName')} placeholder="Your organization's name" style={inputStyle} />
+                          <label htmlFor="organizationName"><Building2 size={13} style={{ marginRight: 4 }} />Organization Name *</label>
+                          <input id="organizationName" name="organizationName" value={form.organizationName} onChange={set('organizationName')} placeholder="Your organization's name" style={inputStyle} />
                         </div>
                         <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label>Display Name (shown in communications)</label>
-                          <input value={form.displayName} onChange={set('displayName')} placeholder="How should we address you?" style={inputStyle} />
+                          <label htmlFor="displayName">Display Name (shown in communications)</label>
+                          <input id="displayName" name="displayName" value={form.displayName} onChange={set('displayName')} placeholder="How should we address you?" style={inputStyle} />
                         </div>
                       </div>
                     ) : (
                       <div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                           <div className="form-group" style={{ margin: 0 }}>
-                            <label><User size={13} style={{ marginRight: 4 }} />First Name *</label>
-                            <input value={form.firstName} onChange={set('firstName')} placeholder="Maria" style={inputStyle} />
+                            <label htmlFor="firstName"><User size={13} style={{ marginRight: 4 }} />First Name *</label>
+                            <input id="firstName" name="firstName" value={form.firstName} onChange={set('firstName')} placeholder="Maria" style={inputStyle} />
                           </div>
                           <div className="form-group" style={{ margin: 0 }}>
-                            <label>Last Name *</label>
-                            <input value={form.lastName} onChange={set('lastName')} placeholder="Santos" style={inputStyle} />
+                            <label htmlFor="lastName">Last Name *</label>
+                            <input id="lastName" name="lastName" value={form.lastName} onChange={set('lastName')} placeholder="Santos" style={inputStyle} />
                           </div>
                         </div>
                         <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label>Display Name <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional override)</span></label>
-                          <input value={form.displayName} onChange={set('displayName')} placeholder={`${form.firstName || 'Maria'} ${form.lastName || 'Santos'}`.trim() || 'How should we address you?'} style={inputStyle} />
+                          <label htmlFor="displayName">Display Name <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional override)</span></label>
+                          <input id="displayName" name="displayName" value={form.displayName} onChange={set('displayName')} placeholder={`${form.firstName || 'Maria'} ${form.lastName || 'Santos'}`.trim() || 'How should we address you?'} style={inputStyle} />
                         </div>
                       </div>
                     )}
@@ -236,23 +236,23 @@ export default function Signup() {
                 <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>How can we reach you and where are you based?</p>
 
                 <div className="form-group">
-                  <label><Mail size={13} style={{ marginRight: 4 }} />Email Address *</label>
-                  <input type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" style={inputStyle} />
+                  <label htmlFor="email"><Mail size={13} style={{ marginRight: 4 }} />Email Address *</label>
+                  <input id="email" name="email" type="email" autoComplete="email" value={form.email} onChange={set('email')} placeholder="you@example.com" style={inputStyle} />
                 </div>
 
                 <div className="form-group">
-                  <label><Phone size={13} style={{ marginRight: 4 }} />Phone Number <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></label>
-                  <input type="tel" value={form.phone} onChange={set('phone')} placeholder="+63 9XX XXX XXXX" style={inputStyle} />
+                  <label htmlFor="phone"><Phone size={13} style={{ marginRight: 4 }} />Phone Number <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></label>
+                  <input id="phone" name="phone" type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} placeholder="+63 9XX XXX XXXX" style={inputStyle} />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label><Globe size={13} style={{ marginRight: 4 }} />Country</label>
-                    <input value={form.country} onChange={set('country')} placeholder="Philippines" style={inputStyle} />
+                    <label htmlFor="country"><Globe size={13} style={{ marginRight: 4 }} />Country</label>
+                    <input id="country" name="country" autoComplete="country-name" value={form.country} onChange={set('country')} placeholder="Philippines" style={inputStyle} />
                   </div>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label><MapPin size={13} style={{ marginRight: 4 }} />Region <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></label>
-                    <select value={form.region} onChange={set('region')} style={{ ...inputStyle }}>
+                    <label htmlFor="region"><MapPin size={13} style={{ marginRight: 4 }} />Region <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></label>
+                    <select id="region" name="region" value={form.region} onChange={set('region')} style={{ ...inputStyle }}>
                       <option value="">Select region...</option>
                       {PH_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                       <option value="Other">Other / International</option>
@@ -262,14 +262,14 @@ export default function Signup() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label>Relationship Type</label>
-                    <select value={form.relationshipType} onChange={set('relationshipType')} style={{ ...inputStyle }}>
+                    <label htmlFor="relationshipType">Relationship Type</label>
+                    <select id="relationshipType" name="relationshipType" value={form.relationshipType} onChange={set('relationshipType')} style={{ ...inputStyle }}>
                       {RELATIONSHIP_TYPES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                     </select>
                   </div>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label>First Donation Date <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></label>
-                    <input type="date" value={form.firstDonationDate} onChange={set('firstDonationDate')} style={inputStyle} />
+                    <label htmlFor="firstDonationDate">First Donation Date <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></label>
+                    <input id="firstDonationDate" name="firstDonationDate" type="date" value={form.firstDonationDate} onChange={set('firstDonationDate')} style={inputStyle} />
                   </div>
                 </div>
 
@@ -310,12 +310,12 @@ export default function Signup() {
                 </div>
 
                 <div className="form-group">
-                  <label><Lock size={13} style={{ marginRight: 4 }} />Password *</label>
-                  <input type="password" value={form.password} onChange={set('password')} placeholder="Minimum 6 characters" style={inputStyle} />
+                  <label htmlFor="password"><Lock size={13} style={{ marginRight: 4 }} />Password *</label>
+                  <input id="password" name="password" type="password" autoComplete="new-password" value={form.password} onChange={set('password')} placeholder="Minimum 6 characters" style={inputStyle} />
                 </div>
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label>Confirm Password *</label>
-                  <input type="password" value={form.confirmPassword} onChange={set('confirmPassword')} placeholder="Repeat your password" style={inputStyle} />
+                  <label htmlFor="confirmPassword">Confirm Password *</label>
+                  <input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" value={form.confirmPassword} onChange={set('confirmPassword')} placeholder="Repeat your password" style={inputStyle} />
                 </div>
               </div>
             )}

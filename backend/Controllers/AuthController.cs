@@ -54,20 +54,41 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
     [AllowAnonymous]
     public async Task<IActionResult> RegisterDonor([FromBody] RegisterDonorRequest req)
     {
-        var existing = await db.GetOneAsync<User>("users", $"username=eq.{req.Username}");
+        if (req == null)
+            return BadRequest(new { message = "Request body is required" });
+
+        var username = (req.Username ?? "").Trim();
+        var email = (req.Email ?? "").Trim();
+        var password = req.Password ?? "";
+
+        if (string.IsNullOrWhiteSpace(username))
+            return BadRequest(new { message = "Email/username is required" });
+        if (string.IsNullOrWhiteSpace(email))
+            return BadRequest(new { message = "Email is required" });
+        if (string.IsNullOrWhiteSpace(password))
+            return BadRequest(new { message = "Password is required" });
+
+        var existing = await db.GetOneAsync<User>("users", $"username=eq.{username}");
         if (existing != null)
             return Conflict(new { message = "An account with that email already exists" });
+
+        var existingUserEmail = await db.GetOneAsync<User>("users", $"email=eq.{email}");
+        if (existingUserEmail != null)
+            return Conflict(new { message = "An account with that email already exists" });
+
+        var existingSupporterEmail = await db.GetOneAsync<Supporter>("supporters", $"email=eq.{email}");
+        if (existingSupporterEmail != null)
+            return Conflict(new { message = "A supporter profile with that email already exists" });
 
         // Build display name: explicit > full name > username
         var fullName = $"{req.FirstName} {req.LastName}".Trim();
         var displayName = !string.IsNullOrEmpty(req.DisplayName) ? req.DisplayName
             : !string.IsNullOrEmpty(fullName) ? fullName
-            : req.OrganizationName ?? req.Username;
+            : req.OrganizationName ?? username;
 
-        // Create supporter record first
+        // Create supporter record first (current schema)
         var supporter = await db.InsertAsync<Supporter>("supporters", new
         {
-            name = displayName,
             supporter_type = req.SupporterType ?? "MonetaryDonor",
             display_name = displayName,
             organization_name = req.OrganizationName,
@@ -76,26 +97,54 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
             relationship_type = req.RelationshipType ?? "Local",
             region = req.Region,
             country = req.Country ?? "Philippines",
-            email = req.Email,
+            email = email,
             phone = req.Phone,
             status = "Active",
-            acquisition_channel = req.AcquisitionChannel ?? "Website",
-            first_donation_date = string.IsNullOrEmpty(req.FirstDonationDate) ? null : req.FirstDonationDate
+            acquisition_channel = req.AcquisitionChannel ?? "Website"
         });
+        // Fallback for legacy schema variants that use name/type/city columns.
+        if (supporter == null)
+        {
+            supporter = await db.InsertAsync<Supporter>("supporters", new
+            {
+                name = displayName,
+                type = req.SupporterType ?? "MonetaryDonor",
+                email = email,
+                phone = req.Phone,
+                country = req.Country ?? "Philippines",
+                city = req.Region,
+                status = "active",
+                notes = $"relationship_type={req.RelationshipType ?? "Local"}; acquisition_channel={req.AcquisitionChannel ?? "Website"}"
+            });
+        }
+        if (supporter == null)
+            return BadRequest(new { message = "Unable to create supporter profile. Please verify your details and try again." });
+
+        // Some schemas return different id fields; recover supporter id by email when needed.
+        var supporterId = supporter.SupporterId;
+        if (supporterId <= 0)
+        {
+            var supporterByEmail = await db.GetOneAsync<Supporter>("supporters", $"email=eq.{email}&select=id,supporter_id");
+            supporterId = supporterByEmail?.SupporterId ?? 0;
+        }
+        if (supporterId <= 0)
+            return BadRequest(new { message = "Supporter profile created, but linking to user failed. Please contact support." });
 
         // Create user account linked to the supporter
-        var hash = AuthService.HashPassword(req.Password);
+        var hash = AuthService.HashPassword(password);
         var user = await db.InsertAsync<User>("users", new
         {
-            username = req.Username,
+            username = username,
             password_hash = hash,
             display_name = displayName,
-            email = req.Email,
+            email = email,
             role = "donor",
-            supporter_id = supporter.SupporterId
+            supporter_id = supporterId
         });
+        if (user == null)
+            return BadRequest(new { message = "Unable to create user account. Please verify your details and try again." });
 
-        user.SupporterId = supporter.SupporterId;
+        user.SupporterId = supporterId;
 
         var token = auth.GenerateToken(user);
         return Ok(new LoginResponse(token, user.Username, user.DisplayName ?? user.Username, user.Role, user.Id, user.SupporterId));
