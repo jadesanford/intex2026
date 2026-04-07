@@ -52,7 +52,7 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
 
   return (
     <div>
-      <section style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)', padding: '80px 24px 84px', textAlign: 'center' }}>
+      <section style={{ position: 'relative', background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)', padding: '80px 24px 84px', textAlign: 'center' }}>
         <img
           src="/impact-bg.jpg"
           alt=""
