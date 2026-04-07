@@ -112,24 +112,32 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
 
       {/* Mission */}
       <section style={{ padding: '80px 24px', background: 'white' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
-          <div>
-            <h2 style={{ fontSize: 36, marginBottom: 20 }}>{tx.mission}</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: 16, lineHeight: 1.8, marginBottom: 32 }}>{tx.missionText}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {tx.services.map(s => (
-                <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text)' }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0 }} />
-                  {s}
-                </div>
-              ))}
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center', marginBottom: 48 }}>
+            <div>
+              <h2 style={{ fontSize: 36, marginBottom: 20 }}>{tx.mission}</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: 16, lineHeight: 1.8, marginBottom: 32 }}>{tx.missionText}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {tx.services.map(s => (
+                  <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text)' }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0 }} />
+                    {s}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{
+              background: 'linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%)',
+              borderRadius: 24, padding: 48, textAlign: 'center', color: 'white'
+            }}>
+              <p style={{ fontSize: 18, fontStyle: 'italic', lineHeight: 1.8 }}>{tx.faithText}</p>
             </div>
           </div>
-          <div style={{ borderRadius: 24, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
+          <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.08)' }}>
             <img
               src="/christ.png"
               alt="Christ with open arms"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 300 }}
             />
           </div>
         </div>
