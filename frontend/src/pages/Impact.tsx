@@ -52,8 +52,19 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
 
   return (
     <div>
-      <section style={{ background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)', padding: '80px 24px 60px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: 48, marginBottom: 16 }}>{tx.title}</h1>
+      <section
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.70)), url('/impact-hero.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          padding: '80px 24px 60px',
+          textAlign: 'center',
+          color: 'white',
+        }}
+      >
+        <h1 style={{ fontSize: 48, marginBottom: 16}}>{tx.title}</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
       </section>
 

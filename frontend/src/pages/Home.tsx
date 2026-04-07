@@ -64,10 +64,20 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
     <div>
       {/* Hero */}
       <section style={{
+        position: 'relative', overflow: 'hidden',
         background: 'linear-gradient(135deg, var(--beige) 0%, #fff 60%)',
         padding: '100px 24px 80px', textAlign: 'center'
       }}>
-        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+        <img
+          src="/hero-bg.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center top', opacity: 0.18, pointerEvents: 'none'
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 700, margin: '0 auto' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             background: 'rgba(193,105,79,0.1)', color: 'var(--terracotta)',
@@ -112,25 +122,33 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
 
       {/* Mission */}
       <section style={{ padding: '80px 24px', background: 'white' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
-          <div>
-            <h2 style={{ fontSize: 36, marginBottom: 20 }}>{tx.mission}</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: 16, lineHeight: 1.8, marginBottom: 32 }}>{tx.missionText}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {tx.services.map(s => (
-                <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text)' }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0 }} />
-                  {s}
-                </div>
-              ))}
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center', marginBottom: 48 }}>
+            <div>
+              <h2 style={{ fontSize: 36, marginBottom: 20 }}>{tx.mission}</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: 16, lineHeight: 1.8, marginBottom: 32 }}>{tx.missionText}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {tx.services.map(s => (
+                  <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text)' }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0 }} />
+                    {s}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{
+              background: 'linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%)',
+              borderRadius: 24, padding: 48, textAlign: 'center', color: 'white'
+            }}>
+              <p style={{ fontSize: 18, fontStyle: 'italic', lineHeight: 1.8 }}>{tx.faithText}</p>
             </div>
           </div>
-          <div style={{
-            background: 'linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%)',
-            borderRadius: 24, padding: 48, textAlign: 'center', color: 'white'
-          }}>
-            <Shield size={60} style={{ marginBottom: 20, opacity: 0.9 }} />
-            <p style={{ fontSize: 18, fontStyle: 'italic', lineHeight: 1.8 }}>{tx.faithText}</p>
+          <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.08)' }}>
+            <img
+              src="/christ.png"
+              alt="Christ with open arms"
+              style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 300 }}
+            />
           </div>
         </div>
       </section>
