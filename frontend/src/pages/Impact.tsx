@@ -52,18 +52,9 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
 
   return (
     <div>
-      <section style={{ position: 'relative', background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)', padding: '80px 24px 84px', textAlign: 'center' }}>
-        <img
-          src="/impact-bg.jpg"
-          alt=""
-          aria-hidden="true"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: 0.18, pointerEvents: 'none' }}
-        />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', background: 'linear-gradient(to bottom, transparent, white)', pointerEvents: 'none' }} />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontSize: 48, marginBottom: 16 }}>{tx.title}</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
-        </div>
+      <section style={{ background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)', padding: '80px 24px 60px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: 48, marginBottom: 16 }}>{tx.title}</h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
       </section>
 
       <section style={{ padding: '0 24px', marginTop: -24 }}>
