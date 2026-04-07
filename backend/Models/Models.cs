@@ -213,19 +213,18 @@ public class HomeVisitation
     public string? VisitOutcome { get; set; }
 }
 
+/// <summary>Matches Supabase education_records: monthly snapshot per resident (CSV-aligned).</summary>
 public class EducationRecord
 {
     public int EducationRecordId { get; set; }
     public int? ResidentId { get; set; }
     public string? RecordDate { get; set; }
-    public string? ProgramName { get; set; }
-    public string? CourseName { get; set; }
+    public string? SchoolName { get; set; }
+    public string? EnrollmentStatus { get; set; }
     public string? EducationLevel { get; set; }
-    public string? AttendanceStatus { get; set; }
     public decimal? AttendanceRate { get; set; }
     public decimal? ProgressPercent { get; set; }
     public string? CompletionStatus { get; set; }
-    public decimal? GpaLikeScore { get; set; }
     public string? Notes { get; set; }
 }
 
@@ -238,13 +237,13 @@ public class HealthWellbeingRecord
     public decimal? HeightCm { get; set; }
     public decimal? Bmi { get; set; }
     public decimal? NutritionScore { get; set; }
-    public decimal? SleepScore { get; set; }
-    public decimal? EnergyScore { get; set; }
+    public decimal? SleepQualityScore { get; set; }
+    public decimal? EnergyLevelScore { get; set; }
     public decimal? GeneralHealthScore { get; set; }
     public bool? MedicalCheckupDone { get; set; }
     public bool? DentalCheckupDone { get; set; }
     public bool? PsychologicalCheckupDone { get; set; }
-    public string? MedicalNotesRestricted { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class InterventionPlan
@@ -382,23 +381,35 @@ public record SupporterRequest(
     string? SupporterType, string? DisplayName, string? OrganizationName,
     string? FirstName, string? LastName, string? RelationshipType,
     string? Region, string? Country, string? Email, string? Phone,
-    string? Status, string? AcquisitionChannel);
+    string? Status, string? AcquisitionChannel, string? FirstDonationDate);
 
 public record DonationRequest(
     int? SupporterId, string? DonationType, string? DonationDate, string? ChannelSource,
     string? CurrencyCode, decimal? Amount, decimal? EstimatedValue, string? ImpactUnit,
     bool? IsRecurring, string? CampaignName, string? Notes, int? CreatedByPartnerId, int? ReferralPostId);
 
+/// <summary>Payload for replacing all in_kind_donation_items rows for a donation.</summary>
+public record InKindItemUpsert(
+    string ItemName,
+    string ItemCategory,
+    int Quantity,
+    string UnitOfMeasure,
+    decimal EstimatedUnitValue,
+    string IntendedUse,
+    string ReceivedCondition);
+
 public record ResidentRequest(
     string? CaseControlNo, string? InternalCode, int? SafehouseId, string? CaseStatus,
-    string? DateOfBirth, string? PlaceOfBirth, string? Religion, string? CaseCategory,
-    bool? SubCatTrafficked, bool? SubCatSexualAbuse, bool? SubCatPhysicalAbuse,
-    bool? SubCatOsaec, bool? SubCatChildLabor, bool? SubCatCicl, bool? SubCatAtRisk,
+    string? Sex, string? DateOfBirth, string? BirthStatus, string? PlaceOfBirth, string? Religion, string? CaseCategory,
+    bool? SubCatOrphaned, bool? SubCatTrafficked, bool? SubCatChildLabor, bool? SubCatPhysicalAbuse, bool? SubCatSexualAbuse,
+    bool? SubCatOsaec, bool? SubCatCicl, bool? SubCatAtRisk, bool? SubCatStreetChild, bool? SubCatChildWithHiv,
     bool? IsPwd, string? PwdType, bool? HasSpecialNeeds, string? SpecialNeedsDiagnosis,
-    string? DateOfAdmission, string? ReferralSource, string? ReferringAgencyPerson,
-    string? AssignedSocialWorker, string? InitialCaseAssessment,
-    string? ReintegrationType, string? ReintegrationStatus,
-    string? InitialRiskLevel, string? CurrentRiskLevel, string? NotesRestricted);
+    bool? FamilyIs4ps, bool? FamilySoloParent, bool? FamilyIndigenous, bool? FamilyParentPwd, bool? FamilyInformalSettler,
+    string? DateOfAdmission, string? AgeUponAdmission, string? PresentAge, string? LengthOfStay,
+    string? ReferralSource, string? ReferringAgencyPerson, string? DateColbRegistered, string? DateColbObtained,
+    string? AssignedSocialWorker, string? InitialCaseAssessment, string? DateCaseStudyPrepared,
+    string? ReintegrationType, string? ReintegrationStatus, string? InitialRiskLevel, string? CurrentRiskLevel,
+    string? DateEnrolled, string? DateClosed, string? NotesRestricted);
 
 public record IncidentRequest(
     int? ResidentId, int? SafehouseId, string? IncidentDate, string? IncidentType,
@@ -409,10 +420,23 @@ public record ProcessRecordingRequest(
     int? ResidentId, string? SessionDate, string? SocialWorker, string? SessionType,
     int? SessionDurationMinutes, string? EmotionalStateObserved, string? EmotionalStateEnd,
     string? SessionNarrative, string? InterventionsApplied, string? FollowUpActions,
-    bool? ProgressNoted, bool? ConcernsFlagged, bool? ReferralMade);
+    bool? ProgressNoted, bool? ConcernsFlagged, bool? ReferralMade, string? NotesRestricted);
 
 public record HomeVisitationRequest(
     int? ResidentId, string? VisitDate, string? SocialWorker, string? VisitType,
     string? LocationVisited, string? FamilyMembersPresent, string? Purpose,
     string? Observations, string? FamilyCooperationLevel,
     bool? SafetyConcernsNoted, bool? FollowUpNeeded, string? FollowUpNotes, string? VisitOutcome);
+
+public record HealthWellbeingRequest(
+    int? ResidentId, string? RecordDate, decimal? WeightKg, decimal? HeightCm, decimal? Bmi,
+    decimal? NutritionScore, decimal? SleepScore, decimal? EnergyScore, decimal? GeneralHealthScore,
+    bool? MedicalCheckupDone, bool? DentalCheckupDone, bool? PsychologicalCheckupDone, string? MedicalNotesRestricted);
+
+public record EducationRecordRequest(
+    int? ResidentId, string? RecordDate, string? SchoolName, string? EnrollmentStatus, string? EducationLevel,
+    decimal? AttendanceRate, decimal? ProgressPercent, string? CompletionStatus, string? Notes);
+
+public record InterventionPlanRequest(
+    int? ResidentId, string? PlanCategory, string? PlanDescription, string? ServicesProvided,
+    decimal? TargetValue, string? TargetDate, string? Status, string? CaseConferenceDate);

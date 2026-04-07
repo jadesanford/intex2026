@@ -2,13 +2,20 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { login as loginApi } from '../lib/api'
 
 interface User { id: number; username: string; displayName: string; role: string; supporterId?: number }
+function normalizeRole(role: string | undefined) {
+  return (role ?? '').trim().toLowerCase()
+}
+
 interface AuthCtx {
   user: User | null
   loading: boolean
   login: (username: string, password: string) => Promise<void>
   loginWithData: (data: any) => void
   logout: () => void
+  /** Database role is exactly `admin` (case-insensitive). */
   isAdmin: boolean
+  /** Staff or admin: uses /admin (matches default `staff` role in DB, not donors). */
+  isInternalStaff: boolean
   isDonor: boolean
 }
 
@@ -53,11 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = '/'
   }
 
+  const r = normalizeRole(user?.role)
   return (
     <Ctx.Provider value={{
       user, loading, login, loginWithData, logout,
-      isAdmin: user?.role === 'admin',
-      isDonor: user?.role === 'donor'
+      isAdmin: r === 'admin',
+      isInternalStaff: user != null && r !== '' && r !== 'donor',
+      isDonor: r === 'donor'
     }}>
       {children}
     </Ctx.Provider>

@@ -91,6 +91,13 @@ public class SupabaseService
 
     public async Task<T?> InsertAsync<T>(string table, object body)
     {
+        var (result, _) = await TryInsertAsync<T>(table, body);
+        return result;
+    }
+
+    /// <summary>Returns inserted row, or (null, human-readable error including Supabase body).</summary>
+    public async Task<(T? Result, string? Error)> TryInsertAsync<T>(string table, object body)
+    {
         try
         {
             var req = BuildRequest(HttpMethod.Post, $"{_baseUrl}/rest/v1/{table}", body);
@@ -100,15 +107,30 @@ public class SupabaseService
             if (!res.IsSuccessStatusCode)
             {
                 _logger?.LogWarning("Supabase INSERT {Table} failed ({Status}): {Body}", table, (int)res.StatusCode, json);
-                return default;
+                var err = $"PostgREST {(int)res.StatusCode}: {json}";
+                return (default, err);
             }
-            var list = JsonSerializer.Deserialize<List<T>>(json, _opts);
-            return list != null && list.Count > 0 ? list[0] : default;
+            List<T>? list;
+            try
+            {
+                list = JsonSerializer.Deserialize<List<T>>(SanitizeJson(json), _opts);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "Supabase INSERT {Table} response could not deserialize", table);
+                return (default, $"Row inserted but response could not be parsed: {ex.Message}. Body: {json}");
+            }
+            if (list == null || list.Count == 0)
+            {
+                _logger?.LogWarning("Supabase INSERT {Table} returned empty array: {Body}", table, json);
+                return (default, $"No row in response (check RLS or Prefer: return=representation). Body: {json}");
+            }
+            return (list[0], null);
         }
         catch (Exception ex)
         {
             _logger?.LogError(ex, "Error inserting into {Table}", table);
-            return default;
+            return (default, ex.Message);
         }
     }
 

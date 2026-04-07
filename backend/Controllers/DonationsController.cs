@@ -16,6 +16,13 @@ public class DonationsController(SupabaseService db) : ControllerBase
         return latest.Count == 0 ? 1 : (latest[0].DonationId + 1);
     }
 
+    private async Task<int> NextInKindItemIdAsync()
+    {
+        var latest = await db.GetAllAsync<InKindDonationItem>("in_kind_donation_items",
+            "select=item_id&order=item_id.desc&limit=1");
+        return latest.Count == 0 ? 1 : latest[0].ItemId + 1;
+    }
+
     private async Task<int> NextSupporterIdAsync()
     {
         var latest = await db.GetAllAsync<Supporter>("supporters", "select=supporter_id&order=supporter_id.desc&limit=1");
@@ -71,11 +78,45 @@ public class DonationsController(SupabaseService db) : ControllerBase
         return Ok(donations);
     }
 
+    /// <summary>Donor-facing detail for one of the signed-in supporter's donations (includes in-kind line items).</summary>
+    [HttpGet("mine/{id:int}/details")]
+    public async Task<IActionResult> GetMineById(int id)
+    {
+        var supporterId = await ResolveSupporterIdAsync();
+        if (supporterId == null)
+            return NotFound();
+
+        var donation = await db.GetOneAsync<Donation>("donations", $"donation_id=eq.{id}&select=*");
+        if (donation == null || donation.SupporterId != supporterId)
+            return NotFound();
+
+        var inKindItems = await db.GetAllAsync<InKindDonationItem>("in_kind_donation_items",
+            $"donation_id=eq.{id}&select=item_id,donation_id,item_name,item_category,quantity,unit_of_measure,estimated_unit_value,intended_use,received_condition&order=item_id.asc");
+
+        return Ok(new
+        {
+            donation,
+            inKindItems = inKindItems.Select(i => new
+            {
+                i.ItemId,
+                i.DonationId,
+                i.ItemName,
+                i.ItemCategory,
+                i.Quantity,
+                i.UnitOfMeasure,
+                i.EstimatedUnitValue,
+                i.IntendedUse,
+                i.ReceivedCondition
+            }).ToList()
+        });
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? campaign,
         [FromQuery] string? channel,
         [FromQuery] string? type,
+        [FromQuery] string? recurring,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 30)
     {
@@ -83,6 +124,10 @@ public class DonationsController(SupabaseService db) : ControllerBase
         if (!string.IsNullOrEmpty(campaign)) filters.Add($"campaign_name=eq.{campaign}");
         if (!string.IsNullOrEmpty(channel)) filters.Add($"channel_source=eq.{channel}");
         if (!string.IsNullOrEmpty(type)) filters.Add($"donation_type=eq.{type}");
+        if (string.Equals(recurring, "true", StringComparison.OrdinalIgnoreCase))
+            filters.Add("is_recurring=eq.true");
+        else if (string.Equals(recurring, "false", StringComparison.OrdinalIgnoreCase))
+            filters.Add("is_recurring=eq.false");
 
         var filterStr = filters.Count > 0 ? string.Join("&", filters) + "&" : "";
         var offset = (page - 1) * pageSize;
@@ -111,6 +156,46 @@ public class DonationsController(SupabaseService db) : ControllerBase
         });
 
         return Ok(result);
+    }
+
+    /// <summary>Sub-path avoids route ambiguity with PATCH/DELETE on the same controller in some hosts.</summary>
+    [HttpGet("{id:int}/details")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var donation = await db.GetOneAsync<Donation>("donations", $"donation_id=eq.{id}&select=*");
+        if (donation == null)
+            return NotFound();
+
+        Supporter? sup = null;
+        if (donation.SupporterId.HasValue)
+        {
+            sup = await db.GetOneAsync<Supporter>("supporters",
+                $"supporter_id=eq.{donation.SupporterId.Value}&select=supporter_id,display_name,organization_name,supporter_type,email");
+        }
+
+        // Line items: in_kind_donation_items.donation_id → donations.donation_id (explicit columns match schema)
+        var inKindItems = await db.GetAllAsync<InKindDonationItem>("in_kind_donation_items",
+            $"donation_id=eq.{id}&select=item_id,donation_id,item_name,item_category,quantity,unit_of_measure,estimated_unit_value,intended_use,received_condition&order=item_id.asc");
+
+        return Ok(new
+        {
+            donation,
+            supporters = sup != null
+                ? new { sup.DisplayName, sup.OrganizationName, sup.SupporterType, sup.Email }
+                : null,
+            inKindItems = inKindItems.Select(i => new
+            {
+                i.ItemId,
+                i.DonationId,
+                i.ItemName,
+                i.ItemCategory,
+                i.Quantity,
+                i.UnitOfMeasure,
+                i.EstimatedUnitValue,
+                i.IntendedUse,
+                i.ReceivedCondition
+            }).ToList()
+        });
     }
 
     [HttpGet("summary")]
@@ -174,6 +259,42 @@ public class DonationsController(SupabaseService db) : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>Replaces all line items for this donation (delete existing rows, then insert).</summary>
+    [HttpPut("{donationId:int}/in-kind-items")]
+    public async Task<IActionResult> SyncInKindItems(int donationId, [FromBody] List<InKindItemUpsert>? items)
+    {
+        var donation = await db.GetOneAsync<Donation>("donations", $"donation_id=eq.{donationId}&select=donation_id");
+        if (donation == null)
+            return NotFound();
+
+        await db.DeleteAsync("in_kind_donation_items", $"donation_id=eq.{donationId}");
+
+        var list = items ?? [];
+        var nextId = await NextInKindItemIdAsync();
+        foreach (var it in list)
+        {
+            if (string.IsNullOrWhiteSpace(it.ItemName))
+                continue;
+
+            var inserted = await db.InsertAsync<InKindDonationItem>("in_kind_donation_items", new
+            {
+                item_id = nextId++,
+                donation_id = donationId,
+                item_name = it.ItemName.Trim(),
+                item_category = it.ItemCategory,
+                quantity = it.Quantity,
+                unit_of_measure = it.UnitOfMeasure,
+                estimated_unit_value = it.EstimatedUnitValue,
+                intended_use = it.IntendedUse,
+                received_condition = it.ReceivedCondition
+            });
+            if (inserted == null)
+                return BadRequest(new { message = "Unable to save one or more in-kind line items." });
+        }
+
+        return Ok(new { count = list.Count });
+    }
+
     [HttpPatch("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] DonationRequest req)
     {
@@ -199,6 +320,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(int id)
     {
+        await db.DeleteAsync("in_kind_donation_items", $"donation_id=eq.{id}");
         await db.DeleteAsync("donations", $"donation_id=eq.{id}");
         return NoContent();
     }

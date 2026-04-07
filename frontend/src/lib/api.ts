@@ -43,6 +43,10 @@ export const registerDonor = (body: {
 
 export const getDonorDonations = () => api.get('/donations/mine').then(r => r.data)
 
+/** Signed-in donor's single donation + in_kind_donation_items (404 if not yours). */
+export const getMyDonationDetails = (id: number) =>
+  api.get(`/donations/mine/${id}/details`).then(r => r.data)
+
 // Public
 export const getImpactSnapshot = () => api.get('/public/impact-snapshot').then(r => r.data)
 export const getPublicSafehouses = () => api.get('/public/safehouses').then(r => r.data)
@@ -62,19 +66,41 @@ export const deleteResident = (id: number) => api.delete(`/residents/${id}`)
 export const getRecordings = (id: number) => api.get(`/residents/${id}/recordings`).then(r => r.data)
 export const addRecording = (id: number, body: Record<string, unknown>) =>
   api.post(`/residents/${id}/recordings`, body).then(r => r.data)
+export const updateRecording = (residentId: number, recordingId: number, body: Record<string, unknown>) =>
+  api.patch(`/residents/${residentId}/recordings/${recordingId}`, body).then(r => r.data)
+export const deleteRecording = (residentId: number, recordingId: number) =>
+  api.delete(`/residents/${residentId}/recordings/${recordingId}`)
 
 export const getVisitations = (id: number) => api.get(`/residents/${id}/visitations`).then(r => r.data)
 export const addVisitation = (id: number, body: Record<string, unknown>) =>
   api.post(`/residents/${id}/visitations`, body).then(r => r.data)
+export const updateVisitation = (residentId: number, visitationId: number, body: Record<string, unknown>) =>
+  api.patch(`/residents/${residentId}/visitations/${visitationId}`, body).then(r => r.data)
+export const deleteVisitation = (residentId: number, visitationId: number) =>
+  api.delete(`/residents/${residentId}/visitations/${visitationId}`)
 
 export const getHealthRecords = (id: number) => api.get(`/residents/${id}/health`).then(r => r.data)
 export const addHealthRecord = (id: number, body: Record<string, unknown>) =>
   api.post(`/residents/${id}/health`, body).then(r => r.data)
+export const updateHealthRecord = (residentId: number, healthRecordId: number, body: Record<string, unknown>) =>
+  api.patch(`/residents/${residentId}/health/${healthRecordId}`, body).then(r => r.data)
+export const deleteHealthRecord = (residentId: number, healthRecordId: number) =>
+  api.delete(`/residents/${residentId}/health/${healthRecordId}`)
 
 export const getEducationRecords = (id: number) => api.get(`/residents/${id}/education`).then(r => r.data)
 export const addEducationRecord = (id: number, body: Record<string, unknown>) =>
   api.post(`/residents/${id}/education`, body).then(r => r.data)
+export const updateEducationRecord = (residentId: number, educationRecordId: number, body: Record<string, unknown>) =>
+  api.patch(`/residents/${residentId}/education/${educationRecordId}`, body).then(r => r.data)
+export const deleteEducationRecord = (residentId: number, educationRecordId: number) =>
+  api.delete(`/residents/${residentId}/education/${educationRecordId}`)
 export const getInterventionPlans = (id: number) => api.get(`/residents/${id}/interventions`).then(r => r.data)
+export const addInterventionPlan = (id: number, body: Record<string, unknown>) =>
+  api.post(`/residents/${id}/interventions`, body).then(r => r.data)
+export const updateInterventionPlan = (residentId: number, planId: number, body: Record<string, unknown>) =>
+  api.patch(`/residents/${residentId}/interventions/${planId}`, body).then(r => r.data)
+export const deleteInterventionPlan = (residentId: number, planId: number) =>
+  api.delete(`/residents/${residentId}/interventions/${planId}`)
 
 // Safehouses
 export const getSafehouses = () => api.get('/safehouses').then(r => r.data)
@@ -98,12 +124,27 @@ export const deleteSupporter = (id: number) => api.delete(`/supporters/${id}`)
 // Donations
 export const getDonations = (params?: Record<string, string | number>) =>
   api.get('/donations', { params }).then(r => r.data)
+export const getDonation = (id: number) => api.get(`/donations/${id}/details`).then(r => r.data)
 export const getDonationSummary = () => api.get('/donations/summary').then(r => r.data)
 export const createDonation = (body: Record<string, unknown>) =>
   api.post('/donations', body).then(r => r.data)
 export const updateDonation = (id: number, body: Record<string, unknown>) =>
   api.patch(`/donations/${id}`, body).then(r => r.data)
 export const deleteDonation = (id: number) => api.delete(`/donations/${id}`)
+
+/** Replaces all rows in in_kind_donation_items for this donation. */
+export const syncDonationInKindItems = (
+  donationId: number,
+  items: Array<{
+    itemName: string
+    itemCategory: string
+    quantity: number
+    unitOfMeasure: string
+    estimatedUnitValue: number
+    intendedUse: string
+    receivedCondition: string
+  }>
+) => api.put(`/donations/${donationId}/in-kind-items`, items).then(r => r.data)
 
 // Partners
 export const getPartners = () => api.get('/partners').then(r => r.data)

@@ -12,6 +12,24 @@ const STATUS_BADGE: Record<string, string> = {
   Active: 'badge badge-blue', Closed: 'badge badge-gray',
   Transferred: 'badge badge-purple'
 }
+const RELIGION_OPTIONS = [
+  'Unspecified',
+  'Roman Catholic',
+  'Seventh-day Adventist',
+  'Evangelical',
+  'Buddhism',
+  'Islam',
+  "Jehovah's Witness",
+  'Other'
+]
+const INITIAL_CASE_ASSESSMENT_OPTIONS = [
+  'For Reunification',
+  'For Continued Care',
+  'For Independent Living',
+  'For Adoption',
+  'For Foster Care'
+]
+const CASE_CATEGORY_OPTIONS = ['Abandoned', 'Foundling', 'Surrendered', 'Neglected'] as const
 
 type ResidentRow = {
   residentId: number; caseControlNo: string; internalCode: string;
@@ -23,23 +41,43 @@ type ResidentRow = {
 type SafehouseRow = { safehouseId: number; name: string; city: string }
 
 interface ResidentForm {
-  caseControlNo: string; safehouseId: string; dateOfBirth: string;
-  caseStatus: string; currentRiskLevel: string; caseCategory: string;
-  referralSource: string; assignedSocialWorker: string; dateOfAdmission: string;
-  subCatTrafficked: boolean; subCatSexualAbuse: boolean; subCatPhysicalAbuse: boolean;
-  subCatOsaec: boolean;
+  caseControlNo: string; safehouseId: string;
+  caseStatus: string; sex: string; dateOfBirth: string; birthStatus: string;
+  placeOfBirth: string; religion: string; caseCategory: string;
+  dateOfAdmission: string;
+  referralSource: string; referringAgencyPerson: string;
+  dateColbRegistered: string; dateColbObtained: string; dateCaseStudyPrepared: string;
+  assignedSocialWorker: string; initialCaseAssessment: string;
+  reintegrationType: string; reintegrationStatus: string;
+  initialRiskLevel: string; currentRiskLevel: string;
+  dateEnrolled: string; dateClosed: string; notesRestricted: string;
+  subCatOrphaned: boolean; subCatTrafficked: boolean; subCatChildLabor: boolean;
+  subCatPhysicalAbuse: boolean; subCatSexualAbuse: boolean; subCatOsaec: boolean;
+  subCatCicl: boolean; subCatAtRisk: boolean; subCatStreetChild: boolean; subCatChildWithHiv: boolean;
+  isPwd: boolean; pwdType: string; hasSpecialNeeds: boolean; specialNeedsDiagnosis: string;
+  familyIs4ps: boolean; familySoloParent: boolean; familyIndigenous: boolean; familyParentPwd: boolean; familyInformalSettler: boolean;
 }
 
 const emptyForm: ResidentForm = {
-  caseControlNo: '', safehouseId: '', dateOfBirth: '', caseStatus: 'Active',
-  currentRiskLevel: 'Medium', caseCategory: 'Neglected',
-  referralSource: 'Government Agency', assignedSocialWorker: '', dateOfAdmission: '',
-  subCatTrafficked: false, subCatSexualAbuse: false, subCatPhysicalAbuse: false, subCatOsaec: false
+  caseControlNo: '', safehouseId: '', caseStatus: 'Active', sex: 'F',
+  dateOfBirth: '', birthStatus: 'Non-Marital', placeOfBirth: '', religion: '', caseCategory: 'Neglected',
+  dateOfAdmission: '',
+  referralSource: 'Government Agency', referringAgencyPerson: '',
+  dateColbRegistered: '', dateColbObtained: '', dateCaseStudyPrepared: '',
+  assignedSocialWorker: '', initialCaseAssessment: '',
+  reintegrationType: 'None', reintegrationStatus: 'Not Started',
+  initialRiskLevel: 'Medium', currentRiskLevel: 'Medium',
+  dateEnrolled: '', dateClosed: '', notesRestricted: '',
+  subCatOrphaned: false, subCatTrafficked: false, subCatChildLabor: false,
+  subCatPhysicalAbuse: false, subCatSexualAbuse: false, subCatOsaec: false,
+  subCatCicl: false, subCatAtRisk: false, subCatStreetChild: false, subCatChildWithHiv: false,
+  isPwd: false, pwdType: '', hasSpecialNeeds: false, specialNeedsDiagnosis: '',
+  familyIs4ps: false, familySoloParent: false, familyIndigenous: false, familyParentPwd: false, familyInformalSettler: false
 }
 
 export default function Residents() {
   const qc = useQueryClient()
-  const [filters, setFilters] = useState({ safehouseId: '', status: '', riskLevel: '', search: '' })
+  const [filters, setFilters] = useState({ safehouseId: '', status: '', riskLevel: '', caseCategory: '', search: '' })
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState<ResidentForm>(emptyForm)
 
@@ -50,6 +88,7 @@ export default function Residents() {
       ...(filters.safehouseId && { safehouseId: filters.safehouseId }),
       ...(filters.status && { status: filters.status }),
       ...(filters.riskLevel && { riskLevel: filters.riskLevel }),
+      ...(filters.caseCategory && { caseCategory: filters.caseCategory }),
     })
   })
 
@@ -59,18 +98,47 @@ export default function Residents() {
     mutationFn: () => createResident({
       caseControlNo: form.caseControlNo,
       safehouseId: form.safehouseId ? +form.safehouseId : null,
+      sex: form.sex,
       dateOfBirth: form.dateOfBirth || null,
+      birthStatus: form.birthStatus || null,
+      placeOfBirth: form.placeOfBirth || null,
+      religion: form.religion || null,
       caseStatus: form.caseStatus,
       currentRiskLevel: form.currentRiskLevel,
-      initialRiskLevel: form.currentRiskLevel,
+      initialRiskLevel: form.initialRiskLevel,
       caseCategory: form.caseCategory,
+      subCatOrphaned: form.subCatOrphaned,
       referralSource: form.referralSource,
+      referringAgencyPerson: form.referringAgencyPerson || null,
+      dateColbRegistered: form.dateColbRegistered || null,
+      dateColbObtained: form.dateColbObtained || null,
+      dateCaseStudyPrepared: form.dateCaseStudyPrepared || null,
       assignedSocialWorker: form.assignedSocialWorker,
+      initialCaseAssessment: form.initialCaseAssessment || null,
+      reintegrationType: form.reintegrationType || null,
+      reintegrationStatus: form.reintegrationStatus || null,
       dateOfAdmission: form.dateOfAdmission || null,
+      dateEnrolled: form.dateEnrolled || null,
+      dateClosed: form.dateClosed || null,
+      notesRestricted: form.notesRestricted || null,
       subCatTrafficked: form.subCatTrafficked,
+      subCatChildLabor: form.subCatChildLabor,
       subCatSexualAbuse: form.subCatSexualAbuse,
       subCatPhysicalAbuse: form.subCatPhysicalAbuse,
       subCatOsaec: form.subCatOsaec,
+      subCatCicl: form.subCatCicl,
+      subCatAtRisk: form.subCatAtRisk,
+      subCatStreetChild: form.subCatStreetChild,
+      subCatChildWithHiv: form.subCatChildWithHiv,
+      isPwd: form.isPwd,
+      pwdType: form.pwdType || null,
+      hasSpecialNeeds: form.hasSpecialNeeds,
+      specialNeedsDiagnosis: form.specialNeedsDiagnosis || null,
+      familyIs4ps: form.familyIs4ps,
+      familySoloParent: form.familySoloParent,
+      familyIndigenous: form.familyIndigenous,
+      familyParentPwd: form.familyParentPwd,
+      familyInformalSettler: form.familyInformalSettler,
     }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['residents'] }); setShowModal(false); setForm(emptyForm) }
   })
@@ -116,6 +184,11 @@ export default function Residents() {
             style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
             <option value="">All Risk Levels</option>
             {['Low', 'Medium', 'High', 'Critical'].map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <select value={filters.caseCategory} onChange={e => setFilters(p => ({ ...p, caseCategory: e.target.value }))}
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
+            <option value="">All Categories</option>
+            {CASE_CATEGORY_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
       </div>
@@ -164,16 +237,36 @@ export default function Residents() {
             <div className="grid-2">
               <div className="form-group"><label>Case Control No. *</label><input value={form.caseControlNo} onChange={e => setForm(p => ({ ...p, caseControlNo: e.target.value }))} placeholder="C0001" /></div>
               <div className="form-group"><label>Date of Birth</label><input type="date" value={form.dateOfBirth} onChange={e => setForm(p => ({ ...p, dateOfBirth: e.target.value }))} /></div>
+              <div className="form-group"><label>Birth Status</label>
+                <select value={form.birthStatus} onChange={e => setForm(p => ({ ...p, birthStatus: e.target.value }))}>
+                  {['Marital', 'Non-Marital'].map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
               <div className="form-group"><label>Safehouse</label>
                 <select value={form.safehouseId} onChange={e => setForm(p => ({ ...p, safehouseId: e.target.value }))}>
                   <option value="">Select safehouse</option>
                   {(safehouses ?? []).map((s: SafehouseRow) => <option key={s.safehouseId} value={s.safehouseId}>{s.name}</option>)}
                 </select>
               </div>
+              <div className="form-group"><label>Sex</label><input value={form.sex} onChange={e => setForm(p => ({ ...p, sex: e.target.value }))} /></div>
               <div className="form-group"><label>Admission Date</label><input type="date" value={form.dateOfAdmission} onChange={e => setForm(p => ({ ...p, dateOfAdmission: e.target.value }))} /></div>
+              <div className="form-group"><label>Date Enrolled</label><input type="date" value={form.dateEnrolled} onChange={e => setForm(p => ({ ...p, dateEnrolled: e.target.value }))} /></div>
+              <div className="form-group"><label>Date Closed</label><input type="date" value={form.dateClosed} onChange={e => setForm(p => ({ ...p, dateClosed: e.target.value }))} /></div>
+              <div className="form-group"><label>Place of Birth</label><input value={form.placeOfBirth} onChange={e => setForm(p => ({ ...p, placeOfBirth: e.target.value }))} /></div>
+              <div className="form-group"><label>Religion</label>
+                <select value={form.religion} onChange={e => setForm(p => ({ ...p, religion: e.target.value }))}>
+                  <option value="">Select religion</option>
+                  {RELIGION_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
               <div className="form-group"><label>Case Category</label>
                 <select value={form.caseCategory} onChange={e => setForm(p => ({ ...p, caseCategory: e.target.value }))}>
                   {['Abandoned', 'Foundling', 'Surrendered', 'Neglected'].map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="form-group"><label>Initial Risk Level</label>
+                <select value={form.initialRiskLevel} onChange={e => setForm(p => ({ ...p, initialRiskLevel: e.target.value }))}>
+                  {['Low', 'Medium', 'High', 'Critical'].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
               <div className="form-group"><label>Risk Level</label>
@@ -191,16 +284,66 @@ export default function Residents() {
                   {['Government Agency', 'NGO', 'Police', 'Self-Referral', 'Community', 'Court Order'].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
-              <div className="form-group" style={{ gridColumn: '1/-1' }}><label>Assigned Social Worker</label><input value={form.assignedSocialWorker} onChange={e => setForm(p => ({ ...p, assignedSocialWorker: e.target.value }))} /></div>
+              <div className="form-group"><label>Referring Agency/Person</label><input value={form.referringAgencyPerson} onChange={e => setForm(p => ({ ...p, referringAgencyPerson: e.target.value }))} /></div>
+              <div className="form-group"><label>Reintegration Type</label>
+                <select value={form.reintegrationType} onChange={e => setForm(p => ({ ...p, reintegrationType: e.target.value }))}>
+                  {['Family Reunification', 'Foster Care', 'Adoption (Domestic)', 'Adoption (Inter-Country)', 'Independent Living', 'None'].map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div className="form-group"><label>Reintegration Status</label>
+                <select value={form.reintegrationStatus} onChange={e => setForm(p => ({ ...p, reintegrationStatus: e.target.value }))}>
+                  {['Not Started', 'In Progress', 'Completed', 'On Hold'].map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div className="form-group"><label>COLB Registered Date</label><input type="date" value={form.dateColbRegistered} onChange={e => setForm(p => ({ ...p, dateColbRegistered: e.target.value }))} /></div>
+              <div className="form-group"><label>COLB Obtained Date</label><input type="date" value={form.dateColbObtained} onChange={e => setForm(p => ({ ...p, dateColbObtained: e.target.value }))} /></div>
+              <div className="form-group"><label>Case Study Prepared Date</label><input type="date" value={form.dateCaseStudyPrepared} onChange={e => setForm(p => ({ ...p, dateCaseStudyPrepared: e.target.value }))} /></div>
+              <div className="form-group"><label>PWD Type</label><input value={form.pwdType} onChange={e => setForm(p => ({ ...p, pwdType: e.target.value }))} /></div>
+              <div className="form-group"><label>Special Needs Diagnosis</label><input value={form.specialNeedsDiagnosis} onChange={e => setForm(p => ({ ...p, specialNeedsDiagnosis: e.target.value }))} /></div>
+              <div className="form-group" style={{ gridColumn: '1/-1' }}><label>Assigned Social Worker</label><input value={form.assignedSocialWorker} onChange={e => setForm(p => ({ ...p, assignedSocialWorker: e.target.value }))} placeholder="SW-00" /></div>
+              <div className="form-group" style={{ gridColumn: '1/-1' }}>
+                <label>Initial Case Assessment</label>
+                <select value={form.initialCaseAssessment} onChange={e => setForm(p => ({ ...p, initialCaseAssessment: e.target.value }))}>
+                  <option value="">Select assessment</option>
+                  {INITIAL_CASE_ASSESSMENT_OPTIONS.map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </div>
+              <div className="form-group" style={{ gridColumn: '1/-1' }}><label>Restricted Notes</label><textarea rows={2} value={form.notesRestricted} onChange={e => setForm(p => ({ ...p, notesRestricted: e.target.value }))} /></div>
             </div>
             <div style={{ marginTop: 8, marginBottom: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)' }}>Sub-categories</div>
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                 {[
+                  ['subCatOrphaned', 'Orphaned'],
                   ['subCatTrafficked', 'Trafficked'],
+                  ['subCatChildLabor', 'Child Labor'],
                   ['subCatSexualAbuse', 'Sexual Abuse'],
                   ['subCatPhysicalAbuse', 'Physical Abuse'],
-                  ['subCatOsaec', 'OSAEC/CSAEM']
+                  ['subCatOsaec', 'OSAEC/CSAEM'],
+                  ['subCatCicl', 'CICL'],
+                  ['subCatAtRisk', 'At Risk'],
+                  ['subCatStreetChild', 'Street Child'],
+                  ['subCatChildWithHiv', 'Child with HIV']
+                ].map(([key, label]) => (
+                  <label key={key} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={form[key as keyof ResidentForm] as boolean}
+                      onChange={e => setForm(p => ({ ...p, [key]: e.target.checked }))} />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginTop: 8, marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)' }}>Resident / Family Flags</div>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                {[
+                  ['isPwd', 'Resident is PWD'],
+                  ['hasSpecialNeeds', 'Has Special Needs'],
+                  ['familyIs4ps', 'Family is 4Ps'],
+                  ['familySoloParent', 'Family Solo Parent'],
+                  ['familyIndigenous', 'Family Indigenous'],
+                  ['familyParentPwd', 'Family Parent PWD'],
+                  ['familyInformalSettler', 'Family Informal Settler']
                 ].map(([key, label]) => (
                   <label key={key} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, cursor: 'pointer' }}>
                     <input type="checkbox" checked={form[key as keyof ResidentForm] as boolean}
@@ -216,6 +359,11 @@ export default function Residents() {
                 {create.isPending ? 'Saving...' : 'Add Resident'}
               </button>
             </div>
+            {create.isError && (
+              <div style={{ marginTop: 10, background: '#fee2e2', color: '#b91c1c', borderRadius: 8, padding: '10px 12px', fontSize: 13 }}>
+                {(create.error as any)?.response?.data?.message || 'Unable to save resident. Check required fields and duplicates (e.g., case number/internal code).'}
+              </div>
+            )}
           </div>
         </div>
       )}

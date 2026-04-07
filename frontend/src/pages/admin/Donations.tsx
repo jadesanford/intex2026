@@ -1,7 +1,28 @@
-import { useState } from 'react'
+import { useMemo, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getDonations, getDonationSummary, getSupporters, createDonation } from '../../lib/api'
-import { Plus, PhilippinePeso } from 'lucide-react'
+import {
+  getDonations,
+  getDonation,
+  getDonationSummary,
+  getSupporters,
+  createDonation,
+  updateDonation,
+  deleteDonation,
+  syncDonationInKindItems
+} from '../../lib/api'
+import DonationEditModal, {
+  donationRecordToForm,
+  formToDonationPatch,
+  emptyDonationForm,
+  type DonationEditFormState
+} from './DonationEditModal'
+import {
+  donationTypeIsInKind,
+  inKindLinesToPayload,
+  inKindApiToFormLines
+} from '../../lib/inKindDonationItems'
+import { Plus, Search } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 function formatPHP(n: number) {
@@ -11,47 +32,159 @@ function formatPHP(n: number) {
 }
 
 type DonationRow = {
-  donationId: number; donationDate: string; channelSource: string; campaignName: string;
-  donationType: string; amount: number; estimatedValue: number; currencyCode: string; isRecurring: boolean;
+  donationId: number
+  supporterId?: number
+  donationDate: string
+  channelSource: string
+  campaignName: string
+  donationType: string
+  amount: number
+  estimatedValue: number
+  currencyCode: string
+  isRecurring: boolean
+  notes?: string
   supporters?: { displayName: string; organizationName: string; supporterType: string }
 }
 
 type SupporterRow = { supporterId: number; displayName: string; organizationName: string }
 
+const DONATION_TYPE_FILTERS = ['', 'Monetary', 'InKind', 'Time', 'Skills', 'SocialMedia'] as const
+type RecurringFilter = '' | 'yes' | 'no'
+
+function donationMatchesSearch(d: DonationRow, q: string): boolean {
+  const s = q.trim().toLowerCase()
+  if (!s) return true
+  const donor = `${d.supporters?.displayName || ''} ${d.supporters?.organizationName || ''}`.toLowerCase()
+  const idStr = String(d.donationId)
+  if (idStr.includes(s)) return true
+  if (donor.includes(s)) return true
+  if ((d.campaignName || '').toLowerCase().includes(s)) return true
+  if ((d.channelSource || '').toLowerCase().includes(s)) return true
+  if ((d.notes || '').toLowerCase().includes(s)) return true
+  if ((d.donationType || '').toLowerCase().includes(s)) return true
+  return false
+}
+
 export default function Donations() {
   const qc = useQueryClient()
+  const [typeFilter, setTypeFilter] = useState<string>('')
+  const [recurringFilter, setRecurringFilter] = useState<RecurringFilter>('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({
-    supporterId: '', amount: '', donationType: 'Monetary', channelSource: 'Website',
-    campaignName: '', donationDate: new Date().toISOString().slice(0, 10),
-    isRecurring: 'false', notes: ''
+  const [editRow, setEditRow] = useState<DonationRow | null>(null)
+  const [editError, setEditError] = useState('')
+
+  const editingInKind = !!editRow && donationTypeIsInKind(editRow.donationType)
+  const { data: editDonationDetail, isLoading: editDetailLoading, isError: editDetailError } = useQuery({
+    queryKey: ['donation', editRow?.donationId],
+    queryFn: () => getDonation(editRow!.donationId),
+    enabled: editingInKind && !!editRow
   })
 
+  useEffect(() => {
+    if (editDetailError && editingInKind && editRow) {
+      window.alert('Could not load line items for this donation.')
+      setEditRow(null)
+    }
+  }, [editDetailError, editingInKind, editRow])
+
+  const editModalInitial = useMemo((): DonationEditFormState | null => {
+    if (!editRow) return null
+    const base = donationRecordToForm(editRow)
+    if (donationTypeIsInKind(editRow.donationType)) {
+      if (!editDonationDetail) return null
+      return {
+        ...base,
+        inKindItems: inKindApiToFormLines(editDonationDetail.inKindItems)
+      }
+    }
+    return { ...base, inKindItems: [] }
+  }, [editRow, editDonationDetail])
+
+  const editModalOpen = !!editRow && (!editingInKind || (!editDetailLoading && editModalInitial !== null))
+
+  const createModalInitial = useMemo(() => emptyDonationForm(), [showModal])
+
+  const donationQueryParams = useMemo(() => {
+    const p: Record<string, string | number> = { pageSize: 500 }
+    if (typeFilter) p.type = typeFilter
+    if (recurringFilter === 'yes') p.recurring = 'true'
+    if (recurringFilter === 'no') p.recurring = 'false'
+    return p
+  }, [typeFilter, recurringFilter])
+
   const { data: donations, isLoading } = useQuery({
-    queryKey: ['all-donations'],
-    queryFn: () => getDonations({ pageSize: 100 })
+    queryKey: ['all-donations', typeFilter, recurringFilter],
+    queryFn: () => getDonations(donationQueryParams)
   })
+
+  const filteredDonations = useMemo(() => {
+    const rows = (donations ?? []) as DonationRow[]
+    return rows.filter(d => donationMatchesSearch(d, searchQuery))
+  }, [donations, searchQuery])
   const { data: summary } = useQuery({ queryKey: ['donation-summary'], queryFn: getDonationSummary })
   const { data: supporters } = useQuery({ queryKey: ['supporters'], queryFn: () => getSupporters() })
 
-  const create = useMutation({
-    mutationFn: () => createDonation({
-      supporterId: form.supporterId ? +form.supporterId : null,
-      amount: form.amount ? +form.amount : null,
-      donationType: form.donationType,
-      channelSource: form.channelSource,
-      campaignName: form.campaignName,
-      donationDate: form.donationDate,
-      isRecurring: form.isRecurring === 'true',
-      currencyCode: 'PHP',
-      notes: form.notes
-    }),
+  const createFull = useMutation({
+    mutationFn: async (form: DonationEditFormState) => {
+      const created = (await createDonation(formToDonationPatch(form))) as { donationId: number }
+      const id = created.donationId
+      if (donationTypeIsInKind(form.donationType)) {
+        await syncDonationInKindItems(id, inKindLinesToPayload(form.inKindItems))
+      }
+      return created
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['all-donations'] })
       qc.invalidateQueries({ queryKey: ['donation-summary'] })
       setShowModal(false)
+    },
+    onError: (err: { response?: { data?: { message?: string } } }) => {
+      window.alert(err?.response?.data?.message || 'Unable to record donation.')
     }
   })
+
+  const update = useMutation({
+    mutationFn: async ({ id, form }: { id: number; form: DonationEditFormState }) => {
+      await updateDonation(id, formToDonationPatch(form))
+      await syncDonationInKindItems(
+        id,
+        donationTypeIsInKind(form.donationType) ? inKindLinesToPayload(form.inKindItems) : []
+      )
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['all-donations'] })
+      qc.invalidateQueries({ queryKey: ['donation-summary'] })
+      qc.invalidateQueries({ queryKey: ['donation'] })
+      setEditRow(null)
+      setEditError('')
+    },
+    onError: (err: { response?: { data?: { message?: string } } }) => {
+      setEditError(err?.response?.data?.message || 'Unable to update donation.')
+    }
+  })
+
+  const remove = useMutation({
+    mutationFn: (id: number) => deleteDonation(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['all-donations'] })
+      qc.invalidateQueries({ queryKey: ['donation-summary'] })
+    },
+    onError: (err: { response?: { data?: { message?: string } } }) => {
+      window.alert(err?.response?.data?.message || 'Unable to delete donation.')
+    }
+  })
+
+  const saveEdit = (f: DonationEditFormState) => {
+    if (!editRow) return
+    setEditError('')
+    update.mutate({ id: editRow.donationId, form: f })
+  }
+
+  const confirmDelete = (d: DonationRow) => {
+    if (!window.confirm(`Delete donation #${d.donationId}? This cannot be undone.`)) return
+    remove.mutate(d.donationId)
+  }
 
   const chartData = (summary?.monthly ?? []).map((m: { month: string; total: number }) => ({
     month: m.month?.slice(5), amount: Math.round(m.total / 1_000)
@@ -99,13 +232,53 @@ export default function Donations() {
       )}
 
       <div className="card" style={{ padding: 0 }}>
+        <div
+          style={{
+            padding: '16px 20px',
+            borderBottom: '1px solid var(--border)',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 12,
+            alignItems: 'flex-end'
+          }}
+        >
+          <div className="form-group" style={{ flex: '1 1 220px', marginBottom: 0, minWidth: 200 }}>
+            <label style={{ fontSize: 12 }}>Search</label>
+            <div style={{ position: 'relative' }}>
+              <Search size={16} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <input
+                type="search"
+                placeholder="ID, donor, campaign, channel, notes…"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{ paddingLeft: 36, width: '100%' }}
+              />
+            </div>
+          </div>
+          <div className="form-group" style={{ marginBottom: 0, minWidth: 140 }}>
+            <label style={{ fontSize: 12 }}>Type</label>
+            <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+              {DONATION_TYPE_FILTERS.map(t => (
+                <option key={t || 'all'} value={t}>{t === '' ? 'All types' : t}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: 0, minWidth: 140 }}>
+            <label style={{ fontSize: 12 }}>Recurring</label>
+            <select value={recurringFilter} onChange={e => setRecurringFilter(e.target.value as RecurringFilter)}>
+              <option value="">All</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+        </div>
         {isLoading ? <div className="loading-center"><div className="spinner" /></div>
           : (
             <div className="table-wrapper">
               <table>
-                <thead><tr><th>Date</th><th>Donor</th><th>Amount</th><th>Type</th><th>Campaign</th><th>Channel</th><th>Recurring</th></tr></thead>
+                <thead><tr><th>Date</th><th>Donor</th><th>Amount</th><th>Type</th><th>Campaign</th><th>Channel</th><th>Recurring</th><th>In-kind / actions</th></tr></thead>
                 <tbody>
-                  {(donations ?? []).map((d: DonationRow) => {
+                  {filteredDonations.map((d: DonationRow) => {
                     const donorName = d.supporters?.displayName || d.supporters?.organizationName || 'Anonymous'
                     const val = d.donationType === 'Monetary' ? d.amount : d.estimatedValue
                     return (
@@ -117,55 +290,74 @@ export default function Donations() {
                         <td style={{ fontSize: 13 }}>{d.campaignName || '—'}</td>
                         <td style={{ fontSize: 13 }}>{d.channelSource || '—'}</td>
                         <td style={{ fontSize: 13 }}>{d.isRecurring ? <span style={{ color: 'var(--success)' }}>✓</span> : '—'}</td>
+                        <td>
+                          {donationTypeIsInKind(d.donationType) ? (
+                            <Link
+                              to={`/admin/donations/${d.donationId}`}
+                              style={{ color: 'var(--terracotta)', fontSize: 13, fontWeight: 500 }}
+                            >
+                              View donation →
+                            </Link>
+                          ) : (
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                              <button
+                                type="button"
+                                className="btn btn-ghost btn-sm"
+                                onClick={() => {
+                                  setEditError('')
+                                  setEditRow(d)
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-danger btn-sm"
+                                onClick={() => confirmDelete(d)}
+                                disabled={remove.isPending}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </td>
                       </tr>
                     )
                   })}
                 </tbody>
               </table>
+              {!isLoading && filteredDonations.length === 0 && (
+                <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
+                  No donations match your filters or search.
+                </div>
+              )}
             </div>
           )}
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header"><h2>Record Donation</h2><button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}>✕</button></div>
-            <div className="grid-2">
-              <div className="form-group" style={{ gridColumn: '1/-1' }}><label>Donor</label>
-                <select value={form.supporterId} onChange={e => setForm(p => ({ ...p, supporterId: e.target.value }))}>
-                  <option value="">Anonymous</option>
-                  {(supporters ?? []).map((s: SupporterRow) => (
-                    <option key={s.supporterId} value={s.supporterId}>{s.displayName || s.organizationName}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group"><label>Amount (₱)</label><input type="number" value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} placeholder="0" /></div>
-              <div className="form-group"><label>Date</label><input type="date" value={form.donationDate} onChange={e => setForm(p => ({ ...p, donationDate: e.target.value }))} /></div>
-              <div className="form-group"><label>Type</label>
-                <select value={form.donationType} onChange={e => setForm(p => ({ ...p, donationType: e.target.value }))}>
-                  {['Monetary', 'InKind'].map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-              <div className="form-group"><label>Channel</label>
-                <select value={form.channelSource} onChange={e => setForm(p => ({ ...p, channelSource: e.target.value }))}>
-                  {['Website', 'BankTransfer', 'GCash', 'Maya', 'Church', 'Corporate', 'DirectGiving', 'Event', 'SocialMedia', 'PartnerReferral'].map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div className="form-group"><label>Campaign</label><input value={form.campaignName} onChange={e => setForm(p => ({ ...p, campaignName: e.target.value }))} placeholder="e.g. Year-end Appeal" /></div>
-              <div className="form-group"><label>Recurring</label>
-                <select value={form.isRecurring} onChange={e => setForm(p => ({ ...p, isRecurring: e.target.value }))}>
-                  <option value="false">No</option><option value="true">Yes</option>
-                </select>
-              </div>
-            </div>
-            <div className="form-group"><label>Notes</label><textarea rows={2} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} style={{ resize: 'vertical' }} /></div>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={() => create.mutate()} disabled={!form.amount || create.isPending}>{create.isPending ? 'Saving...' : 'Record Donation'}</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DonationEditModal
+        open={editModalOpen}
+        title="Edit donation"
+        supporters={(supporters ?? []) as SupporterRow[]}
+        initial={editModalInitial}
+        onClose={() => {
+          setEditRow(null)
+          setEditError('')
+        }}
+        onSave={saveEdit}
+        isPending={update.isPending}
+        error={editError}
+      />
+
+      <DonationEditModal
+        open={showModal}
+        title="Record donation"
+        supporters={(supporters ?? []) as SupporterRow[]}
+        initial={createModalInitial}
+        onClose={() => setShowModal(false)}
+        onSave={f => createFull.mutate(f)}
+        isPending={createFull.isPending}
+      />
     </div>
   )
 }

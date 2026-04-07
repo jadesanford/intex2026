@@ -82,8 +82,11 @@ public class SupportersController(SupabaseService db) : ControllerBase
             email = req.Email,
             phone = req.Phone,
             status = req.Status ?? "Active",
-            acquisition_channel = req.AcquisitionChannel
+            acquisition_channel = req.AcquisitionChannel,
+            first_donation_date = string.IsNullOrWhiteSpace(req.FirstDonationDate) ? null : req.FirstDonationDate
         });
+        if (result == null)
+            return BadRequest(new { message = "Unable to create supporter." });
         return Ok(result);
     }
 
@@ -102,9 +105,12 @@ public class SupportersController(SupabaseService db) : ControllerBase
             country = req.Country,
             email = req.Email,
             phone = req.Phone,
-            status = req.Status,
-            acquisition_channel = req.AcquisitionChannel
+            status = string.IsNullOrWhiteSpace(req.Status) ? "Active" : req.Status,
+            acquisition_channel = req.AcquisitionChannel,
+            first_donation_date = string.IsNullOrWhiteSpace(req.FirstDonationDate) ? null : req.FirstDonationDate
         });
+        if (result == null)
+            return BadRequest(new { message = "Unable to update supporter." });
         return Ok(result);
     }
 
@@ -112,7 +118,9 @@ public class SupportersController(SupabaseService db) : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        await db.DeleteAsync("supporters", $"supporter_id=eq.{id}");
+        var deleted = await db.DeleteAsync("supporters", $"supporter_id=eq.{id}");
+        if (!deleted)
+            return BadRequest(new { message = "Unable to delete supporter. They may have related donations, a linked login account, or database constraints prevented removal." });
         return NoContent();
     }
 }
