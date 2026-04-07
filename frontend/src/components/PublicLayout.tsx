@@ -6,8 +6,8 @@ import { useAuth } from '../contexts/AuthContext'
 interface Props { children: React.ReactNode; lang: 'en' | 'tl'; setLang: (l: 'en' | 'tl') => void }
 
 const t = {
-  en: { home: 'Home', impact: 'Our Impact', login: 'Staff Login', donate: 'Donate', signup: 'Create Account', dashboard: 'My Dashboard', signout: 'Sign Out', cookieMsg: 'We use cookies to enhance your experience.', accept: 'Accept' },
-  tl: { home: 'Tahanan', impact: 'Aming Epekto', login: 'Login ng Kawani', donate: 'Mag-donate', signup: 'Gumawa ng Account', dashboard: 'Aking Dashboard', signout: 'Mag-sign Out', cookieMsg: 'Gumagamit kami ng cookies upang mapabuti ang inyong karanasan.', accept: 'Tanggapin' }
+  en: { home: 'Home', impact: 'Our Impact', login: 'Login', donate: 'Donate', signup: 'Create Account', dashboard: 'My Dashboard', signout: 'Sign Out', cookieMsg: 'We use cookies to enhance your experience.', accept: 'Accept' },
+  tl: { home: 'Tahanan', impact: 'Aming Epekto', login: 'Login', donate: 'Mag-donate', signup: 'Gumawa ng Account', dashboard: 'Aking Dashboard', signout: 'Mag-sign Out', cookieMsg: 'Gumagamit kami ng cookies upang mapabuti ang inyong karanasan.', accept: 'Tanggapin' }
 }
 
 export default function PublicLayout({ children, lang, setLang }: Props) {

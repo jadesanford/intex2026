@@ -67,6 +67,7 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
         // Create supporter record first
         var supporter = await db.InsertAsync<Supporter>("supporters", new
         {
+            name = displayName,
             supporter_type = req.SupporterType ?? "MonetaryDonor",
             display_name = displayName,
             organization_name = req.OrganizationName,

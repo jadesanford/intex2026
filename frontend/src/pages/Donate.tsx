@@ -149,27 +149,8 @@ export default function Donate({ lang }: Props) {
               </div>
             </div>
 
-            {!user && (
-              <div className="card" style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 16, marginBottom: 4, color: 'var(--navy)' }}>Your Information</h3>
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-                  <Link to="/signup" style={{ color: 'var(--terracotta)', fontWeight: 600 }}>Create an account</Link> to track your donations, or donate as a guest below.
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label>Name (optional)</label>
-                    <input value={donorName} onChange={e => setDonorName(e.target.value)} placeholder="Your name" />
-                  </div>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label>Email (optional)</label>
-                    <input type="email" value={donorEmail} onChange={e => setDonorEmail(e.target.value)} placeholder="you@example.com" />
-                  </div>
-                </div>
-              </div>
-            )}
-
             {user && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: '#f0fdf4', borderRadius: 10, border: '1px solid #bbf7d0', marginBottom: 20, fontSize: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', background: '#f0fdf4', borderRadius: 10, border: '1px solid #bbf7d0', marginBottom: 20, fontSize: 14 }}>
                 <CheckCircle size={16} color="#16a34a" />
                 <span>Donating as <strong>{user.displayName}</strong></span>
                 {user.role === 'donor' && <span style={{ color: 'var(--text-muted)' }}>— your donation history will be saved</span>}
@@ -180,9 +161,25 @@ export default function Donate({ lang }: Props) {
               <div style={{ background: '#fee2e2', color: '#dc2626', padding: '10px 14px', borderRadius: 8, fontSize: 14, marginBottom: 16 }}>{error}</div>
             )}
 
+            {!user && (
+              <div style={{ background: '#fff7ed', border: '1.5px solid #fed7aa', borderRadius: 12, padding: '16px 20px', marginBottom: 16, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>⚠️</span>
+                <div>
+                  <div style={{ fontWeight: 600, color: '#9a3412', marginBottom: 4, fontSize: 15 }}>Account required to donate</div>
+                  <div style={{ fontSize: 14, color: '#c2410c', lineHeight: 1.6 }}>
+                    Please{' '}
+                    <Link to="/signup" style={{ color: 'var(--terracotta)', fontWeight: 700, textDecoration: 'underline' }}>create a free account</Link>
+                    {' '}or{' '}
+                    <Link to="/login" style={{ color: 'var(--terracotta)', fontWeight: 700, textDecoration: 'underline' }}>sign in</Link>
+                    {' '}to make a donation. This helps us track your giving and send you updates.
+                  </div>
+                </div>
+              </div>
+            )}
+
             <button type="submit" className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: 18, borderRadius: 14 }}
-              disabled={loading || !finalAmount}>
+              style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: 18, borderRadius: 14, opacity: !user ? 0.5 : 1 }}
+              disabled={loading || !finalAmount || !user}>
               {loading ? 'Processing...' : `Donate ${finalAmount ? `₱${finalAmount.toLocaleString()}` : ''} Now`}
             </button>
             <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', marginTop: 12 }}>
