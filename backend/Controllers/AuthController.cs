@@ -19,8 +19,15 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
         if (!AuthService.VerifyPassword(req.Password, user.PasswordHash))
             return Unauthorized(new { message = "Invalid username or password" });
 
+        // For donors, resolve supporterId via email if not already set
+        if (user.Role == "donor" && !user.SupporterId.HasValue && !string.IsNullOrEmpty(user.Email))
+        {
+            var supporter = await db.GetOneAsync<Supporter>("supporters", $"email=eq.{user.Email}&select=supporter_id");
+            if (supporter != null) user.SupporterId = supporter.SupporterId;
+        }
+
         var token = auth.GenerateToken(user);
-        return Ok(new LoginResponse(token, user.Username, user.DisplayName ?? user.Username, user.Role, user.Id));
+        return Ok(new LoginResponse(token, user.Username, user.DisplayName ?? user.Username, user.Role, user.Id, user.SupporterId));
     }
 
     [HttpPost("register")]
@@ -43,6 +50,51 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
         return Ok(user);
     }
 
+    [HttpPost("register-donor")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RegisterDonor([FromBody] RegisterDonorRequest req)
+    {
+        var existing = await db.GetOneAsync<User>("users", $"username=eq.{req.Username}");
+        if (existing != null)
+            return Conflict(new { message = "An account with that email already exists" });
+
+        var displayName = $"{req.FirstName} {req.LastName}".Trim();
+        if (string.IsNullOrEmpty(displayName)) displayName = req.Username;
+
+        // Create supporter record first
+        var supporter = await db.InsertAsync<Supporter>("supporters", new
+        {
+            supporter_type = "Individual",
+            first_name = req.FirstName,
+            last_name = req.LastName,
+            display_name = displayName,
+            email = req.Email,
+            phone = req.Phone,
+            city = req.City,
+            country = req.Country ?? "Philippines",
+            relationship_type = "Donor",
+            status = "Active",
+            acquisition_channel = "Website"
+        });
+
+        // Create user account (role = donor)
+        var hash = AuthService.HashPassword(req.Password);
+        var user = await db.InsertAsync<User>("users", new
+        {
+            username = req.Username,
+            password_hash = hash,
+            display_name = displayName,
+            email = req.Email,
+            role = "donor"
+        });
+
+        // Link supporter_id for the JWT (resolved via email at login)
+        user.SupporterId = supporter.SupporterId;
+
+        var token = auth.GenerateToken(user);
+        return Ok(new LoginResponse(token, user.Username, user.DisplayName ?? user.Username, user.Role, user.Id, user.SupporterId));
+    }
+
     [HttpGet("me")]
     [Authorize]
     public IActionResult Me()
@@ -51,6 +103,7 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
         var username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
         var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
         var displayName = User.FindFirst("display_name")?.Value;
-        return Ok(new { id, username, role, displayName });
+        var supporterId = User.FindFirst("supporter_id")?.Value;
+        return Ok(new { id, username, role, displayName, supporterId });
     }
 }

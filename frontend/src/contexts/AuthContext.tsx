@@ -1,13 +1,15 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import { login as loginApi } from '../lib/api'
 
-interface User { id: number; username: string; displayName: string; role: string }
+interface User { id: number; username: string; displayName: string; role: string; supporterId?: number }
 interface AuthCtx {
   user: User | null
   loading: boolean
   login: (username: string, password: string) => Promise<void>
+  loginWithData: (data: any) => void
   logout: () => void
   isAdmin: boolean
+  isDonor: boolean
 }
 
 const Ctx = createContext<AuthCtx | null>(null)
@@ -25,23 +27,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false)
   }, [])
 
-  const login = async (username: string, password: string) => {
-    const data = await loginApi(username, password)
-    const u: User = { id: data.id, username: data.username, displayName: data.displayName, role: data.role }
+  const setUserFromData = (data: any) => {
+    const u: User = {
+      id: data.id, username: data.username,
+      displayName: data.displayName, role: data.role,
+      supporterId: data.supporterId ?? undefined
+    }
     localStorage.setItem('oa_token', data.token)
     localStorage.setItem('oa_user', JSON.stringify(u))
     setUser(u)
   }
 
+  const login = async (username: string, password: string) => {
+    const data = await loginApi(username, password)
+    setUserFromData(data)
+    return data
+  }
+
+  const loginWithData = (data: any) => setUserFromData(data)
+
   const logout = () => {
     localStorage.removeItem('oa_token')
     localStorage.removeItem('oa_user')
     setUser(null)
-    window.location.href = '/login'
+    window.location.href = '/'
   }
 
   return (
-    <Ctx.Provider value={{ user, loading, login, logout, isAdmin: user?.role === 'admin' }}>
+    <Ctx.Provider value={{
+      user, loading, login, loginWithData, logout,
+      isAdmin: user?.role === 'admin',
+      isDonor: user?.role === 'donor'
+    }}>
       {children}
     </Ctx.Provider>
   )

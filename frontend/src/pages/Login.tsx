@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Heart, AlertCircle } from 'lucide-react'
 
 export default function Login() {
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const nav = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
@@ -15,8 +15,8 @@ export default function Login() {
     if (!form.username || !form.password) { setError('Please fill in all fields.'); return }
     setLoading(true); setError('')
     try {
-      await login(form.username, form.password)
-      nav('/admin')
+      const data = await login(form.username, form.password)
+      nav(data?.role === 'donor' ? '/donor' : '/admin')
     } catch {
       setError('Invalid username or password. Please try again.')
     } finally { setLoading(false) }

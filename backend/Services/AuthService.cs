@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -26,7 +27,7 @@ public class AuthService
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
@@ -34,6 +35,8 @@ public class AuthService
             new Claim(ClaimTypes.Role, user.Role),
             new Claim("display_name", user.DisplayName ?? user.Username)
         };
+        if (user.SupporterId.HasValue)
+            claims.Add(new Claim("supporter_id", user.SupporterId.Value.ToString()));
 
         var token = new JwtSecurityToken(
             issuer: _issuer,

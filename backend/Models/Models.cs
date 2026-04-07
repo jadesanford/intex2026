@@ -10,6 +10,7 @@ public class User
     public string? DisplayName { get; set; }
     public string? Email { get; set; }
     public string Role { get; set; } = "staff";
+    public int? SupporterId { get; set; }
     public DateTime? CreatedAt { get; set; }
 }
 
@@ -347,7 +348,10 @@ public class PublicImpactSnapshot
 // Auth DTOs
 public record LoginRequest(string Username, string Password);
 public record RegisterRequest(string Username, string Password, string? DisplayName, string? Email, string Role = "staff");
-public record LoginResponse(string Token, string Username, string DisplayName, string Role, int Id);
+public record LoginResponse(string Token, string Username, string DisplayName, string Role, int Id, int? SupporterId = null);
+public record RegisterDonorRequest(
+    string Username, string Password, string? FirstName, string? LastName,
+    string? Email, string? Phone, string? City, string? Country);
 
 // Request DTOs
 public record SafehouseRequest(

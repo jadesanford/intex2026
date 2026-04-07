@@ -10,6 +10,9 @@ import Home from './pages/Home'
 import Impact from './pages/Impact'
 import Login from './pages/Login'
 import Privacy from './pages/Privacy'
+import Signup from './pages/Signup'
+import Donate from './pages/Donate'
+import DonorDashboard from './pages/DonorDashboard'
 
 import Dashboard from './pages/admin/Dashboard'
 import Residents from './pages/admin/Residents'
@@ -32,6 +35,14 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function RequireDonor({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth()
+  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><div className="spinner" /></div>
+  if (!user) return <Navigate to="/login" replace />
+  if (user.role !== 'donor') return <Navigate to="/admin" replace />
+  return <>{children}</>
+}
+
 function AppRoutes() {
   const [lang, setLang] = useState<'en' | 'tl'>('en')
 
@@ -40,7 +51,11 @@ function AppRoutes() {
       <Route path="/" element={<PublicLayout lang={lang} setLang={setLang}><Home lang={lang} /></PublicLayout>} />
       <Route path="/impact" element={<PublicLayout lang={lang} setLang={setLang}><Impact lang={lang} /></PublicLayout>} />
       <Route path="/privacy" element={<PublicLayout lang={lang} setLang={setLang}><Privacy lang={lang} /></PublicLayout>} />
+      <Route path="/donate" element={<Donate lang={lang} />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
+
+      <Route path="/donor" element={<RequireDonor><DonorDashboard /></RequireDonor>} />
 
       <Route path="/admin" element={<RequireAuth><AdminLayout><Dashboard /></AdminLayout></RequireAuth>} />
       <Route path="/admin/residents" element={<RequireAuth><AdminLayout><Residents /></AdminLayout></RequireAuth>} />

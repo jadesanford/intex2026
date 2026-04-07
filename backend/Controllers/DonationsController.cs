@@ -52,6 +52,24 @@ public class DonationsController(SupabaseService db) : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("mine")]
+    [Authorize(Roles = "donor")]
+    public async Task<IActionResult> GetMine()
+    {
+        var supporterIdClaim = User.FindFirst("supporter_id")?.Value;
+        if (!int.TryParse(supporterIdClaim, out var supporterId))
+            return BadRequest(new { message = "No supporter account linked" });
+
+        var donations = await db.GetAllAsync<Donation>("donations",
+            $"select=*&supporter_id=eq.{supporterId}&order=donation_date.desc");
+
+        return Ok(donations.Select(d => new
+        {
+            d.DonationId, d.DonationType, d.DonationDate, d.ChannelSource,
+            d.CurrencyCode, d.Amount, d.IsRecurring, d.CampaignName, d.Notes
+        }));
+    }
+
     [HttpGet("summary")]
     public async Task<IActionResult> Summary()
     {
