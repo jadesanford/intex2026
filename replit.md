@@ -1,87 +1,146 @@
-# Open Arms — Workspace
+# Open Arms — Project Reference
 
 ## Overview
 
-Full-stack nonprofit web application for an Indonesian NGO supporting survivors of sexual abuse and trafficking. Built as a pnpm monorepo with TypeScript throughout.
+Full-stack nonprofit web application for a Philippine NGO supporting survivors of sexual abuse and trafficking. Philippines-based (Luzon / Visayas / Mindanao), currency PHP (₱).
 
 ## Stack
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **Frontend**: React + Vite (artifacts/open-arms)
-- **API framework**: Express 5 (artifacts/api-server)
-- **Database**: PostgreSQL + Drizzle ORM (lib/db)
-- **Auth**: express-session (cookie-based, session stored server-side)
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec in lib/api-spec)
-- **Charts**: Recharts
-- **Build**: esbuild
+| Layer | Technology |
+|---|---|
+| Frontend | React 19 + Vite + TypeScript (`/frontend`) |
+| Backend | .NET 10 C# Web API (`/backend`) |
+| Database | Supabase PostgreSQL (accessed via PostgREST REST API) |
+| Package manager | npm (frontend) / dotnet CLI (backend) |
+| Charts | Recharts |
+| HTTP client | Axios + TanStack React Query |
+| Icons | Lucide React |
 
-## Auth
+## Running the App
 
-- Session-based login via `POST /api/auth/login`
-- Password hashing: `sha256(password + "open_arms_salt_2024")`
-- Default admin: username `admin`, password `Admin@2024!`
-- Default staff: username `staff.sarah` / `staff.budi`, password `Staff@2024!`
+- **Frontend**: `npm --prefix /home/runner/workspace/frontend run dev` (workflow: `artifacts/open-arms: web`)
+- **Backend API**: `dotnet run --project /home/runner/workspace/backend/OpenArms.Api.csproj` (workflow: `artifacts/api-server: API Server`)
 
-## Key Commands
+## Authentication
 
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- `pnpm --filter @workspace/api-server run dev` — run API server locally
-- `pnpm --filter @workspace/open-arms run dev` — run frontend locally
+- Session-based staff login via `POST /api/auth/login`
+- Staff credentials: `staff.openarms` / `OpenArms2025!`
+- Admin panel at `/admin` — redirects to `/login` if unauthenticated
 
-## Application Structure
+## Key Files
 
-### Public Site (`/`)
-- Homepage with bilingual EN/ID toggle, hero section, impact stats, contact form
-- `/impact` — Public impact dashboard (live DB stats, donation trends chart, safehouse map)
-- `/privacy` — Privacy policy with cookie consent banner
+```
+/frontend/src/
+  App.tsx                   — Router + lang state (EN | TL)
+  lib/api.ts                — All API calls (axios to /api/*)
+  components/
+    PublicLayout.tsx         — Public nav (EN/TL toggle, cookie banner)
+    AdminLayout.tsx          — Admin sidebar nav
+  pages/
+    Home.tsx                 — Public homepage (bilingual)
+    Impact.tsx               — Public impact dashboard (bilingual)
+    Privacy.tsx              — Privacy policy (bilingual)
+    Login.tsx                — Staff login form
+    admin/
+      Dashboard.tsx          — KPIs + high-risk alerts + recent donations
+      Residents.tsx          — Case list (filter by safehouse/risk/status)
+      ResidentDetail.tsx     — Individual case file
+      Donors.tsx             — Donor list + lapse risk
+      DonorDetail.tsx        — Donor profile + giving history
+      Donations.tsx          — Full donation log
+      Safehouses.tsx         — Safehouse management + capacity
+      Partners.tsx           — Partner organization directory
+      Incidents.tsx          — Incident reports
+      SocialMedia.tsx        — Social media performance
+      Analytics.tsx          — Charts and trends
 
-### Staff Portal (`/admin`)
-Requires authentication (redirect to `/login` if unauthenticated)
-- `/admin` — Main dashboard (KPIs, high-risk alerts, recent donations)
-- `/admin/residents` — Case management list with filtering by safehouse/risk/status
-- `/admin/residents/:id` — Individual case file (sessions, visitations, health, education, interventions)
-- `/admin/donors` — Donor management with lapse risk analysis
-- `/admin/donors/:id` — Individual donor profile and giving history
-- `/admin/donations` — Full donation log
-- `/admin/safehouses` — Safehouse management and capacity comparison
-- `/admin/partners` — Partner organization directory
-- `/admin/incidents` — Incident reporting and tracking
-- `/admin/social-media` — Social media performance tracking
-- `/admin/analytics` — Detailed analytics and charts
+/backend/
+  OpenArms.Api.csproj
+  Controllers/
+    AuthController.cs
+    AnalyticsController.cs
+    DonationsController.cs
+    IncidentsController.cs
+    PartnersController.cs
+    PublicController.cs
+    ResidentsController.cs
+    SafehousesController.cs
+    SocialMediaController.cs
+    SupportersController.cs
+  Services/
+    SupabaseService.cs       — PostgREST HTTP client (CRITICAL: see notes below)
+  Models/
+    Models.cs                — All C# model classes
+```
 
-## Database Schema (lib/db/src/schema)
+## Supabase / PostgREST Critical Notes
 
-- `users` — Staff accounts with roles (admin, staff, donor)
-- `safehouses` — Safehouse locations across Indonesia
-- `residents` — Resident case records (anonymized by case code)
-- `process_recordings` — Counseling sessions
-- `visitations` — Family/guardian visit logs
-- `health_records` — Medical check records
-- `education_records` — School/training enrollment
-- `interventions` — Therapeutic/legal intervention logs
-- `risk_indicators` — Flagged risk events
-- `supporters` — Donors and partner organizations
-- `donations` — Donation transactions
-- `partners` — Partner NGOs, government, law enforcement
-- `incidents` — Incident reports
-- `social_media_posts` — Social media campaign tracking
+The backend talks to Supabase via PostgREST using the service role key.
 
-## API Routes (artifacts/api-server/src/routes)
+**CRITICAL — do NOT use PostgREST resource embedding** (e.g. `select=*,safehouses(name)`)  
+Joins must be done separately in C# — fetch each table independently and join in-memory.
 
-- `auth` — login, logout, me
-- `public` — impact-snapshot, safehouses map, donation-trends, outcome-metrics, contact
-- `safehouses` — CRUD for safehouse management
-- `residents` — CRUD + nested routes for sessions, visitations, health, education, interventions, risk indicators
-- `supporters` — CRUD with lapse risk
-- `donations` — CRUD with summary
-- `partners` — CRUD
-- `incidents` — CRUD
-- `analytics` — dashboard, trends, at-risk residents, lapsing donors, safehouse comparison
-- `social_media` — CRUD with metrics
+**CRITICAL — numeric JSON quirks:**
+- `SupabaseService` has `JsonNumberHandling.AllowReadingFromString` set globally — Postgres `numeric` columns come back as JSON strings like `"3313.0"`
+- `SanitizeJson()` replaces `"NaN"` / `"Infinity"` strings with `null` before deserialization
+- All money/stat fields in models use `decimal?` (nullable)
+
+**Environment variables used by backend:**
+- `SUPABASE_URL` — e.g. `https://xxx.supabase.co`
+- `SUPABASE_SERVICE_ROLE_KEY` — service role key (secret)
+
+## Database Tables (Supabase PostgreSQL)
+
+| Table | Primary Key | Notes |
+|---|---|---|
+| `safehouses` | `safehouse_id` | Locations across Philippines |
+| `residents` | `resident_id` | Case records (anonymized by case code) |
+| `home_visitations` | — | Family/guardian visit logs |
+| `health_wellbeing_records` | — | Medical check records |
+| `process_recordings` | — | Counseling sessions |
+| `supporters` | `supporter_id` | Donors and supporters |
+| `donations` | `donation_id` | Donation transactions (PHP) |
+| `partners` | `partner_id` | Partner NGOs, government, law enforcement |
+| `incident_reports` | `incident_id` | Incident reports |
+| `social_media_posts` | `post_id` | Social media campaign tracking (7 platforms) |
+
+**Actual data volumes:** 60 residents (30 active), 9 safehouses, 420 donations, 60 supporters, 100 incidents, 812 social media posts
+
+## Public Site Pages
+
+| Route | Description |
+|---|---|
+| `/` | Homepage — hero, mission, impact stats, faith section, CTA |
+| `/impact` | Public impact dashboard — live stats, donation trends chart, safehouse list |
+| `/privacy` | Privacy policy |
+
+All public pages support **EN / TL (Tagalog)** language toggle in the navbar.
+
+## Admin Portal Routes
+
+| Route | Description |
+|---|---|
+| `/admin` | Dashboard — KPIs, active high-risk cases, recent donations |
+| `/admin/residents` | Case management list |
+| `/admin/residents/:id` | Individual case file |
+| `/admin/donors` | Donor list with lapse risk |
+| `/admin/donors/:id` | Donor profile |
+| `/admin/donations` | Full donation log |
+| `/admin/safehouses` | Safehouse management |
+| `/admin/partners` | Partner directory |
+| `/admin/incidents` | Incident tracking |
+| `/admin/social-media` | Social media metrics (Facebook, Instagram, Twitter/X, TikTok, YouTube, LinkedIn, WhatsApp) |
+| `/admin/analytics` | Detailed analytics + charts |
+
+## Backend API Endpoints
+
+- `POST /api/auth/login` / `POST /api/auth/logout` / `GET /api/auth/me`
+- `GET /api/public/impact-snapshot` / `safehouses` / `donation-trends` / `outcome-metrics`
+- `GET/POST/PUT/DELETE /api/safehouses`
+- `GET/POST/PUT/DELETE /api/residents` — includes nested session/visitation/health/education data
+- `GET/POST/PUT/DELETE /api/supporters`
+- `GET/POST/PUT/DELETE /api/donations`
+- `GET/POST/PUT/DELETE /api/partners`
+- `GET/POST/PUT/DELETE /api/incidents`
+- `GET /api/analytics/dashboard` / `trends` / `at-risk` / `lapsing-donors` / `safehouse-comparison`
+- `GET/POST/PUT/DELETE /api/social-media`
