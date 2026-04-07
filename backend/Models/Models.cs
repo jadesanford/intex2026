@@ -62,6 +62,7 @@ public class PartnerAssignment
 
 public class Supporter
 {
+    [JsonPropertyName("id")]
     public int SupporterId { get; set; }
     public string? SupporterType { get; set; }
     public string? DisplayName { get; set; }
@@ -73,7 +74,7 @@ public class Supporter
     public string? Country { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
-    public string Status { get; set; } = "Active";
+    public string? Status { get; set; }
     public string? FirstDonationDate { get; set; }
     public string? AcquisitionChannel { get; set; }
     public DateTime? CreatedAt { get; set; }
@@ -350,8 +351,12 @@ public record LoginRequest(string Username, string Password);
 public record RegisterRequest(string Username, string Password, string? DisplayName, string? Email, string Role = "staff");
 public record LoginResponse(string Token, string Username, string DisplayName, string Role, int Id, int? SupporterId = null);
 public record RegisterDonorRequest(
-    string Username, string Password, string? FirstName, string? LastName,
-    string? Email, string? Phone, string? City, string? Country);
+    string Username, string Password,
+    string? SupporterType, string? DisplayName, string? OrganizationName,
+    string? FirstName, string? LastName,
+    string? RelationshipType, string? Region, string? Country,
+    string? Email, string? Phone,
+    string? AcquisitionChannel, string? FirstDonationDate);
 
 // Request DTOs
 public record SafehouseRequest(

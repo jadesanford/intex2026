@@ -32,8 +32,13 @@ export const login = (username: string, password: string) =>
 export const getMe = () => api.get('/auth/me').then(r => r.data)
 
 export const registerDonor = (body: {
-  username: string; password: string; firstName?: string; lastName?: string;
-  email?: string; phone?: string; city?: string; country?: string;
+  username: string; password: string;
+  supporterType?: string; displayName?: string; organizationName?: string;
+  firstName?: string; lastName?: string;
+  email?: string; phone?: string;
+  region?: string; country?: string;
+  relationshipType?: string; acquisitionChannel?: string;
+  firstDonationDate?: string;
 }) => api.post('/auth/register-donor', body).then(r => r.data)
 
 export const getDonorDonations = () => api.get('/donations/mine').then(r => r.data)
