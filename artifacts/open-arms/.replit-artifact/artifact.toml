@@ -9,5 +9,8 @@ localPort = 5173
 name = "web"
 paths = ["/"]
 
+[services.env]
+PORT = "5173"
+
 [services.development]
 run = "npm --prefix /home/runner/workspace/frontend run dev"
