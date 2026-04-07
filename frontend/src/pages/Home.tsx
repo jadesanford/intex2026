@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Heart, Shield, BookOpen, Phone, MapPin, Users, TrendingUp, ArrowRight } from 'lucide-react'
+import { Heart, BookOpen, Phone, MapPin, Users, TrendingUp, ArrowRight } from 'lucide-react'
 import { getImpactSnapshot } from '../lib/api'
 
 const t = {
@@ -125,12 +125,12 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
               ))}
             </div>
           </div>
-          <div style={{
-            background: 'linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%)',
-            borderRadius: 24, padding: 48, textAlign: 'center', color: 'white'
-          }}>
-            <Shield size={60} style={{ marginBottom: 20, opacity: 0.9 }} />
-            <p style={{ fontSize: 18, fontStyle: 'italic', lineHeight: 1.8 }}>{tx.faithText}</p>
+          <div style={{ borderRadius: 24, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
+            <img
+              src="/christ.png"
+              alt="Christ with open arms"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
           </div>
         </div>
       </section>
