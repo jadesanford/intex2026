@@ -52,18 +52,20 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
 
   return (
     <div>
-      <section style={{ background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)', padding: '80px 24px 60px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: 48, marginBottom: 16 }}>{tx.title}</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
-      </section>
-
-      <section style={{ position: 'relative', overflow: 'hidden', padding: '0 24px', marginTop: -24 }}>
+      <section style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)', padding: '80px 24px 84px', textAlign: 'center' }}>
         <img
           src="/impact-bg.jpg"
           alt=""
           aria-hidden="true"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: 0.15, pointerEvents: 'none' }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: 0.18, pointerEvents: 'none' }}
         />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h1 style={{ fontSize: 48, marginBottom: 16 }}>{tx.title}</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
+        </div>
+      </section>
+
+      <section style={{ padding: '0 24px', marginTop: -24 }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div className="grid-4">
             {stats.map(({ label, value, icon, color }) => (
