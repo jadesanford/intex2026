@@ -33,7 +33,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
-  const [lang, setLang] = useState<'en' | 'id'>('en')
+  const [lang, setLang] = useState<'en' | 'tl'>('en')
 
   return (
     <Routes>

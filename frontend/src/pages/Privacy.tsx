@@ -13,21 +13,21 @@ const t = {
       { title: 'Contact', content: 'For privacy concerns, contact: privacy@openarms.org | Open Arms Philippines | Manila, Philippines' },
     ]
   },
-  id: {
-    title: 'Kebijakan Privasi',
-    updated: 'Terakhir diperbarui: 1 Januari 2024',
+  tl: {
+    title: 'Patakaran sa Privacy',
+    updated: 'Huling na-update: Enero 1, 2024',
     sections: [
-      { title: 'Sino Kami', content: 'Ang Open Arms ay isang nonprofit na organisasyon na tumutulong sa mga nakaligtas sa sekswal na pang-aabuso at trafficking sa Pilipinas.' },
-      { title: 'Informasi yang Kami Kumpulkan', content: 'Kami mengumpulkan informasi yang Anda berikan secara langsung (formulir kontak, permintaan donasi). Kami tidak mengumpulkan informasi yang dapat diidentifikasi secara pribadi dari para penyintas atau penghuni.' },
-      { title: 'Cara Kami Menggunakan Informasi Anda', content: 'Informasi kontak hanya digunakan untuk merespons pertanyaan Anda. Kami tidak pernah menjual atau berbagi informasi pribadi Anda kepada pihak ketiga.' },
-      { title: 'Cookie', content: 'Kami menggunakan cookie untuk meningkatkan pengalaman penelusuran Anda. Cookie penting diperlukan agar situs web berfungsi dengan baik.' },
-      { title: 'Keamanan Data', content: 'Kami menerapkan langkah-langkah keamanan standar industri untuk melindungi informasi Anda. Semua data dienkripsi dalam transit dan saat istirahat.' },
-      { title: 'Kontak', content: 'Untuk masalah privasi, hubungi: privacy@openarms.org' },
+      { title: 'Sino Kami', content: 'Ang Open Arms ay isang nonprofit na organisasyon na tumutulong sa mga nakaligtas sa sekswal na pang-aabuso at trafficking sa Pilipinas. Ang aming website ay openarms.org.' },
+      { title: 'Impormasyong Kinokolekta Namin', content: 'Kinokolekta namin ang impormasyong direktang ibinibigay ninyo (mga form sa pakikipag-ugnayan, kahilingan sa donasyon). Hindi namin kinokolekta ang anumang personal na impormasyon mula sa mga nakaligtas o residente. Lahat ng datos ng kaso ay ligtas na nakaimbak at anonymous.' },
+      { title: 'Paano Namin Ginagamit ang Inyong Impormasyon', content: 'Ang impormasyon sa pakikipag-ugnayan ay ginagamit lamang upang tumugon sa inyong mga katanungan. Ang impormasyon sa donasyon ay ginagamit upang maproseso ang mga kontribusyon. Hindi namin ibinebenta o ibinabahagi ang inyong personal na impormasyon sa mga third party.' },
+      { title: 'Mga Cookie', content: 'Gumagamit kami ng cookies upang mapabuti ang inyong karanasan sa pagba-browse. Ang mahahalagang cookies ay kinakailangan para gumana ang website. Maaari kayong mag-opt out ng mga hindi mahahalagang cookies sa pamamagitan ng aming banner.' },
+      { title: 'Seguridad ng Data', content: 'Nagpapatupad kami ng mga pamantayang pang-industriya na hakbang sa seguridad upang protektahan ang inyong impormasyon. Lahat ng datos ay naka-encrypt habang nasa transit at nakaimbak. Ang access sa sensitibong datos ng kaso ay limitado lamang sa mga awtorisadong kawani.' },
+      { title: 'Pakikipag-ugnayan', content: 'Para sa mga alalahanin sa privacy, makipag-ugnayan sa: privacy@openarms.org | Open Arms Philippines | Manila, Pilipinas' },
     ]
   }
 }
 
-export default function Privacy({ lang }: { lang: 'en' | 'id' }) {
+export default function Privacy({ lang }: { lang: 'en' | 'tl' }) {
   const tx = t[lang]
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: '80px 24px' }}>

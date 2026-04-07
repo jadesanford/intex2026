@@ -26,27 +26,27 @@ const t = {
     donate: 'Support Our Work',
     contact: 'Contact Us',
   },
-  id: {
-    badge: 'Tempat aman untuk pulih',
+  tl: {
+    badge: 'Isang ligtas na lugar para gumaling',
     title: 'Open Arms',
-    subtitle: 'Tumutulong sa mga kababaihang nakaligtas sa sekswal na pang-aabuso at trafficking sa Pilipinas.',
-    help: 'Dapatkan Bantuan',
-    impact: 'Lihat Dampak Kami',
-    mission: 'Misi Kami',
-    missionText: 'Open Arms memberikan perawatan, penyembuhan, dan dukungan reintegrasi yang komprehensif bagi penyintas kekerasan seksual. Kami mendampingi setiap anak perempuan dalam perjalanan menuju pemulihan dan martabat.',
-    services: ['Tempat Perlindungan', 'Konseling Trauma', 'Pendidikan & Pelatihan', 'Bantuan Hukum', 'Reintegrasi Keluarga', 'Kesehatan & Kesejahteraan'],
-    statsTitle: 'Dampak Kami dalam Angka',
-    helped: 'Gadis Dibantu',
-    active: 'Dalam Perawatan',
-    safehouses: 'Rumah Aman',
-    reintegration: 'Tingkat Reintegrasi',
-    faithTitle: 'Harapan & Pemulihan',
-    faithText: '"Ia menyembuhkan orang-orang yang patah hati dan membalut luka-luka mereka." — Mazmur 147:3',
-    faithSub: 'Setiap anak perempuan yang datang kepada kami memiliki nilai yang tak ternilai. Kami percaya pada kemungkinan penyembuhan dan pemulihan yang sempurna.',
-    ctaTitle: 'Jadilah Bagian dari Cerita',
+    subtitle: 'Tumutulong sa mga batang babaeng nakaligtas sa sekswal na pang-aabuso at trafficking sa Pilipinas.',
+    help: 'Humingi ng Tulong',
+    impact: 'Tingnan ang Aming Epekto',
+    mission: 'Aming Misyon',
+    missionText: 'Ang Open Arms ay nagbibigay ng komprehensibong pag-aalaga, pagpapagaling, at suporta sa muling pagsasama para sa mga nakaligtas sa sekswal na pang-aabuso at trafficking. Sinasamahan namin ang bawat batang babae sa kanyang paglalakbay tungo sa pagpapanumbalik at dignidad.',
+    services: ['Ligtas na Tirahan', 'Konseling sa Trauma', 'Edukasyon at Bokasyonal na Pagsasanay', 'Legal na Tulong', 'Muling Pagsasama ng Pamilya', 'Kalusugan at Kagalingan'],
+    statsTitle: 'Aming Epekto sa mga Numero',
+    helped: 'Mga Batang Babae na Natulungan',
+    active: 'Kasalukuyang sa Pag-aalaga',
+    safehouses: 'Ligtas na Lokasyon',
+    reintegration: 'Antas ng Muling Pagsasama',
+    faithTitle: 'Pag-asa at Pagpapanumbalik',
+    faithText: '"Pinagagaling niya ang mga may pusong nasira at binibigkis ang kanilang mga sugat." — Awit 147:3',
+    faithSub: 'Bawat batang babaeng dumarating sa aming pinto ay may walang kapantay na halaga. Naniniwala kami sa posibilidad ng kumpletong pagpapagaling at pagpapanumbalik.',
+    ctaTitle: 'Maging Bahagi ng Kwento',
     ctaText: 'Ang inyong suporta ay nagbibigay ng pagbabago para sa mga nakaligtas sa buong Pilipinas.',
-    donate: 'Dukung Karya Kami',
-    contact: 'Hubungi Kami',
+    donate: 'Suportahan ang Aming Gawain',
+    contact: 'Makipag-ugnayan sa Amin',
   }
 }
 
@@ -56,7 +56,7 @@ function formatPHP(n: number) {
   return `₱${n.toLocaleString()}`
 }
 
-export default function Home({ lang }: { lang: 'en' | 'id' }) {
+export default function Home({ lang }: { lang: 'en' | 'tl' }) {
   const tx = t[lang]
   const { data } = useQuery({ queryKey: ['impact-snapshot'], queryFn: getImpactSnapshot })
 

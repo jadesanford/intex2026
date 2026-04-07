@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Heart, Globe, Menu, X } from 'lucide-react'
 
-interface Props { children: React.ReactNode; lang: 'en' | 'id'; setLang: (l: 'en' | 'id') => void }
+interface Props { children: React.ReactNode; lang: 'en' | 'tl'; setLang: (l: 'en' | 'tl') => void }
 
 const t = {
   en: { home: 'Home', impact: 'Our Impact', login: 'Staff Login', donate: 'Donate', cookieMsg: 'We use cookies to enhance your experience.', accept: 'Accept' },
-  id: { home: 'Beranda', impact: 'Dampak Kami', login: 'Masuk Staf', donate: 'Donasi', cookieMsg: 'Kami menggunakan cookie untuk meningkatkan pengalaman Anda.', accept: 'Setuju' }
+  tl: { home: 'Tahanan', impact: 'Aming Epekto', login: 'Login ng Kawani', donate: 'Mag-donate', cookieMsg: 'Gumagamit kami ng cookies upang mapabuti ang inyong karanasan.', accept: 'Tanggapin' }
 }
 
 export default function PublicLayout({ children, lang, setLang }: Props) {
@@ -45,12 +45,12 @@ export default function PublicLayout({ children, lang, setLang }: Props) {
               color: lang === 'en' ? 'white' : 'var(--text-muted)', border: '1px solid var(--border)',
               cursor: 'pointer'
             }}>EN</button>
-            <button onClick={() => setLang('id')} style={{
+            <button onClick={() => setLang('tl')} style={{
               padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 500,
-              background: lang === 'id' ? 'var(--terracotta)' : 'transparent',
-              color: lang === 'id' ? 'white' : 'var(--text-muted)', border: '1px solid var(--border)',
+              background: lang === 'tl' ? 'var(--terracotta)' : 'transparent',
+              color: lang === 'tl' ? 'white' : 'var(--text-muted)', border: '1px solid var(--border)',
               cursor: 'pointer'
-            }}>ID</button>
+            }}>TL</button>
           </div>
           <Link to="/" style={{ fontSize: 14, fontWeight: 500, color: pathname === '/' ? 'var(--terracotta)' : 'var(--text)' }}>{tx.home}</Link>
           <Link to="/impact" style={{ fontSize: 14, fontWeight: 500, color: pathname === '/impact' ? 'var(--terracotta)' : 'var(--text)' }}>{tx.impact}</Link>

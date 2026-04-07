@@ -19,16 +19,16 @@ const t = {
     outcomesTitle: 'Resident Outcomes', outcomesSub: 'Current status of all cases',
     safehouseTitle: 'Our Safe Locations', safehouseSub: 'Active shelters across the Philippines',
   },
-  id: {
-    title: 'Ang Aming Epekto', subtitle: 'Ang transparency ay nasa puso ng aming misyon. Alamin kung paano nakakatulong ang inyong suporta sa mga nakaligtas sa Pilipinas.',
-    helped: 'Mga Nakatulong', active: 'Sa Pag-aalaga', locations: 'Ligtas na Lugar', reintegration: 'Reintegration Rate',
-    donationTitle: 'Trend ng Donasyon', donationSub: 'Buwanang suporta sa paglipas ng panahon',
-    outcomesTitle: 'Resulta ng mga Residente', outcomesSub: 'Kasalukuyang status ng lahat ng kaso',
-    safehouseTitle: 'Aming Ligtas na Lugar', safehouseSub: 'Aktibong shelter sa buong Pilipinas',
+  tl: {
+    title: 'Aming Epekto', subtitle: 'Ang transparency ay nasa puso ng aming misyon. Alamin kung paano nakakatulong ang inyong suporta sa mga nakaligtas sa buong Pilipinas.',
+    helped: 'Mga Batang Babae na Natulungan', active: 'Kasalukuyang sa Pag-aalaga', locations: 'Ligtas na Lokasyon', reintegration: 'Antas ng Muling Pagsasama',
+    donationTitle: 'Mga Trend ng Donasyon', donationSub: 'Buwanang suporta sa paglipas ng panahon',
+    outcomesTitle: 'Resulta ng mga Residente', outcomesSub: 'Kasalukuyang katayuan ng lahat ng kaso',
+    safehouseTitle: 'Aming mga Ligtas na Lokasyon', safehouseSub: 'Mga aktibong shelter sa buong Pilipinas',
   }
 }
 
-export default function Impact({ lang }: { lang: 'en' | 'id' }) {
+export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
   const tx = t[lang]
   const { data: snap } = useQuery({ queryKey: ['impact-snapshot'], queryFn: getImpactSnapshot })
   const { data: safehouses } = useQuery({ queryKey: ['public-safehouses'], queryFn: getPublicSafehouses })
