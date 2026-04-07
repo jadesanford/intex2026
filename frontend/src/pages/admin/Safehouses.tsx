@@ -2,6 +2,49 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSafehouses, createSafehouse, updateSafehouse } from '../../lib/api'
 import { Plus, Building2, MapPin } from 'lucide-react'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
+delete (L.Icon.Default.prototype as any)._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+})
+
+const CITY_COORDS: Record<string, [number, number]> = {
+  'Manila': [14.5995, 120.9842], 'Quezon City': [14.6760, 121.0437], 'Makati': [14.5547, 121.0244],
+  'Taguig': [14.5176, 121.0509], 'Pasig': [14.5764, 121.0851], 'Mandaluyong': [14.5794, 121.0359],
+  'Caloocan': [14.6492, 120.9694], 'Valenzuela': [14.7011, 120.9830], 'Las Piñas': [14.4453, 120.9832],
+  'Muntinlupa': [14.4081, 121.0415], 'Parañaque': [14.4793, 121.0198], 'Marikina': [14.6507, 121.1029],
+  'Pasay': [14.5378, 121.0014], 'San Juan': [14.6019, 121.0355], 'Malabon': [14.6681, 120.9574],
+  'Navotas': [14.6671, 120.9483], 'Antipolo': [14.5862, 121.1760], 'Cainta': [14.5775, 121.1252],
+  'Taytay': [14.5565, 121.1326], 'Biñan': [14.3292, 121.0800], 'Calamba': [14.2116, 121.1653],
+  'Santa Rosa': [14.3122, 121.1120], 'Bacoor': [14.4580, 120.9340], 'Imus': [14.4297, 120.9368],
+  'Dasmariñas': [14.3294, 120.9367], 'Tagaytay': [14.1153, 120.9624], 'Lipa': [13.9411, 121.1638],
+  'Batangas': [13.7565, 121.0584], 'Lucena': [13.9373, 121.6170], 'Naga': [13.6218, 123.1945],
+  'Legazpi': [13.1391, 123.7437], 'Angeles': [15.1450, 120.5887], 'San Fernando': [15.0284, 120.6896],
+  'Olongapo': [14.8319, 120.2846], 'Baguio': [16.4023, 120.5960], 'Dagupan': [16.0430, 120.3337],
+  'Urdaneta': [15.9763, 120.5718], 'Vigan': [17.5747, 120.3869], 'Laoag': [18.1981, 120.5967],
+  'Cabanatuan': [15.4848, 120.9644], 'Tarlac': [15.4822, 120.5979], 'Tuguegarao': [17.6132, 121.7270],
+  'Santiago': [16.6868, 121.5497], 'Ilagan': [17.1497, 121.8894], 'Cauayan': [16.9350, 121.7726],
+  'Cebu': [10.3157, 123.8854], 'Cebu City': [10.3157, 123.8854], 'Mandaue': [10.3236, 123.9223],
+  'Lapu-Lapu': [10.3119, 123.9494], 'Talisay': [10.2450, 123.8484], 'Danao': [10.5221, 124.0259],
+  'Iloilo': [10.7202, 122.5621], 'Iloilo City': [10.7202, 122.5621], 'Roxas': [11.5854, 122.7511],
+  'Kalibo': [11.7050, 122.3639], 'Dumaguete': [9.3068, 123.3054], 'Tacloban': [11.2543, 125.0000],
+  'Ormoc': [11.0060, 124.6075], 'Calbayog': [12.0673, 124.5966], 'Tagbilaran': [9.6500, 123.8575],
+  'Davao': [7.1907, 125.4553], 'Davao City': [7.1907, 125.4553], 'Tagum': [7.4478, 125.8076],
+  'Panabo': [7.3082, 125.6839], 'Digos': [6.7497, 125.3572], 'Mati': [6.9478, 126.2230],
+  'Cotabato': [7.2236, 124.2456], 'Kidapawan': [7.0083, 125.0891],
+  'General Santos': [6.1164, 125.1716], 'Koronadal': [6.5035, 124.8484],
+  'Cagayan de Oro': [8.4542, 124.6319], 'Iligan': [8.2280, 124.2452],
+  'Ozamiz': [8.1474, 123.8420], 'Pagadian': [7.8279, 123.4357],
+  'Dipolog': [8.5870, 123.3360], 'Zamboanga': [6.9214, 122.0790],
+  'Zamboanga City': [6.9214, 122.0790], 'Butuan': [8.9475, 125.5406],
+  'Surigao': [9.7848, 125.4932], 'Malaybalay': [8.1575, 125.1281],
+  'Valencia': [7.9062, 125.0937], 'Marawi': [7.9987, 124.2876],
+}
 
 type SafehouseType = {
   safehouseId: number; safehouseCode?: string; name: string; region: string; city: string;
@@ -77,6 +120,34 @@ export default function Safehouses() {
         <button className="btn btn-primary" onClick={() => { resetForm(); setEditId(null); setShowModal(true) }}>
           <Plus size={16} /> Add Safehouse
         </button>
+      </div>
+
+      <div style={{ borderRadius: 16, overflow: 'hidden', marginBottom: 28, height: 320, border: '1px solid var(--border)' }}>
+        <MapContainer
+          center={[12.0, 122.5]}
+          zoom={5}
+          style={{ height: '100%', width: '100%' }}
+          scrollWheelZoom={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {(safehouses ?? []).map((s: SafehouseType) => {
+            const coords = CITY_COORDS[s.city] ?? CITY_COORDS[s.city?.split(' ')[0]]
+            if (!coords) return null
+            return (
+              <Marker key={s.safehouseId} position={coords}>
+                <Popup>
+                  <strong>{s.name}</strong><br />
+                  {s.city}{s.province ? `, ${s.province}` : ''}<br />
+                  {s.currentOccupancy ?? 0} / {s.capacityGirls ?? 0} in care<br />
+                  <span style={{ color: s.status === 'Active' ? 'green' : 'gray', fontSize: 12 }}>{s.status}</span>
+                </Popup>
+              </Marker>
+            )
+          })}
+        </MapContainer>
       </div>
 
       {isLoading ? <div className="loading-center"><div className="spinner" /></div>
