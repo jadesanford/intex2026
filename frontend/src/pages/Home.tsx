@@ -64,10 +64,20 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
     <div>
       {/* Hero */}
       <section style={{
+        position: 'relative', overflow: 'hidden',
         background: 'linear-gradient(135deg, var(--beige) 0%, #fff 60%)',
         padding: '100px 24px 80px', textAlign: 'center'
       }}>
-        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+        <img
+          src="/hero-bg.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center top', opacity: 0.18, pointerEvents: 'none'
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 700, margin: '0 auto' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             background: 'rgba(193,105,79,0.1)', color: 'var(--terracotta)',
