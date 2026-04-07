@@ -18,8 +18,8 @@ Full-stack nonprofit web application for a Philippine NGO supporting survivors o
 
 ## Running the App
 
-- **Frontend**: `npm --prefix /home/runner/workspace/frontend run dev` (workflow: `artifacts/open-arms: web`)
-- **Backend API**: `dotnet run --project /home/runner/workspace/backend/OpenArms.Api.csproj` (workflow: `artifacts/api-server: API Server`)
+- **Frontend**: `cd frontend && npm run dev` (workflow: `Open Arms: Frontend`)
+- **Backend API**: `cd backend && dotnet run` (workflow: `artifacts/api-server: API Server`)
 
 ## Authentication
 

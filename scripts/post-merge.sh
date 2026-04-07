@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
-pnpm install --frozen-lockfile
-pnpm --filter db push
+# Install frontend dependencies
+npm --prefix /home/runner/workspace/frontend install
