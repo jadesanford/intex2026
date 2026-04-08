@@ -203,7 +203,7 @@ export default function Donations() {
       </div>
 
       {summary && (
-        <div className="grid-3" style={{ marginBottom: 24 }}>
+        <div className="donations-kpi-grid" style={{ marginBottom: 24 }}>
           <div className="card" style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--sage)' }}>{formatPHP(summary.total || 0)}</div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Total Monetary</div>
@@ -212,7 +212,7 @@ export default function Donations() {
             <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--terracotta)' }}>{summary.count}</div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Total Records</div>
           </div>
-          <div className="card" style={{ textAlign: 'center' }}>
+          <div className="card donations-kpi-desktop-only" style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--navy)' }}>
               {formatPHP(summary.monetaryCount > 0 ? (summary.total / summary.monetaryCount) : 0)}
             </div>

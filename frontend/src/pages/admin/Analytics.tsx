@@ -4,6 +4,7 @@ import { getDashboardAnalytics, getSafehouseComparison, getAnalyticsDonationTren
 import { AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 
 const COLORS = ['#c1694f', '#6b8f71', '#1e2d4a', '#d4856e', '#4b6c8c', '#a05540']
+const RADIAN = Math.PI / 180
 
 function formatPHP(n: number) {
   if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
@@ -41,6 +42,37 @@ export default function Analytics() {
     ? Math.round(comparison.reduce((a: number, s: { occupancyRate: number }) => a + (s.occupancyRate || 0), 0) / comparison.length)
     : 0
 
+  const renderOutcomeLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    name
+  }: {
+    cx?: number
+    cy?: number
+    midAngle?: number
+    innerRadius?: number
+    outerRadius?: number
+    name?: string
+  }) => {
+    const centerX = cx ?? 0
+    const centerY = cy ?? 0
+    const angle = midAngle ?? 0
+    const inner = innerRadius ?? 0
+    const outer = outerRadius ?? 0
+    const radius = inner + (outer - inner) * 0.55
+    const x = centerX + radius * Math.cos(-angle * RADIAN)
+    const y = centerY + radius * Math.sin(-angle * RADIAN)
+
+    return (
+      <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" style={{ fontSize: 11, fontWeight: 600 }}>
+        {name ?? ''}
+      </text>
+    )
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -48,7 +80,7 @@ export default function Analytics() {
       </div>
 
       {dash && (
-        <div className="grid-4" style={{ marginBottom: 24 }}>
+        <div className="admin-kpi-grid" style={{ marginBottom: 24 }}>
           {[
             { label: 'Total Residents', value: dash.residents.total, color: 'var(--terracotta)' },
             { label: 'Reintegration Rate', value: `${reintegrationRate}%`, color: 'var(--sage)' },
@@ -82,8 +114,15 @@ export default function Analytics() {
           {outcomeData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
-                <Pie data={outcomeData} cx="50%" cy="50%" outerRadius={80} dataKey="value"
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
+                <Pie
+                  data={outcomeData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={78}
+                  dataKey="value"
+                  labelLine={false}
+                  label={renderOutcomeLabel}
+                >
                   {outcomeData.map((_: unknown, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip />

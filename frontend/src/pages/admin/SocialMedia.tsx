@@ -195,7 +195,7 @@ export default function SocialMedia() {
         </div>
       </div>
 
-      <div className="grid-4" style={{ marginBottom: 24 }}>
+      <div className="admin-kpi-grid" style={{ marginBottom: 24 }}>
         {[
           { label: 'Total Reach', value: formatK(metrics?.totalReach ?? 0), icon: <Eye size={20} />, color: 'var(--terracotta)' },
           { label: 'Total Impressions', value: formatK(metrics?.totalImpressions ?? 0), icon: <Share2 size={20} />, color: 'var(--navy)' },

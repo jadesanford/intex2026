@@ -161,11 +161,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PublicSiteNav />
       <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', flexShrink: 0 }}>{sidebarContent}</div>
+        <div className="admin-desktop-sidebar" style={{ display: 'flex', flexShrink: 0 }}>{sidebarContent}</div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0 }}>
-          <main style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#f9fafb' }}>{children}</main>
+          <main className="admin-main-content" style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#f9fafb' }}>
+            {children}
+          </main>
         </div>
       </div>
+      <nav className="admin-bottom-nav" aria-label="Admin mobile navigation">
+        <div className="admin-bottom-nav-scroll">
+          {navItems.map(({ path, label, icon: Icon, exact }) => {
+            const active = isActive(path, exact)
+            return (
+              <Link key={path} to={path} className={`admin-bottom-nav-item ${active ? 'active' : ''}`}>
+                <Icon size={16} />
+                <span>{label}</span>
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
     </div>
   )
 }
