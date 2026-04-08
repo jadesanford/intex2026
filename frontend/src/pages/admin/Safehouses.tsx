@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSafehouses, createSafehouse, updateSafehouse } from '../../lib/api'
-import { Plus, Building2, MapPin } from 'lucide-react'
+import { Plus, MapPin } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'

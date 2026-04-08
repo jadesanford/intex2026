@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import {
   Heart, LayoutDashboard, Users, DollarSign, Building2,
   Handshake, AlertTriangle, BarChart2, Share2, LogOut,
-  ChevronLeft, ChevronRight, Menu, X
+  ChevronLeft, ChevronRight
 } from 'lucide-react'
 
 const navItems = [
@@ -23,7 +23,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { pathname } = useLocation()
   const { user, logout } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
 
   const isActive = (path: string, exact?: boolean) =>
     exact ? pathname === path : pathname.startsWith(path)

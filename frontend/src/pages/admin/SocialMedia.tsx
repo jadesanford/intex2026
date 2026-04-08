@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getSocialMedia, getSocialMetrics } from '../../lib/api'
-import { Share2, TrendingUp, Heart, Eye, MousePointerClick } from 'lucide-react'
+import { Share2, TrendingUp, Heart, Eye } from 'lucide-react'
 
 const PLATFORM_COLORS: Record<string, string> = {
   Instagram: 'badge badge-purple', Facebook: 'badge badge-blue',

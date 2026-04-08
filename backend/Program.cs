@@ -5,10 +5,17 @@ using OpenArms.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var port = Environment.GetEnvironmentVariable("BACKEND_PORT")
+var configuredPort = Environment.GetEnvironmentVariable("BACKEND_PORT")
     ?? Environment.GetEnvironmentVariable("PORT")
-    ?? "8082";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+    ?? Environment.GetEnvironmentVariable("WEBSITES_PORT");
+var iisAssignedPort = Environment.GetEnvironmentVariable("ASPNETCORE_PORT");
+var aspNetCoreUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+
+if (string.IsNullOrWhiteSpace(iisAssignedPort) && string.IsNullOrWhiteSpace(aspNetCoreUrls))
+{
+    var port = configuredPort ?? "8082";
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

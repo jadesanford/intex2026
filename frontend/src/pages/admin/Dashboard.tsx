@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { getDashboardAnalytics, getDonations, getAtRiskResidents } from '../../lib/api'
 import StatCard from '../../components/StatCard'
-import { Users, Building2, AlertTriangle, Heart, TrendingUp } from 'lucide-react'
+import { Users, AlertTriangle, Heart, TrendingUp } from 'lucide-react'
 
 function formatPHP(n: number) {
   if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
