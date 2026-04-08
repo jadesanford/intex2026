@@ -185,6 +185,9 @@ export const getAnalyticsDonationTrends = () => api.get('/analytics/donation-tre
 export const getResidentOutcomes = () => api.get('/analytics/resident-outcomes').then(r => r.data)
 export const getAtRiskResidents = () => api.get('/analytics/at-risk').then(r => r.data)
 
+/** Supabase-backed ML-style pipeline outputs (forecast, risk mix, occupancy, donor recency). */
+export const getMlPipelineInsights = () => api.get('/analytics/ml-pipelines').then(r => r.data)
+
 // Social Media
 export const getSocialMedia = (params?: Record<string, string>) =>
   api.get('/social-media', { params }).then(r => r.data)

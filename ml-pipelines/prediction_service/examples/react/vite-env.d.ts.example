@@ -1,0 +1,11 @@
+/// <reference types="vite/client" />
+
+/** Merge into your existing `vite-env.d.ts` so `import.meta.env.VITE_ML_API_URL` is typed. */
+interface ImportMetaEnv {
+  /** Base URL for ML API: your .NET BFF in production, e.g. https://api.yourapp.com */
+  readonly VITE_ML_API_URL: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
