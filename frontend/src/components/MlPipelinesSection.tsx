@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getMlPipelineInsights } from '../lib/api'
 import { ML_PIPELINES } from '../data/mlPipelines'
 import {
@@ -418,14 +417,10 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
 }
 
 export default function MlPipelinesSection() {
-  const n = ML_PIPELINES.length
   const [pipelineIndex, setPipelineIndex] = useState(0)
   const current = ML_PIPELINES[pipelineIndex]
 
   const { data, isError, error } = useQuery({ queryKey: ['analytics-ml-pipelines'], queryFn: getMlPipelineInsights })
-
-  const goPrev = () => setPipelineIndex((i) => (i - 1 + n) % n)
-  const goNext = () => setPipelineIndex((i) => (i + 1) % n)
 
   const previewHeight = 380
 
@@ -433,7 +428,7 @@ export default function MlPipelinesSection() {
     <div className="card" style={{ marginTop: 24 }}>
       <h3 style={{ fontSize: 16, marginBottom: 8 }}>ML pipelines (Supabase)</h3>
       <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16, maxWidth: 800 }}>
-        These 8 tabs each run a machine learning pipeline on the current data in our database, and reflect any changes made.
+        These 8 pipelines run on the current database data and reflect any updates that are made.
       </p>
 
       {data?.generatedAt && (
@@ -479,43 +474,43 @@ export default function MlPipelinesSection() {
         <PipelinePreview pipelineId={current.id} data={data as MlBundle | undefined} />
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          gap: 12,
-          paddingTop: 4,
-          borderTop: '1px solid var(--border)',
-        }}
-      >
-        <button type="button" className="btn btn-outline btn-sm" onClick={goPrev} aria-label="Previous pipeline">
-          <ChevronLeft size={18} /> Prev
-        </button>
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 8,
-            justifyContent: 'center',
-            minWidth: 200,
-          }}
-        >
-          {ML_PIPELINES.map((p, i) => (
-            <button
-              key={p.id}
-              type="button"
-              className={`btn btn-sm ${i === pipelineIndex ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => setPipelineIndex(i)}
-            >
-              {p.title}
-            </button>
-          ))}
+      <div className="ml-pipelines-controls ml-pipelines-controls-mobile" style={{ paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', minWidth: 200 }}>
+          <select
+            aria-label="Select ML pipeline"
+            value={pipelineIndex}
+            onChange={(e) => setPipelineIndex(Number(e.target.value))}
+            style={{
+              width: '100%',
+              maxWidth: 420,
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              padding: '8px 10px',
+              background: 'white',
+              fontSize: 14,
+              color: 'var(--text)',
+            }}
+          >
+            {ML_PIPELINES.map((p, i) => (
+              <option key={p.id} value={i}>
+                {p.title}
+              </option>
+            ))}
+          </select>
         </div>
-        <button type="button" className="btn btn-outline btn-sm" onClick={goNext} aria-label="Next pipeline">
-          Next <ChevronRight size={18} />
-        </button>
+      </div>
+
+      <div className="ml-pipelines-controls ml-pipelines-controls-desktop" style={{ paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+        {ML_PIPELINES.map((p, i) => (
+          <button
+            key={p.id}
+            type="button"
+            className={`btn btn-sm ${i === pipelineIndex ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setPipelineIndex(i)}
+          >
+            {p.title}
+          </button>
+        ))}
       </div>
     </div>
   )

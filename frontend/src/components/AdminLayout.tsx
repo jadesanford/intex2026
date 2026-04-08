@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import PublicSiteNav from './PublicSiteNav'
@@ -24,8 +24,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { pathname } = useLocation()
   const { user, logout } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
+  const mainContentRef = useRef<HTMLElement | null>(null)
 
   const isActive = (path: string, exact?: boolean) => (exact ? pathname === path : pathname.startsWith(path))
+
+  useEffect(() => {
+    mainContentRef.current?.scrollTo({ top: 0, behavior: 'auto' })
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }, [pathname])
 
   const sidebarContent = (
     <div
@@ -163,7 +169,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
         <div className="admin-desktop-sidebar" style={{ display: 'flex', flexShrink: 0 }}>{sidebarContent}</div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0 }}>
-          <main className="admin-main-content" style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#f9fafb' }}>
+          <main ref={mainContentRef} className="admin-main-content" style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#f9fafb' }}>
             {children}
           </main>
         </div>

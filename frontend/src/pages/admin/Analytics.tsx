@@ -144,7 +144,7 @@ export default function Analytics() {
       )}
 
       {displayDash && (
-        <div className="grid-4" style={{ marginBottom: 24 }}>
+        <div className="grid-4 analytics-kpi-grid" style={{ marginBottom: 24 }}>
           {[
             { label: 'Total Residents', value: displayDash.residents.total, color: 'var(--terracotta)' },
             { label: 'Reintegration Rate', value: `${reintegrationRate}%`, color: 'var(--sage)' },
