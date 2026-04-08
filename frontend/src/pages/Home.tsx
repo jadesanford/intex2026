@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Heart, TrendingUp } from 'lucide-react'
-import { getImpactSnapshot, sendQuickHelpRequest } from '../lib/api'
+import { sendQuickHelpRequest } from '../lib/api'
 
 const t = {
   en: {
@@ -51,16 +50,8 @@ const t = {
   }
 }
 
-function formatPHP(n: number) {
-  if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000) return `₱${(n / 1_000).toFixed(0)}K`
-  return `₱${n.toLocaleString()}`
-}
-
 export default function Home({ lang }: { lang: 'en' | 'tl' }) {
   const tx = t[lang]
-  void formatPHP
-  const { data } = useQuery({ queryKey: ['impact-snapshot'], queryFn: getImpactSnapshot })
   const [showHelpForm, setShowHelpForm] = useState(false)
   const [helpName, setHelpName] = useState('')
   const [helpEmail, setHelpEmail] = useState('')
@@ -178,28 +169,6 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
           )}
         </div>
       </section>
-
-      {/* Stats */}
-      {data && (
-        <section className="home-impact-section" style={{ background: 'var(--navy)' }}>
-          <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-            <h2 className="home-impact-title" style={{ textAlign: 'center', color: 'white', fontSize: 28 }}>{tx.statsTitle}</h2>
-            <div className="impact-kpi-grid">
-              {[
-                { v: data.totalResidentsHelped, l: tx.helped },
-                { v: data.activeResidents, l: tx.active },
-                { v: data.totalSafehouses, l: tx.safehouses },
-                { v: data.reintegrationRate + '%', l: tx.reintegration },
-              ].map(({ v, l }) => (
-                <div key={l} style={{ textAlign: 'center', padding: 24 }}>
-                  <div style={{ fontSize: 48, fontWeight: 700, color: 'var(--terracotta)', fontFamily: 'Playfair Display, serif' }}>{v}</div>
-                  <div style={{ color: 'rgba(255,255,255,0.7)', marginTop: 8 }}>{l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Mission */}
       <section className="home-mission-section" style={{ background: 'white' }}>

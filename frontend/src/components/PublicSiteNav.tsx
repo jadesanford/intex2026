@@ -8,6 +8,7 @@ const t = {
   en: {
     home: 'Home',
     impact: 'Our Impact',
+    awareness: 'Stories',
     login: 'Login',
     donate: 'Donate',
     signup: 'Create Account',
@@ -18,6 +19,7 @@ const t = {
   tl: {
     home: 'Tahanan',
     impact: 'Aming Epekto',
+    awareness: 'Stories',
     login: 'Login',
     donate: 'Mag-donate',
     signup: 'Gumawa ng Account',
@@ -135,6 +137,12 @@ export default function PublicSiteNav() {
           >
             {tx.impact}
           </Link>
+          <Link
+            to="/awareness"
+            style={{ fontSize: 14, fontWeight: 500, color: pathname === '/awareness' ? 'var(--terracotta)' : 'var(--text)' }}
+          >
+            {tx.awareness}
+          </Link>
           {accountLinks}
           <Link to="/donate" className="btn btn-primary btn-sm">
             {tx.donate}
@@ -180,6 +188,9 @@ export default function PublicSiteNav() {
               </Link>
               <Link to="/impact" className="public-nav-mobile-link">
                 {tx.impact}
+              </Link>
+              <Link to="/awareness" className="public-nav-mobile-link">
+                {tx.awareness}
               </Link>
               {isDonor && (
                 <button type="button" className="public-nav-mobile-link public-nav-mobile-button" onClick={() => navigate('/donor')}>
@@ -241,6 +252,7 @@ export default function PublicSiteNav() {
               <div className="public-nav-mobile-footer-links">
                 <Link to="/privacy">Privacy Policy</Link>
                 <Link to="/impact">Our Impact</Link>
+                <Link to="/awareness">Stories</Link>
                 <Link to="/donate">Donate</Link>
                 <a href="mailto:info@openarms.org">Contact</a>
               </div>

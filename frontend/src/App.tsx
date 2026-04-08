@@ -8,6 +8,7 @@ import AdminLayout from './components/AdminLayout'
 
 import Home from './pages/Home'
 import Impact from './pages/Impact'
+import Awareness from './pages/Awareness'
 import Login from './pages/Login'
 import Privacy from './pages/Privacy'
 import Signup from './pages/Signup'
@@ -54,6 +55,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<PublicLayout><Home lang={lang} /></PublicLayout>} />
       <Route path="/impact" element={<PublicLayout><Impact lang={lang} /></PublicLayout>} />
+      <Route path="/awareness" element={<PublicLayout><Awareness lang={lang} /></PublicLayout>} />
       <Route path="/privacy" element={<PublicLayout><Privacy lang={lang} /></PublicLayout>} />
       <Route path="/donate" element={<PublicLayout><Donate lang={lang} /></PublicLayout>} />
       <Route path="/signup" element={<PublicLayout><Signup lang={lang} /></PublicLayout>} />
