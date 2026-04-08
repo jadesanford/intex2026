@@ -215,4 +215,41 @@ public class AnalyticsController(SupabaseService db) : ControllerBase
 
         return Ok(new { byPostType, topPosts = posts.OrderByDescending(p => p.EstimatedDonationValuePhp).Take(5) });
     }
+
+    /// <summary>Runs lightweight analytics "pipelines" on live Supabase-backed tables (forecast, risk mix, occupancy, donor recency).</summary>
+    [HttpGet("ml-pipelines")]
+    public async Task<IActionResult> MlPipelines()
+    {
+        try
+        {
+            var donationsTask = db.GetAllAsync<Donation>("donations",
+                "select=amount,donation_date,donation_type,supporter_id&order=donation_date.asc");
+            var residentsTask = db.GetAllAsync<Resident>("residents",
+                "select=resident_id,case_status,current_risk_level,safehouse_id");
+            var safehousesTask = db.GetAllAsync<Safehouse>("safehouses",
+                "select=safehouse_id,name,capacity_girls,current_occupancy,status");
+            var supportersTask = db.GetAllAsync<Supporter>("supporters",
+                "select=supporter_id,supporter_type,status");
+
+            await Task.WhenAll(donationsTask, residentsTask, safehousesTask, supportersTask);
+
+            var donations = await donationsTask;
+            var residents = await residentsTask;
+            var safehouses = await safehousesTask;
+            var supporters = await supportersTask;
+
+            var bundle = new MlPipelinesBundle(
+                DateTime.UtcNow,
+                MlPipelineInsights.BuildDonationForecast(donations),
+                MlPipelineInsights.BuildRiskScoring(residents),
+                MlPipelineInsights.BuildOccupancy(safehouses),
+                MlPipelineInsights.BuildDonorChurn(donations, supporters));
+
+            return Ok(bundle);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "ml-pipelines failed", detail = ex.Message });
+        }
+    }
 }

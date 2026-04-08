@@ -14,6 +14,9 @@ export default defineConfig({
       '/api': {
         target: `http://localhost:${backendPort}`,
         changeOrigin: true,
+        // Supabase-backed analytics can be slow; short defaults sometimes surface as 502 from the proxy
+        timeout: 120_000,
+        proxyTimeout: 120_000,
       },
     },
   },
