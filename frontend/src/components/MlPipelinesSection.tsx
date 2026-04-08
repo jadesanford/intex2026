@@ -68,6 +68,47 @@ type MlBundle = {
     neverDonated: number
     recentMonthly: MonthlyPoint[]
   }
+  caseEscalationRisk: {
+    byLevel: { level: string; count: number }[]
+    highCriticalShare: number
+    activeCases: number
+    highOrCriticalActive: number
+  }
+  safehouseCapacityStrainForecast: {
+    locations: { name: string; capacity: number; current: number; utilizationPercent: number }[]
+    avgUtilization: number
+  }
+  donorChurnPrediction: {
+    monetarySupportersActive: number
+    withMonetaryDonations: number
+    activeLast90Days: number
+    lapsing: number
+    neverDonated: number
+    recentMonthly: MonthlyPoint[]
+  }
+  reintegrationReadiness: {
+    byStatus: { name: string; value: number }[]
+    completed: number
+    readinessRate: number
+  }
+  educationProgressForecast: {
+    monthly: { month: string; avgProgress: number; count: number }[]
+  }
+  healthDeteriorationAlert: {
+    lowHealthCount: number
+    checkupGapCount: number
+    byBand: { name: string; value: number }[]
+  }
+  homeVisitationFollowupPrioritization: {
+    followUpNeeded: number
+    safetyConcerns: number
+    byOutcome: { name: string; value: number }[]
+  }
+  interventionPlanCompletionRisk: {
+    openPlans: number
+    overdueOpenPlans: number
+    byStatus: { name: string; value: number }[]
+  }
 }
 
 function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBundle | undefined }) {
@@ -133,8 +174,8 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
     )
   }
 
-  if (pipelineId === 'risk-scoring') {
-    const rs = data.riskScoring
+  if (pipelineId === 'case-escalation-risk') {
+    const rs = data.caseEscalationRisk ?? data.riskScoring
     const pieData = (rs.byLevel ?? []).map((x) => ({ name: x.level, value: x.count }))
     if (pieData.length === 0) {
       return (
@@ -170,8 +211,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
     )
   }
 
-  if (pipelineId === 'occupancy') {
-    const loc = data.occupancy.locations ?? []
+  if (pipelineId === 'safehouse-capacity-strain-forecast') {
+    const occ = data.safehouseCapacityStrainForecast ?? data.occupancy
+    const loc = occ.locations ?? []
     const chartData = loc.map((l) => ({
       name: l.name.length > 18 ? `${l.name.slice(0, 16)}…` : l.name,
       utilization: l.utilizationPercent,
@@ -203,14 +245,14 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
           </BarChart>
         </ResponsiveContainer>
         <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 8 }}>
-          Average utilization: <strong>{data.occupancy.avgUtilization}%</strong>
+          Average utilization: <strong>{occ.avgUtilization}%</strong>
         </div>
       </div>
     )
   }
 
-  if (pipelineId === 'donor-churn') {
-    const d = data.donorChurn
+  if (pipelineId === 'donor-churn-prediction') {
+    const d = data.donorChurnPrediction ?? data.donorChurn
     const summary = [
       { name: 'Active (90d)', value: d.activeLast90Days },
       { name: 'Lapsing', value: d.lapsing },
@@ -253,6 +295,125 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
     )
   }
 
+  if (pipelineId === 'reintegration-readiness') {
+    const rr = data.reintegrationReadiness
+    const bars = rr?.byStatus ?? []
+    return (
+      <div style={{ padding: '8px 0' }}>
+        <ResponsiveContainer width="100%" height={Math.min(220, h * 0.6)}>
+          <BarChart data={bars}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+            <Tooltip />
+            <Bar dataKey="value" fill="var(--sage)" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>
+          Completed reintegration: <strong>{rr?.completed ?? 0}</strong> · Readiness rate:{' '}
+          <strong>{Math.round(rr?.readinessRate ?? 0)}%</strong>
+        </p>
+      </div>
+    )
+  }
+
+  if (pipelineId === 'education-progress-forecast') {
+    const monthly = (data.educationProgressForecast?.monthly ?? []).map((m) => ({
+      label: m.month?.slice(5) ?? m.month,
+      avgProgress: m.avgProgress,
+      count: m.count,
+    }))
+    if (monthly.length === 0) {
+      return <div className="empty-state" style={{ minHeight: h, padding: 24 }}><p>No education records yet.</p></div>
+    }
+    return (
+      <ResponsiveContainer width="100%" height={h}>
+        <ComposedChart data={monthly}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+          <YAxis yAxisId="left" tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
+          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} allowDecimals={false} />
+          <Tooltip />
+          <Legend />
+          <Line yAxisId="left" type="monotone" dataKey="avgProgress" stroke="var(--navy)" name="Avg progress %" strokeWidth={2} />
+          <Bar yAxisId="right" dataKey="count" fill="var(--terracotta)" name="Records" radius={[4, 4, 0, 0]} />
+        </ComposedChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  if (pipelineId === 'health-deterioration-alert') {
+    const health = data.healthDeteriorationAlert
+    const summary = [
+      { name: 'Low health', value: health?.lowHealthCount ?? 0 },
+      { name: 'Checkup gaps', value: health?.checkupGapCount ?? 0 },
+    ]
+    return (
+      <div style={{ padding: '8px 0' }}>
+        <ResponsiveContainer width="100%" height={Math.min(180, h * 0.5)}>
+          <BarChart data={summary}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+            <Tooltip />
+            <Bar dataKey="value" fill="#d4856e" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+        <ResponsiveContainer width="100%" height={Math.min(170, h * 0.45)}>
+          <PieChart>
+            <Pie data={health?.byBand ?? []} dataKey="value" nameKey="name" outerRadius={70} label>
+              {(health?.byBand ?? []).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    )
+  }
+
+  if (pipelineId === 'home-visitation-followup-prioritization') {
+    const v = data.homeVisitationFollowupPrioritization
+    const outcome = v?.byOutcome ?? []
+    return (
+      <div style={{ padding: '8px 0' }}>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
+          Follow-up needed: <strong>{v?.followUpNeeded ?? 0}</strong> · Safety concerns:{' '}
+          <strong>{v?.safetyConcerns ?? 0}</strong>
+        </p>
+        <ResponsiveContainer width="100%" height={h}>
+          <BarChart data={outcome} layout="vertical" margin={{ left: 8, right: 16 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
+            <YAxis dataKey="name" type="category" width={140} tick={{ fontSize: 11 }} />
+            <Tooltip />
+            <Bar dataKey="value" fill="#4b6c8c" radius={[0, 4, 4, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    )
+  }
+
+  if (pipelineId === 'intervention-plan-completion-risk') {
+    const p = data.interventionPlanCompletionRisk
+    return (
+      <div style={{ padding: '8px 0' }}>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
+          Open plans: <strong>{p?.openPlans ?? 0}</strong> · Overdue open plans:{' '}
+          <strong>{p?.overdueOpenPlans ?? 0}</strong>
+        </p>
+        <ResponsiveContainer width="100%" height={h}>
+          <BarChart data={p?.byStatus ?? []}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+            <Tooltip />
+            <Bar dataKey="value" fill="var(--terracotta)" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    )
+  }
+
   return null
 }
 
@@ -272,9 +433,7 @@ export default function MlPipelinesSection() {
     <div className="card" style={{ marginTop: 24 }}>
       <h3 style={{ fontSize: 16, marginBottom: 8 }}>ML pipelines (Supabase)</h3>
       <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16, maxWidth: 800 }}>
-        Each view runs on the server against your live Open Arms tables (donations, residents, safehouses, supporters):
-        monthly donation forecast (linear trend), active resident risk mix, safehouse utilization, and donor recency (90-day
-        window).
+        These 8 tabs each run a machine learning pipeline on the current data in our database, and reflect any changes made.
       </p>
 
       {data?.generatedAt && (

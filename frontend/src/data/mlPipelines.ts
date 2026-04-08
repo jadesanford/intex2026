@@ -7,23 +7,43 @@ export type MlPipeline = {
 
 export const ML_PIPELINES: MlPipeline[] = [
   {
-    id: 'donation-forecast',
-    title: 'Donation forecast',
-    description: 'Monthly monetary totals from Supabase with an ordinary least-squares trend and one-month-ahead point estimate.',
+    id: 'case-escalation-risk',
+    title: 'Case escalation risk',
+    description: 'Active case risk-level mix from resident snapshots for escalation triage.',
   },
   {
-    id: 'risk-scoring',
-    title: 'Resident risk scoring',
-    description: 'Distribution of current risk level among active residents (live case mix, not a separate classifier).',
+    id: 'donor-churn-prediction',
+    title: 'Donor churn prediction',
+    description: 'Recency buckets for monetary supporters and recent monthly giving trend.',
   },
   {
-    id: 'occupancy',
-    title: 'Safehouse occupancy',
-    description: 'Utilization (current ÷ capacity) for each active safehouse from live occupancy fields.',
+    id: 'education-progress-forecast',
+    title: 'Education progress forecast',
+    description: 'Monthly average progress from education records.',
   },
   {
-    id: 'donor-churn',
-    title: 'Donor churn',
-    description: 'Recency buckets: donated in the last 90 days, lapsing (older or missing), and active monetary supporters who never recorded a donation.',
+    id: 'health-deterioration-alert',
+    title: 'Health deterioration alert',
+    description: 'Low health-score counts, checkup gaps, and health-score bands.',
+  },
+  {
+    id: 'home-visitation-followup-prioritization',
+    title: 'Home visitation follow-up prioritization',
+    description: 'Follow-up and safety concern signals from home visitation logs.',
+  },
+  {
+    id: 'intervention-plan-completion-risk',
+    title: 'Intervention plan completion risk',
+    description: 'Open and overdue intervention plans with status distribution.',
+  },
+  {
+    id: 'reintegration-readiness',
+    title: 'Reintegration readiness',
+    description: 'Reintegration status mix and completion readiness rate.',
+  },
+  {
+    id: 'safehouse-capacity-strain-forecast',
+    title: 'Safehouse capacity strain forecast',
+    description: 'Safehouse utilization percentage from current occupancy and capacity.',
   },
 ]

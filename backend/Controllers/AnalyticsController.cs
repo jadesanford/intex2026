@@ -225,27 +225,117 @@ public class AnalyticsController(SupabaseService db) : ControllerBase
             var donationsTask = db.GetAllAsync<Donation>("donations",
                 "select=amount,donation_date,donation_type,supporter_id&order=donation_date.asc");
             var residentsTask = db.GetAllAsync<Resident>("residents",
-                "select=resident_id,case_status,current_risk_level,safehouse_id");
+                "select=resident_id,case_status,current_risk_level,safehouse_id,reintegration_status");
             var safehousesTask = db.GetAllAsync<Safehouse>("safehouses",
                 "select=safehouse_id,name,capacity_girls,current_occupancy,status");
             var supportersTask = db.GetAllAsync<Supporter>("supporters",
                 "select=supporter_id,supporter_type,status");
+            var educationTask = db.GetAllAsync<EducationRecord>("education_records",
+                "select=record_date,progress_percent,enrollment_status");
+            var healthTask = db.GetAllAsync<HealthWellbeingRecord>("health_wellbeing_records",
+                "select=record_date,general_health_score,medical_checkup_done,dental_checkup_done,psychological_checkup_done");
+            var visitationsTask = db.GetAllAsync<HomeVisitation>("home_visitations",
+                "select=visit_date,follow_up_needed,safety_concerns_noted,visit_outcome,family_cooperation_level");
+            var plansTask = db.GetAllAsync<InterventionPlan>("intervention_plans",
+                "select=status,target_date,created_at,plan_category");
 
-            await Task.WhenAll(donationsTask, residentsTask, safehousesTask, supportersTask);
+            await Task.WhenAll(donationsTask, residentsTask, safehousesTask, supportersTask, educationTask, healthTask, visitationsTask, plansTask);
 
             var donations = await donationsTask;
             var residents = await residentsTask;
             var safehouses = await safehousesTask;
             var supporters = await supportersTask;
+            var education = await educationTask;
+            var health = await healthTask;
+            var visitations = await visitationsTask;
+            var plans = await plansTask;
 
-            var bundle = new MlPipelinesBundle(
-                DateTime.UtcNow,
-                MlPipelineInsights.BuildDonationForecast(donations),
-                MlPipelineInsights.BuildRiskScoring(residents),
-                MlPipelineInsights.BuildOccupancy(safehouses),
-                MlPipelineInsights.BuildDonorChurn(donations, supporters));
+            var donationForecast = MlPipelineInsights.BuildDonationForecast(donations);
+            var caseEscalation = MlPipelineInsights.BuildRiskScoring(residents);
+            var safehouseCapacity = MlPipelineInsights.BuildOccupancy(safehouses);
+            var donorChurn = MlPipelineInsights.BuildDonorChurn(donations, supporters);
 
-            return Ok(bundle);
+            var reintegrationByStatus = residents
+                .GroupBy(r => string.IsNullOrWhiteSpace(r.ReintegrationStatus) ? "Unknown" : r.ReintegrationStatus!)
+                .Select(g => new { name = g.Key, value = g.Count() })
+                .OrderByDescending(x => x.value)
+                .ToList();
+            var readyCount = residents.Count(r => r.ReintegrationStatus == "Completed");
+            var readinessRate = residents.Count > 0 ? Math.Round((double)readyCount / residents.Count * 100, 1) : 0;
+
+            var eduMonthly = education
+                .Select(e => new { month = MlPipelineInsights.MonthKey(e.RecordDate), progress = e.ProgressPercent ?? 0 })
+                .Where(x => x.month != null)
+                .GroupBy(x => x.month!)
+                .Select(g => new { month = g.Key, avgProgress = Math.Round(g.Average(x => (double)x.progress), 1), count = g.Count() })
+                .OrderBy(x => x.month)
+                .ToList();
+
+            var lowHealth = health.Count(h => (h.GeneralHealthScore ?? 100) < 60);
+            var checkupGaps = health.Count(h => h.MedicalCheckupDone != true || h.DentalCheckupDone != true || h.PsychologicalCheckupDone != true);
+            var healthBands = new[]
+            {
+                new { name = "High (>=80)", value = health.Count(h => (h.GeneralHealthScore ?? 0) >= 80) },
+                new { name = "Moderate (60-79)", value = health.Count(h => (h.GeneralHealthScore ?? 0) >= 60 && (h.GeneralHealthScore ?? 0) < 80) },
+                new { name = "Low (<60)", value = health.Count(h => (h.GeneralHealthScore ?? 0) < 60) },
+            };
+
+            var followUpNeeded = visitations.Count(v => v.FollowUpNeeded == true);
+            var safetyConcerns = visitations.Count(v => v.SafetyConcernsNoted == true);
+            var visitByOutcome = visitations
+                .GroupBy(v => string.IsNullOrWhiteSpace(v.VisitOutcome) ? "Unknown" : v.VisitOutcome!)
+                .Select(g => new { name = g.Key, value = g.Count() })
+                .OrderByDescending(x => x.value)
+                .Take(8)
+                .ToList();
+
+            var now = DateTime.UtcNow.Date;
+            var overdueOpen = plans.Count(p =>
+                p.Status == "Open"
+                && DateTime.TryParse(p.TargetDate, out var target)
+                && target.Date < now);
+            var planByStatus = plans
+                .GroupBy(p => string.IsNullOrWhiteSpace(p.Status) ? "Unknown" : p.Status)
+                .Select(g => new { name = g.Key!, value = g.Count() })
+                .OrderByDescending(x => x.value)
+                .ToList();
+
+            return Ok(new
+            {
+                generatedAt = DateTime.UtcNow,
+                donationForecast,
+                caseEscalationRisk = caseEscalation,
+                safehouseCapacityStrainForecast = safehouseCapacity,
+                donorChurnPrediction = donorChurn,
+                reintegrationReadiness = new
+                {
+                    byStatus = reintegrationByStatus,
+                    completed = readyCount,
+                    readinessRate
+                },
+                educationProgressForecast = new
+                {
+                    monthly = eduMonthly
+                },
+                healthDeteriorationAlert = new
+                {
+                    lowHealthCount = lowHealth,
+                    checkupGapCount = checkupGaps,
+                    byBand = healthBands
+                },
+                homeVisitationFollowupPrioritization = new
+                {
+                    followUpNeeded,
+                    safetyConcerns,
+                    byOutcome = visitByOutcome
+                },
+                interventionPlanCompletionRisk = new
+                {
+                    openPlans = plans.Count(p => p.Status == "Open"),
+                    overdueOpenPlans = overdueOpen,
+                    byStatus = planByStatus
+                }
+            });
         }
         catch (Exception ex)
         {
