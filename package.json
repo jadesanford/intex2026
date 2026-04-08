@@ -1,0 +1,9 @@
+{
+  "name": "open-arms-workspace",
+  "version": "0.0.0",
+  "scripts": {
+    "publish:backend": "powershell -ExecutionPolicy Bypass -File ./backend/publish-backend.ps1"
+  },
+  "license": "MIT",
+  "private": true
+}

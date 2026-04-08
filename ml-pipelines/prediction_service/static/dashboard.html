@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lighthouse ML — Insights Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a222d;
+      --border: #2d3a4d;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --accent: #3dcc9c;
+      --warn: #e8a43c;
+      --risk: #e85d5d;
+      --ok: #5b9fd4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(61, 204, 156, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(91, 159, 212, 0.1), transparent);
+    }
+    header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    header h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    header p { margin: 0.2rem 0 0; font-size: 0.85rem; color: var(--muted); }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .tabs button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .tabs button.active {
+      background: var(--panel);
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem 2rem;
+      display: grid;
+      gap: 1.25rem;
+    }
+    @media (min-width: 900px) {
+      .grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+    }
+    .card h2 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1rem;
+      margin: 0 0 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .metric {
+      font-size: 2.25rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+    .metric sub {
+      font-size: 0.45em;
+      font-weight: 500;
+      color: var(--muted);
+      vertical-align: baseline;
+    }
+    .tier {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tier.high { background: rgba(232, 93, 93, 0.2); color: #f5a8a8; }
+    .tier.med { background: rgba(232, 164, 60, 0.2); color: #f0c882; }
+    .tier.low { background: rgba(61, 204, 156, 0.15); color: #8ee8cc; }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.8rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #121820;
+      color: var(--text);
+      resize: vertical;
+    }
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+    }
+    button.primary {
+      font-family: inherit;
+      font-weight: 600;
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #0a0f12;
+      cursor: pointer;
+    }
+    button.secondary {
+      font-family: inherit;
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    ul.insights {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 0.92rem;
+    }
+    ul.insights li { margin-bottom: 0.35rem; }
+    .error {
+      padding: 0.75rem;
+      border-radius: 8px;
+      background: rgba(232, 93, 93, 0.12);
+      border: 1px solid rgba(232, 93, 93, 0.35);
+      color: #f0b4b4;
+      font-size: 0.9rem;
+    }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+    .chart-wrap { position: relative; height: 220px; margin-top: 0.5rem; }
+    label.th { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.25rem; }
+    input[type="number"] {
+      width: 6rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #121820;
+      color: var(--text);
+    }
+    .embed-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    code { font-size: 0.85em; color: var(--ok); }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Lighthouse ML insights</h1>
+      <p>Model outputs, tiers, and recommended actions — embed this page or call the JSON API from your app.</p>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" class="active" data-tab="reint" id="tab-reint">Reintegration readiness</button>
+      <button type="button" data-tab="esc" id="tab-esc">Case escalation risk</button>
+    </div>
+  </header>
+  <main>
+    <div class="card">
+      <label class="th" for="threshold">Tier threshold</label>
+      <input type="number" id="threshold" step="0.05" min="0" max="1" value="0.2" title="Reintegration: max prob for high-attention tier. Escalation: min prob for high-risk tier." />
+      <span class="hint" id="threshold-hint">Reintegration: flag when predicted success is <strong>below</strong> this value (default 0.2).</span>
+    </div>
+
+    <div class="grid-main">
+      <div class="card">
+        <h2>Feature payload (JSON)</h2>
+        <textarea id="payload" spellcheck="false"></textarea>
+        <div class="row-actions">
+          <button type="button" class="primary" id="run">Run model</button>
+          <button type="button" class="secondary" id="sample">Load sample</button>
+        </div>
+        <p class="hint">Unknown keys are ignored. Omitted keys are imputed as missing (training median / mode).</p>
+      </div>
+      <div class="card">
+        <h2>Output</h2>
+        <div id="out-error" class="error" style="display:none;"></div>
+        <div id="out-metrics" style="display:none;">
+          <div class="metric" id="metric-val"></div>
+          <div class="tier" id="tier-badge"></div>
+          <p style="margin: 0.75rem 0 0; font-size: 0.9rem; color: var(--muted);" id="headline"></p>
+          <h2 style="margin-top: 1rem;">Recommended actions</h2>
+          <ul class="insights" id="bullets"></ul>
+        </div>
+        <div id="out-waiting" class="hint">Load sample or paste JSON, then Run model.</div>
+      </div>
+    </div>
+
+    <div class="grid-main">
+      <div class="card">
+        <h2>Global model drivers (Random Forest)</h2>
+        <p class="hint">Which transformed features the forest relied on most — useful for stakeholder narrative (global, not per-row SHAP).</p>
+        <div class="chart-wrap"><canvas id="chart-drivers"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>Signal by feature family</h2>
+        <p class="hint">Roll-up of driver importances by name prefix (after preprocessing).</p>
+        <div class="chart-wrap"><canvas id="chart-family"></canvas></div>
+      </div>
+    </div>
+
+    <p class="embed-note">
+      <strong>Integrate in your app:</strong> <code>POST /dashboard/reintegration-readiness</code> or
+      <code>POST /dashboard/case-escalation-risk</code> with body <code>{"features":{...}}</code> returns scores, tiers, action bullets, and driver tables.
+      OpenAPI: <a href="/docs" style="color:var(--ok);">/docs</a>.
+    </p>
+  </main>
+
+  <script>
+    /* If you embed this page on another origin, set before load: window.__ML_API_BASE = 'https://api.example.com' */
+    const API = typeof window.__ML_API_BASE === 'string' ? window.__ML_API_BASE : '';
+    let chartDrivers = null;
+    let chartFamily = null;
+
+    const samples = {
+      reint: {
+        features: {
+          present_age: 32, length_of_stay: 120, age_upon_admission: 28,
+          initial_risk_level: "Medium", current_risk_level: "Medium", case_category: "Standard",
+          safehouse_id: 1, sex: "F",
+          edu_attendance_rate: 0.75, edu_progress_percent: 55,
+          edu_education_level: "HS", edu_enrollment_status: "Active", edu_completion_status: "In progress",
+          health_general_health_score: 6, health_nutrition_score: 6, health_sleep_quality_score: 5,
+          health_energy_level_score: 6, health_bmi: 22,
+          sessions_last_90d: 8, visits_last_90d: 4, incidents_last_180d: 1
+        }
+      },
+      esc: {
+        features: {
+          safehouse_id: 1, sex: "F", present_age: 32, length_of_stay: 120,
+          case_category: "Standard", initial_risk_level: "Medium", current_risk_level: "High",
+          incidents_total_180d: 2, incidents_severe_180d: 1, unresolved_incidents_180d: 1,
+          sessions_180d: 10, avg_session_minutes: 45, progress_noted_rate: 0.7,
+          concerns_flagged_rate: 0.3, referral_rate: 0.2,
+          visits_180d: 5, follow_up_needed_rate: 0.4, safety_concerns_rate: 0.25,
+          avg_family_cooperation: 2.0,
+          health_score_mean: 5.5, sleep_score_mean: 5, nutrition_score_mean: 6, energy_score_mean: 5,
+          edu_attendance_mean: 0.7, edu_progress_mean: 50
+        }
+      }
+    };
+
+    let mode = 'reint';
+
+    function setTab(m) {
+      mode = m;
+      document.querySelectorAll('.tabs button').forEach((b) => {
+        b.classList.toggle('active', b.dataset.tab === m);
+      });
+      const th = document.getElementById('threshold');
+      if (m === 'reint') {
+        th.value = 0.2;
+        document.getElementById('threshold-hint').innerHTML =
+          'Reintegration: flag when predicted success is <strong>below</strong> this value (default 0.2).';
+      } else {
+        th.value = 0.5;
+        document.getElementById('threshold-hint').innerHTML =
+          'Escalation: flag when incident risk is <strong>at or above</strong> this value (default 0.5).';
+      }
+      document.getElementById('payload').value = JSON.stringify(samples[m === 'reint' ? 'reint' : 'esc'], null, 2);
+      clearOutput();
+    }
+
+    function clearOutput() {
+      document.getElementById('out-error').style.display = 'none';
+      document.getElementById('out-metrics').style.display = 'none';
+      document.getElementById('out-waiting').style.display = 'block';
+    }
+
+    function tierClass(tier, m) {
+      const t = (tier || '').toLowerCase();
+      if (m === 'reint') {
+        if (t.includes('high')) return 'high';
+        if (t.includes('medium')) return 'med';
+        return 'low';
+      }
+      if (t.includes('high')) return 'high';
+      if (t.includes('watch')) return 'med';
+      return 'low';
+    }
+
+    function renderCharts(drivers, families) {
+      const dLabels = drivers.map((x) => x.feature);
+      const dData = drivers.map((x) => x.importance);
+      const fLabels = families.map((x) => x.family);
+      const fData = families.map((x) => x.importance);
+
+      if (chartDrivers) chartDrivers.destroy();
+      if (chartFamily) chartFamily.destroy();
+
+      const common = {
+        type: 'bar',
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8b9cb3' } },
+            y: { grid: { display: false }, ticks: { color: '#8b9cb3', font: { size: 10 } } },
+          },
+        },
+      };
+
+      chartDrivers = new Chart(document.getElementById('chart-drivers'), {
+        ...common,
+        data: {
+          labels: dLabels,
+          datasets: [{ data: dData, backgroundColor: 'rgba(61, 204, 156, 0.55)', borderRadius: 4 }],
+        },
+      });
+      chartFamily = new Chart(document.getElementById('chart-family'), {
+        ...common,
+        data: {
+          labels: fLabels,
+          datasets: [{ data: fData, backgroundColor: 'rgba(91, 159, 212, 0.55)', borderRadius: 4 }],
+        },
+      });
+    }
+
+    async function run() {
+      const err = document.getElementById('out-error');
+      const waiting = document.getElementById('out-waiting');
+      err.style.display = 'none';
+      waiting.textContent = 'Running…';
+
+      let body;
+      try {
+        body = JSON.parse(document.getElementById('payload').value);
+      } catch (e) {
+        err.textContent = 'Invalid JSON in payload.';
+        err.style.display = 'block';
+        waiting.textContent = '';
+        return;
+      }
+
+      const th = parseFloat(document.getElementById('threshold').value);
+      const path =
+        mode === 'reint'
+          ? '/dashboard/reintegration-readiness?threshold=' + encodeURIComponent(th)
+          : '/dashboard/case-escalation-risk?threshold=' + encodeURIComponent(th);
+
+      try {
+        const res = await fetch(API + path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body.features ? body : { features: body }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || JSON.stringify(data));
+        }
+        waiting.style.display = 'none';
+        document.getElementById('out-metrics').style.display = 'block';
+
+        const p =
+          mode === 'reint' ? data.prediction.probability_success : data.prediction.probability_incident_30d;
+        const pct = (p * 100).toFixed(1);
+        document.getElementById('metric-val').innerHTML =
+          mode === 'reint'
+            ? pct + '<sub> % success</sub>'
+            : pct + '<sub> % incident (30d)</sub>';
+        const badge = document.getElementById('tier-badge');
+        badge.textContent = data.prediction.tier.replace(/_/g, ' ');
+        badge.className = 'tier ' + tierClass(data.prediction.tier, mode);
+        document.getElementById('headline').textContent = data.narrative.headline;
+        const ul = document.getElementById('bullets');
+        ul.innerHTML = '';
+        (data.narrative.action_bullets || []).forEach((b) => {
+          const li = document.createElement('li');
+          li.textContent = b;
+          ul.appendChild(li);
+        });
+        renderCharts(data.global_drivers.drivers || [], data.family_importance || []);
+      } catch (e) {
+        waiting.textContent = '';
+        err.textContent = e.message || String(e);
+        err.style.display = 'block';
+      }
+    }
+
+    document.getElementById('tab-reint').addEventListener('click', () => setTab('reint'));
+    document.getElementById('tab-esc').addEventListener('click', () => setTab('esc'));
+    document.getElementById('run').addEventListener('click', run);
+    document.getElementById('sample').addEventListener('click', () => {
+      document.getElementById('payload').value = JSON.stringify(samples[mode === 'reint' ? 'reint' : 'esc'], null, 2);
+    });
+
+    setTab('reint');
+  </script>
+</body>
+</html>
