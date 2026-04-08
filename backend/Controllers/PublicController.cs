@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Mail;
 using OpenArms.Api.Models;
 using OpenArms.Api.Services;
 
@@ -6,8 +8,16 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/public")]
-public class PublicController(SupabaseService db) : ControllerBase
+public class PublicController(SupabaseService db, IConfiguration config, ILogger<PublicController> logger) : ControllerBase
 {
+    public class QuickHelpRequest
+    {
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+        public string? Phone { get; set; }
+        public string? Message { get; set; }
+    }
+
     [HttpGet("impact-snapshot")]
     public async Task<IActionResult> ImpactSnapshot()
     {
@@ -89,8 +99,59 @@ public class PublicController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost("contact")]
-    public async Task<IActionResult> Contact([FromBody] object body)
+    public async Task<IActionResult> Contact([FromBody] QuickHelpRequest body)
     {
-        return Ok(new { message = "Thank you for your message. We will be in touch soon." });
+        if (string.IsNullOrWhiteSpace(body.Message))
+            return BadRequest(new { message = "Message is required." });
+
+        var smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST") ?? config["Email:SmtpHost"];
+        var smtpPortRaw = Environment.GetEnvironmentVariable("SMTP_PORT") ?? config["Email:SmtpPort"];
+        var smtpUser = Environment.GetEnvironmentVariable("SMTP_USER") ?? config["Email:SmtpUser"];
+        var smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS") ?? config["Email:SmtpPass"];
+        var smtpFrom = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? config["Email:From"];
+        var toEmail = Environment.GetEnvironmentVariable("QUICK_HELP_TO_EMAIL")
+            ?? config["Email:QuickHelpTo"]
+            ?? "jadesanford03@gmail.com";
+
+        if (string.IsNullOrWhiteSpace(smtpHost) || string.IsNullOrWhiteSpace(smtpUser) || string.IsNullOrWhiteSpace(smtpPass))
+        {
+            logger.LogWarning(
+                "Quick help request accepted without SMTP config. Name: {Name}, Email: {Email}, Phone: {Phone}, Message: {Message}",
+                body.Name, body.Email, body.Phone, body.Message
+            );
+            return Ok(new
+            {
+                message = "Your request was received. Email delivery is not configured yet on this server.",
+                delivered = false
+            });
+        }
+
+        var smtpPort = int.TryParse(smtpPortRaw, out var parsedPort) ? parsedPort : 587;
+        var fromEmail = string.IsNullOrWhiteSpace(smtpFrom) ? smtpUser : smtpFrom;
+        var name = string.IsNullOrWhiteSpace(body.Name) ? "Not provided" : body.Name!.Trim();
+        var email = string.IsNullOrWhiteSpace(body.Email) ? "Not provided" : body.Email!.Trim();
+        var phone = string.IsNullOrWhiteSpace(body.Phone) ? "Not provided" : body.Phone!.Trim();
+        var message = body.Message.Trim();
+
+        var subject = $"Quick Help Request - {name}";
+        var emailBody = $"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}";
+
+        try
+        {
+            using var mail = new MailMessage(fromEmail, toEmail, subject, emailBody);
+            using var client = new SmtpClient(smtpHost, smtpPort)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(smtpUser, smtpPass)
+            };
+
+            await client.SendMailAsync(mail);
+            return Ok(new { message = "Your request has been sent." });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send quick help email.");
+            return StatusCode(500, new { message = "Unable to send your request right now." });
+        }
     }
 }

@@ -57,6 +57,9 @@ export default function PublicLayout({ children }: Props) {
           <Link to="/impact" style={{ color: 'rgba(255,255,255,0.7)' }}>
             Our Impact
           </Link>
+          <Link to="/awareness" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            Stories
+          </Link>
           <Link to="/donate" style={{ color: 'rgba(255,255,255,0.7)' }}>
             Donate
           </Link>

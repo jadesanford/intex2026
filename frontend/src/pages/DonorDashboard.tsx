@@ -63,6 +63,8 @@ const t = {
     date: 'Date',
     viewDetails: 'Details',
     viewInKind: 'View items',
+    thankYouTitle: 'Thank you for your generosity.',
+    thankYouBody: 'Your donations help provide safe shelter, trauma-informed care, education support, and reintegration services for survivors. Every gift directly strengthens healing journeys and long-term recovery in our community.',
   },
   tl: {
     title: 'Aking Donor Dashboard',
@@ -88,6 +90,8 @@ const t = {
     date: 'Petsa',
     viewDetails: 'Detalye',
     viewInKind: 'Tingnan ang mga item',
+    thankYouTitle: 'Maraming salamat sa inyong kabutihang-loob.',
+    thankYouBody: 'Ang inyong mga donasyon ay tumutulong sa ligtas na tirahan, trauma-informed na pag-aalaga, suporta sa edukasyon, at mga serbisyong reintegration para sa mga survivor. Bawat handog ay nagpapalakas ng kanilang paghilom at pangmatagalang pagbangon sa komunidad.',
   }
 }
 
@@ -120,8 +124,8 @@ export default function DonorDashboard({ lang }: { lang: 'en' | 'tl' }) {
           <p style={{ color: 'var(--text-muted)' }}>{tx.subtitle}</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20, marginBottom: 20 }}>
-          <div className="card" style={{ textAlign: 'center' }}>
+        <div className="donor-kpi-grid" style={{ marginBottom: 20 }}>
+          <div className="card donor-kpi-total" style={{ textAlign: 'center' }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(193,105,79,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
               <PhilippinePeso size={22} color="var(--terracotta)" />
             </div>
@@ -230,6 +234,12 @@ export default function DonorDashboard({ lang }: { lang: 'en' | 'tl' }) {
               </table>
             </div>
           )}
+        </div>
+
+        <div className="card" style={{ marginTop: 20 }}>
+          <p style={{ margin: 0, color: 'var(--text)', lineHeight: 1.7 }}>
+            <strong>{tx.thankYouTitle}</strong> {tx.thankYouBody}
+          </p>
         </div>
       </div>
     </div>

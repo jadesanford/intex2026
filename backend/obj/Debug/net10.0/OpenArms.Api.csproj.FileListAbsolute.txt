@@ -167,3 +167,46 @@
 /Users/jadesanford/Downloads/IntexCursor copy/backend/obj/Debug/net10.0/OpenArms.Api.genruntimeconfig.cache
 /Users/jadesanford/Downloads/IntexCursor copy/backend/obj/Debug/net10.0/ref/OpenArms.Api.dll
 /Users/jadesanford/Downloads/IntexCursor copy/backend/bin/Debug/net10.0/web.config
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/web.config
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/appsettings.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/OpenArms.Api.staticwebassets.endpoints.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/appsettings.Development.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/OpenArms.Api
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/OpenArms.Api.deps.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/OpenArms.Api.runtimeconfig.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/OpenArms.Api.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/OpenArms.Api.pdb
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/BCrypt.Net-Next.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.AspNetCore.OpenApi.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Abstractions.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Logging.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Tokens.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/Microsoft.OpenApi.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/bin/Debug/net10.0/System.IdentityModel.Tokens.Jwt.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.csproj.AssemblyReference.cache
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/rpswa.dswa.cache.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.AssemblyInfoInputs.cache
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.AssemblyInfo.cs
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.csproj.CoreCompileInputs.cache
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.MvcApplicationPartsAssemblyInfo.cs
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.MvcApplicationPartsAssemblyInfo.cache
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/rjimswa.dswa.cache.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/rjsmrazor.dswa.cache.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/rjsmcshtml.dswa.cache.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/scopedcss/bundle/OpenArms.Api.styles.css
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/staticwebassets.build.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/staticwebassets.build.json.cache
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/staticwebassets.development.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/staticwebassets.build.endpoints.json
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/swae.build.ex.cache
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.6F0FF192.Up2Date
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/refint/OpenArms.Api.dll
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.pdb
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.genruntimeconfig.cache
+/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/ref/OpenArms.Api.dll

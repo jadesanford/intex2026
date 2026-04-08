@@ -60,6 +60,12 @@ export const getImpactSnapshot = () => api.get('/public/impact-snapshot').then(r
 export const getPublicSafehouses = () => api.get('/public/safehouses').then(r => r.data)
 export const getDonationTrends = () => api.get('/public/donation-trends').then(r => r.data)
 export const getOutcomeMetrics = () => api.get('/public/outcome-metrics').then(r => r.data)
+export const sendQuickHelpRequest = (body: {
+  name?: string
+  email?: string
+  phone?: string
+  message: string
+}) => api.post('/public/contact', body).then(r => r.data)
 
 // Residents
 export const getResidents = (params?: Record<string, string | number>) =>

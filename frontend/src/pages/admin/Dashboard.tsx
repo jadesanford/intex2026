@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { getDashboardAnalytics, getDonations, getAtRiskResidents } from '../../lib/api'
@@ -26,6 +27,14 @@ type DonationRow = {
 }
 
 export default function Dashboard() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 900)
+    onResize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
   const { data: dash } = useQuery({ queryKey: ['dashboard'], queryFn: getDashboardAnalytics })
   const { data: recentDonations } = useQuery({ queryKey: ['donations', 1], queryFn: () => getDonations({ page: 1, pageSize: 6 }) })
   const { data: atRisk } = useQuery({ queryKey: ['at-risk'], queryFn: getAtRiskResidents })
@@ -42,7 +51,7 @@ export default function Dashboard() {
       </div>
 
       {dash && (
-        <div className="grid-4" style={{ marginBottom: 24 }}>
+        <div className="admin-kpi-grid" style={{ marginBottom: 24 }}>
           <StatCard label="Active Residents" value={dash.residents.active} sub={`${dash.residents.total} total`} icon={<Users size={22} />} />
           <StatCard label="Reintegrated" value={dash.residents.reintegrationCompleted} sub="completed reintegration" icon={<Heart size={22} />} color="var(--sage)" />
           <StatCard label="This Month" value={formatPHP(dash.donations.thisMonth)} sub={`${dash.donations.count} total records`} icon={<TrendingUp size={22} />} color="#1e2d4a" />
@@ -50,7 +59,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div className="admin-dashboard-panels">
         {/* At-Risk Residents */}
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -60,17 +69,14 @@ export default function Dashboard() {
           {!atRisk || atRisk.length === 0 ? (
             <div className="empty-state"><p>No high-risk cases at this time.</p></div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {atRisk.slice(0, 6).map((r: AtRiskRow) => (
-                <div key={r.residentId} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '10px 14px', background: '#fafafa', borderRadius: 8
-                }}>
-                  <div>
+            <div className="admin-list">
+              {atRisk.slice(0, isMobile ? 3 : 6).map((r: AtRiskRow) => (
+                <div key={r.residentId} className="admin-list-item">
+                  <div className="admin-list-item-main">
                     <div style={{ fontWeight: 600, fontSize: 14, fontFamily: 'monospace' }}>{r.caseControlNo || r.internalCode || `#${r.residentId}`}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.safehouses?.name || '—'}</div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div className="admin-list-item-side">
                     <span className={RISK_BADGE[r.currentRiskLevel] || 'badge badge-gray'}>{r.currentRiskLevel}</span>
                     <Link to={`/admin/residents/${r.residentId}`} style={{ fontSize: 12, color: 'var(--terracotta)' }}>View →</Link>
                   </div>
@@ -89,18 +95,18 @@ export default function Dashboard() {
           {!recentDonations || recentDonations.length === 0 ? (
             <div className="empty-state"><p>No donations recorded yet.</p></div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {recentDonations.slice(0, 6).map((d: DonationRow) => {
+            <div className="admin-list">
+              {recentDonations.slice(0, isMobile ? 3 : 6).map((d: DonationRow) => {
                 const donorName = d.supporters?.displayName || d.supporters?.organizationName || 'Anonymous'
                 return (
-                  <div key={d.donationId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#fafafa', borderRadius: 8 }}>
-                    <div>
+                  <div key={d.donationId} className="admin-list-item">
+                    <div className="admin-list-item-main">
                       <div style={{ fontWeight: 600, fontSize: 14 }}>{donorName}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                         {d.donationDate?.slice(0, 10)} {d.campaignName ? `· ${d.campaignName}` : ''}
                       </div>
                     </div>
-                    <span style={{ fontWeight: 700, color: 'var(--sage)' }}>{formatPHP(d.amount || 0)}</span>
+                    <span className="admin-list-item-amount">{formatPHP(d.amount || 0)}</span>
                   </div>
                 )
               })}

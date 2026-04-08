@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, Phone, TrendingUp } from 'lucide-react'
-import { getImpactSnapshot } from '../lib/api'
+import { Heart, TrendingUp } from 'lucide-react'
+import { sendQuickHelpRequest } from '../lib/api'
 
 const t = {
   en: {
@@ -50,16 +50,40 @@ const t = {
   }
 }
 
-function formatPHP(n: number) {
-  if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000) return `₱${(n / 1_000).toFixed(0)}K`
-  return `₱${n.toLocaleString()}`
-}
-
 export default function Home({ lang }: { lang: 'en' | 'tl' }) {
   const tx = t[lang]
-  void formatPHP
-  const { data } = useQuery({ queryKey: ['impact-snapshot'], queryFn: getImpactSnapshot })
+  const [showHelpForm, setShowHelpForm] = useState(false)
+  const [helpName, setHelpName] = useState('')
+  const [helpEmail, setHelpEmail] = useState('')
+  const [helpPhone, setHelpPhone] = useState('')
+  const [helpMessage, setHelpMessage] = useState('')
+  const [sendingHelp, setSendingHelp] = useState(false)
+  const [helpNotice, setHelpNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  const submitQuickHelp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!helpMessage.trim()) return
+
+    try {
+      setSendingHelp(true)
+      const response = await sendQuickHelpRequest({
+        name: helpName,
+        email: helpEmail,
+        phone: helpPhone,
+        message: helpMessage
+      })
+      setShowHelpForm(false)
+      setHelpName('')
+      setHelpEmail('')
+      setHelpPhone('')
+      setHelpMessage('')
+      setHelpNotice({ type: 'success', text: response?.message ?? 'Your request was sent successfully.' })
+    } catch {
+      setHelpNotice({ type: 'error', text: 'Could not send your request right now. Please try again in a moment.' })
+    } finally {
+      setSendingHelp(false)
+    }
+  }
 
   return (
     <div>
@@ -89,58 +113,80 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
           <h1 style={{ fontSize: 'clamp(48px, 8vw, 80px)', marginBottom: 20, color: 'var(--navy)' }}>{tx.title}</h1>
           <p style={{ fontSize: 20, color: 'var(--text-muted)', marginBottom: 40, lineHeight: 1.7 }}>{tx.subtitle}</p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="tel:+621234567890" className="btn btn-primary" style={{ fontSize: 16, padding: '14px 32px' }}>
-              <Phone size={18} /> {tx.help}
-            </a>
+            <button type="button" className="btn btn-primary" style={{ fontSize: 16, padding: '14px 32px' }} onClick={() => setShowHelpForm(true)}>
+              <Heart size={18} /> {tx.help}
+            </button>
             <Link to="/impact" className="btn btn-outline" style={{ fontSize: 16, padding: '14px 32px' }}>
               <TrendingUp size={18} /> {tx.impact}
             </Link>
           </div>
+          {showHelpForm && (
+            <div className="modal-overlay" onClick={() => setShowHelpForm(false)}>
+              <form onSubmit={submitQuickHelp} className="modal" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>Quick Help Form</h2>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowHelpForm(false)}>✕</button>
+                </div>
+                <div className="grid-2" style={{ marginBottom: 12 }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>Name</label>
+                    <input value={helpName} onChange={e => setHelpName(e.target.value)} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>Email</label>
+                    <input type="email" value={helpEmail} onChange={e => setHelpEmail(e.target.value)} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>Phone</label>
+                    <input value={helpPhone} onChange={e => setHelpPhone(e.target.value)} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0, gridColumn: '1 / -1' }}>
+                    <label>How can we help?</label>
+                    <textarea rows={3} required value={helpMessage} onChange={e => setHelpMessage(e.target.value)} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                  <button type="button" className="btn btn-ghost" onClick={() => setShowHelpForm(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary" disabled={sendingHelp}>
+                    {sendingHelp ? 'Sending...' : 'Send'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+          {helpNotice && (
+            <div className="modal-overlay" onClick={() => setHelpNotice(null)}>
+              <div className={`quick-help-notice ${helpNotice.type}`} onClick={e => e.stopPropagation()}>
+                <h3>{helpNotice.type === 'success' ? 'Message Sent' : 'Could Not Send Message'}</h3>
+                <p>{helpNotice.text}</p>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button type="button" className="btn btn-primary" onClick={() => setHelpNotice(null)}>
+                    OK
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Stats */}
-      {data && (
-        <section style={{ background: 'var(--navy)', padding: '60px 24px' }}>
-          <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-            <h2 style={{ textAlign: 'center', color: 'white', marginBottom: 48, fontSize: 28 }}>{tx.statsTitle}</h2>
-            <div className="grid-4">
-              {[
-                { v: data.totalResidentsHelped, l: tx.helped },
-                { v: data.activeResidents, l: tx.active },
-                { v: data.totalSafehouses, l: tx.safehouses },
-                { v: data.reintegrationRate + '%', l: tx.reintegration },
-              ].map(({ v, l }) => (
-                <div key={l} style={{ textAlign: 'center', padding: 24 }}>
-                  <div style={{ fontSize: 48, fontWeight: 700, color: 'var(--terracotta)', fontFamily: 'Playfair Display, serif' }}>{v}</div>
-                  <div style={{ color: 'rgba(255,255,255,0.7)', marginTop: 8 }}>{l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Mission */}
-      <section style={{ padding: '80px 24px', background: 'white' }}>
+      <section className="home-mission-section" style={{ background: 'white' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center', marginBottom: 48 }}>
-            <div>
-              <h2 style={{ fontSize: 36, marginBottom: 20 }}>{tx.mission}</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: 16, lineHeight: 1.8, marginBottom: 32 }}>{tx.missionText}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="mission-grid">
+            <div className="mission-content">
+              <h2 className="mission-title">{tx.mission}</h2>
+              <p className="mission-text">{tx.missionText}</p>
+              <div className="mission-services-grid">
                 {tx.services.map(s => (
-                  <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text)' }}>
+                  <div key={s} className="mission-service-item">
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0 }} />
                     {s}
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{
-              background: 'linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%)',
-              borderRadius: 24, padding: 48, textAlign: 'center', color: 'white'
-            }}>
+            <div className="mission-quote-card">
               <p style={{ fontSize: 18, fontStyle: 'italic', lineHeight: 1.8 }}>{tx.faithText}</p>
             </div>
           </div>

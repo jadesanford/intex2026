@@ -52,6 +52,12 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
     month: t.month?.slice(5) || t.month, total: Math.round(t.total / 1_000)
   }))
 
+  const pieLabel = ({ name, percent }: { name?: string; percent?: number }) => {
+    const pct = Math.round((percent ?? 0) * 100)
+    if (pct < 6) return ''
+    return `${name ?? ''} ${pct}%`
+  }
+
   return (
     <div>
       <section
@@ -66,13 +72,13 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
           color: 'white',
         }}
       >
-        <h1 style={{ fontSize: 48, marginBottom: 16}}>{tx.title}</h1>
+        <h1 className="impact-title">{tx.title}</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
       </section>
 
       <section style={{ padding: '0 24px', marginTop: -24 }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <div className="grid-4">
+          <div className="impact-kpi-grid">
             {stats.map(({ label, value, icon, color }) => (
               <div key={label} className="card" style={{ textAlign: 'center' }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', color, margin: '0 auto 12px' }}>{icon}</div>
@@ -85,32 +91,44 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
       </section>
 
       <section style={{ padding: '48px 24px' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <div className="impact-charts-grid">
           <div className="card">
             <h3 style={{ fontSize: 18, marginBottom: 4 }}>{tx.donationTitle}</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 24 }}>{tx.donationSub}</p>
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={trendData}>
+            <div className="impact-chart-wrap">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} minTickGap={24} />
                 <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `₱${v}K`} />
-                <Tooltip formatter={(v: number) => [`₱${v}K`, 'Total']} />
+                <Tooltip formatter={v => [`₱${Number(v ?? 0)}K`, 'Total']} />
                 <Area type="monotone" dataKey="total" stroke="#c1694f" fill="rgba(193,105,79,0.1)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           <div className="card">
             <h3 style={{ fontSize: 18, marginBottom: 4 }}>{tx.outcomesTitle}</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 24 }}>{tx.outcomesSub}</p>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+            <div className="impact-chart-wrap">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius="70%"
+                    dataKey="value"
+                    label={pieLabel}
+                    labelLine
+                  >
                   {pieData.map((_: unknown, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
       </section>

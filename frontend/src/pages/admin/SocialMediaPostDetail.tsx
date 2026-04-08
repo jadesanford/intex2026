@@ -205,7 +205,7 @@ export default function SocialMediaPostDetail() {
         </div>
       </div>
 
-      <div className="grid-4" style={{ marginBottom: 24 }}>
+      <div className="admin-kpi-grid" style={{ marginBottom: 24 }}>
         {[
           ['Reach', formatK(p.reach || 0)],
           ['Impressions', formatK(p.impressions || 0)],

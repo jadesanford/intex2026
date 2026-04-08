@@ -10,6 +10,7 @@ out-tsc
 frontend/dist/
 backend/deploy/
 backend/publish/
+backend/appsettings.Development.json
 
 # dependencies
 node_modules
