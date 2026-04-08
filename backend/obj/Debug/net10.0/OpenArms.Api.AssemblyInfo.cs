@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OpenArms.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6f2da64117ef0a1f026271491fc499eafd278fa")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12786a19255a91d9c05b4639f27c4bff669092de")]
 [assembly: System.Reflection.AssemblyProductAttribute("OpenArms.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OpenArms.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

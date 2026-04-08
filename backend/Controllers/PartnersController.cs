@@ -10,6 +10,12 @@ namespace OpenArms.Api.Controllers;
 [Authorize]
 public class PartnersController(SupabaseService db) : ControllerBase
 {
+    private async Task<int> NextPartnerIdAsync()
+    {
+        var latest = await db.GetAllAsync<Partner>("partners", "select=partner_id&order=partner_id.desc&limit=1");
+        return latest.Count == 0 ? 1 : latest[0].PartnerId + 1;
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? roleType, [FromQuery] string? status)
     {
@@ -54,9 +60,14 @@ public class PartnersController(SupabaseService db) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] PartnerRequest req)
     {
-        var result = await db.InsertAsync<Partner>("partners", new
+        if (string.IsNullOrWhiteSpace(req.PartnerName))
+            return BadRequest(new { message = "Partner name is required." });
+
+        var id = await NextPartnerIdAsync();
+        var (result, err) = await db.TryInsertAsync<Partner>("partners", new
         {
-            partner_name = req.PartnerName,
+            partner_id = id,
+            partner_name = req.PartnerName.Trim(),
             partner_type = req.PartnerType,
             role_type = req.RoleType,
             contact_name = req.ContactName,
@@ -68,6 +79,8 @@ public class PartnersController(SupabaseService db) : ControllerBase
             end_date = req.EndDate,
             notes = req.Notes
         });
+        if (result == null)
+            return BadRequest(new { message = err ?? "Unable to create partner." });
         return Ok(result);
     }
 
@@ -92,10 +105,13 @@ public class PartnersController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,staff")]
     public async Task<IActionResult> Delete(int id)
     {
-        await db.DeleteAsync("partners", $"partner_id=eq.{id}");
+        await db.DeleteAsync("partner_assignments", $"partner_id=eq.{id}");
+        var deleted = await db.DeleteAsync("partners", $"partner_id=eq.{id}");
+        if (!deleted)
+            return BadRequest(new { message = "Unable to delete partner. It may be linked to other records or blocked by database constraints." });
         return NoContent();
     }
 }

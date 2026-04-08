@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Heart, BookOpen, Phone, MapPin, Users, TrendingUp, ArrowRight } from 'lucide-react'
+import { Heart, Phone, TrendingUp } from 'lucide-react'
 import { getImpactSnapshot } from '../lib/api'
 
 const t = {
@@ -58,6 +58,7 @@ function formatPHP(n: number) {
 
 export default function Home({ lang }: { lang: 'en' | 'tl' }) {
   const tx = t[lang]
+  void formatPHP
   const { data } = useQuery({ queryKey: ['impact-snapshot'], queryFn: getImpactSnapshot })
 
   return (

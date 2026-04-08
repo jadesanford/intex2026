@@ -8,7 +8,7 @@ import DonationEditModal, {
   type DonationEditFormState
 } from './DonationEditModal'
 import { donationTypeIsInKind, inKindLinesToPayload, inKindApiToFormLines } from '../../lib/inKindDonationItems'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, AlertTriangle } from 'lucide-react'
 
 function formatPHP(n: number) {
   if (n >= 1_000_000) return `₱${(n / 1_000_000).toFixed(1)}M`
@@ -23,6 +23,12 @@ function formatPHPUnitValue(n: number) {
     maximumFractionDigits: 20,
     useGrouping: true
   }).format(n)}`
+}
+
+function apiErrorMessage(err: unknown, fallback: string): string {
+  const d = (err as { response?: { data?: { message?: string; detail?: string; title?: string } } })?.response?.data
+  if (!d) return fallback
+  return d.message || d.detail || d.title || fallback
 }
 
 type DonationPayload = {
@@ -87,6 +93,8 @@ export default function DonationDetail() {
   const qc = useQueryClient()
   const [editOpen, setEditOpen] = useState(false)
   const [editError, setEditError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['donation', did],
@@ -121,19 +129,14 @@ export default function DonationDetail() {
       qc.invalidateQueries({ queryKey: ['donation-summary'] })
       navigate('/admin/donations')
     },
-    onError: (err: { response?: { data?: { message?: string } } }) => {
-      window.alert(err?.response?.data?.message || 'Unable to delete donation.')
+    onError: (err: unknown) => {
+      setDeleteError(apiErrorMessage(err, 'Unable to delete donation.'))
     }
   })
 
   const saveEdit = (f: DonationEditFormState) => {
     setEditError('')
     update.mutate(f)
-  }
-
-  const confirmDelete = () => {
-    if (!window.confirm(`Delete donation #${did}? This cannot be undone.`)) return
-    remove.mutate()
   }
 
   if (isLoading) return <div className="loading-center"><div className="spinner" /></div>
@@ -200,7 +203,10 @@ export default function DonationDetail() {
               <button
                 type="button"
                 className="btn btn-danger btn-sm"
-                onClick={confirmDelete}
+                onClick={() => {
+                  setDeleteError('')
+                  setConfirmDelete(true)
+                }}
                 disabled={remove.isPending}
               >
                 {remove.isPending ? 'Deleting…' : 'Delete'}
@@ -231,6 +237,44 @@ export default function DonationDetail() {
         isPending={update.isPending}
         error={editError}
       />
+
+      {confirmDelete && (
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setConfirmDelete(false)
+            setDeleteError('')
+          }}
+        >
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 999, display: 'grid', placeItems: 'center', background: '#fee2e2', color: '#b91c1c' }}>
+                <AlertTriangle size={18} />
+              </div>
+              <h2 style={{ margin: 0, fontSize: 20 }}>Delete donation</h2>
+            </div>
+            <p style={{ margin: 0, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+              This will permanently delete donation #{did}. This action cannot be undone.
+            </p>
+            {deleteError && <p style={{ margin: '12px 0 0', color: '#b91c1c', fontSize: 13 }}>{deleteError}</p>}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => {
+                  setConfirmDelete(false)
+                  setDeleteError('')
+                }}
+              >
+                Cancel
+              </button>
+              <button type="button" className="btn btn-danger" disabled={remove.isPending} onClick={() => remove.mutate()}>
+                {remove.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid-2" style={{ marginBottom: 24 }}>
         <div className="card">

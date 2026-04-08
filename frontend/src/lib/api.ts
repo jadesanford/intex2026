@@ -1,7 +1,15 @@
 import axios from 'axios'
 
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim()
+const normalizedApiUrl = configuredApiUrl
+  ? configuredApiUrl.replace(/\/+$/, '')
+  : ''
+const baseURL = normalizedApiUrl
+  ? (normalizedApiUrl.endsWith('/api') ? normalizedApiUrl : `${normalizedApiUrl}/api`)
+  : '/api'
+
 export const api = axios.create({
-  baseURL: '/api',
+  baseURL,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -148,6 +156,7 @@ export const syncDonationInKindItems = (
 
 // Partners
 export const getPartners = () => api.get('/partners').then(r => r.data)
+export const getPartner = (id: number) => api.get(`/partners/${id}`).then(r => r.data)
 export const createPartner = (body: Record<string, unknown>) =>
   api.post('/partners', body).then(r => r.data)
 export const updatePartner = (id: number, body: Record<string, unknown>) =>
@@ -176,6 +185,7 @@ export const getMlPipelineInsights = () => api.get('/analytics/ml-pipelines').th
 // Social Media
 export const getSocialMedia = (params?: Record<string, string>) =>
   api.get('/social-media', { params }).then(r => r.data)
+export const getSocialPost = (id: number) => api.get(`/social-media/${id}`).then(r => r.data)
 export const getSocialMetrics = () => api.get('/social-media/metrics').then(r => r.data)
 export const createSocialPost = (body: Record<string, unknown>) =>
   api.post('/social-media', body).then(r => r.data)
