@@ -317,7 +317,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin,staff")]
+    [Authorize(Policy = "InternalStaff")]
     public async Task<IActionResult> Delete(int id)
     {
         await db.DeleteAsync("in_kind_donation_items", $"donation_id=eq.{id}");

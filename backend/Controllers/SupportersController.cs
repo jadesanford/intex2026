@@ -115,7 +115,7 @@ public class SupportersController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await db.DeleteAsync("supporters", $"supporter_id=eq.{id}");

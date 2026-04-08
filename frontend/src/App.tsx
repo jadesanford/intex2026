@@ -32,18 +32,19 @@ import SocialMediaPostDetail from './pages/admin/SocialMediaPostDetail'
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } })
 
-function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
-  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><div className="spinner" /></div>
-  if (!user) return <Navigate to="/login" replace />
-  return <>{children}</>
-}
-
 function RequireDonor({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><div className="spinner" /></div>
   if (!user) return <Navigate to="/login" replace />
   if (user.role !== 'donor') return <Navigate to="/admin" replace />
+  return <>{children}</>
+}
+
+function RequireInternalStaff({ children }: { children: React.ReactNode }) {
+  const { user, loading, isInternalStaff } = useAuth()
+  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><div className="spinner" /></div>
+  if (!user) return <Navigate to="/login" replace />
+  if (!isInternalStaff) return <Navigate to="/" replace />
   return <>{children}</>
 }
 
@@ -62,20 +63,20 @@ function AppRoutes() {
       <Route path="/donor" element={<PublicLayout><RequireDonor><DonorDashboard lang={lang} /></RequireDonor></PublicLayout>} />
       <Route path="/donor/donations/:id" element={<PublicLayout><RequireDonor><DonorDonationDetail lang={lang} /></RequireDonor></PublicLayout>} />
 
-      <Route path="/admin" element={<RequireAuth><AdminLayout><Dashboard /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/residents" element={<RequireAuth><AdminLayout><Residents /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/residents/:id" element={<RequireAuth><AdminLayout><ResidentDetail /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/donors" element={<RequireAuth><AdminLayout><Donors /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/donors/:id" element={<RequireAuth><AdminLayout><DonorDetail /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/donations" element={<RequireAuth><AdminLayout><Donations /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/donations/:id" element={<RequireAuth><AdminLayout><DonationDetail /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/safehouses" element={<RequireAuth><AdminLayout><Safehouses /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/partners" element={<RequireAuth><AdminLayout><Partners /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/partners/:id" element={<RequireAuth><AdminLayout><PartnerDetail /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/incidents" element={<RequireAuth><AdminLayout><Incidents /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/analytics" element={<RequireAuth><AdminLayout><Analytics /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/social-media" element={<RequireAuth><AdminLayout><SocialMedia /></AdminLayout></RequireAuth>} />
-      <Route path="/admin/social-media/:id" element={<RequireAuth><AdminLayout><SocialMediaPostDetail /></AdminLayout></RequireAuth>} />
+      <Route path="/admin" element={<RequireInternalStaff><AdminLayout><Dashboard /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/residents" element={<RequireInternalStaff><AdminLayout><Residents /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/residents/:id" element={<RequireInternalStaff><AdminLayout><ResidentDetail /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/donors" element={<RequireInternalStaff><AdminLayout><Donors /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/donors/:id" element={<RequireInternalStaff><AdminLayout><DonorDetail /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/donations" element={<RequireInternalStaff><AdminLayout><Donations /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/donations/:id" element={<RequireInternalStaff><AdminLayout><DonationDetail /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/safehouses" element={<RequireInternalStaff><AdminLayout><Safehouses /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/partners" element={<RequireInternalStaff><AdminLayout><Partners /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/partners/:id" element={<RequireInternalStaff><AdminLayout><PartnerDetail /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/incidents" element={<RequireInternalStaff><AdminLayout><Incidents /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/analytics" element={<RequireInternalStaff><AdminLayout><Analytics /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/social-media" element={<RequireInternalStaff><AdminLayout><SocialMedia /></AdminLayout></RequireInternalStaff>} />
+      <Route path="/admin/social-media/:id" element={<RequireInternalStaff><AdminLayout><SocialMediaPostDetail /></AdminLayout></RequireInternalStaff>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

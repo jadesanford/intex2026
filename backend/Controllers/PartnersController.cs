@@ -105,7 +105,7 @@ public class PartnersController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin,staff")]
+    [Authorize(Policy = "InternalStaff")]
     public async Task<IActionResult> Delete(int id)
     {
         await db.DeleteAsync("partner_assignments", $"partner_id=eq.{id}");

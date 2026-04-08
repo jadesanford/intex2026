@@ -25,13 +25,14 @@ public class AuthService
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var normalizedRole = (user.Role ?? "").Trim().ToLowerInvariant();
 
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
             new Claim(ClaimTypes.Email, user.Email ?? ""),
-            new Claim(ClaimTypes.Role, user.Role),
+            new Claim(ClaimTypes.Role, normalizedRole),
             new Claim("display_name", user.DisplayName ?? user.Username),
             new Claim("supporter_id", user.SupporterId?.ToString() ?? "")
         };

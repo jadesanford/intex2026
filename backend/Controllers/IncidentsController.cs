@@ -139,7 +139,7 @@ public class IncidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin,staff")]
+    [Authorize(Policy = "InternalStaff")]
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await db.DeleteAsync("incident_reports", $"incident_id=eq.{id}");

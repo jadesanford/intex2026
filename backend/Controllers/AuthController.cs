@@ -53,7 +53,7 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
     }
 
     [HttpPost("register")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest req)
     {
         var existing = await db.GetOneAsync<User>("users", $"username=eq.{req.Username}");

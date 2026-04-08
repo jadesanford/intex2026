@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -48,7 +49,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("InternalStaff", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireAssertion(context =>
+            context.User.Claims.Any(claim =>
+                claim.Type == ClaimTypes.Role &&
+                (string.Equals(claim.Value?.Trim(), "admin", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(claim.Value?.Trim(), "staff", StringComparison.OrdinalIgnoreCase))));
+    });
+
+    options.AddPolicy("AdminOnly", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireAssertion(context =>
+            context.User.Claims.Any(claim =>
+                claim.Type == ClaimTypes.Role &&
+                (string.Equals(claim.Value?.Trim(), "admin", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(claim.Value?.Trim(), "staff", StringComparison.OrdinalIgnoreCase))));
+    });
+});
 
 builder.Services.AddCors(options =>
 {

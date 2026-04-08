@@ -382,16 +382,26 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin,staff")]
+    [Authorize(Policy = "InternalStaff")]
     public async Task<IActionResult> Delete(int id)
     {
         // Delete child records first to avoid FK violations and orphaned data.
-        await db.DeleteAsync("process_recordings", $"resident_id=eq.{id}");
-        await db.DeleteAsync("home_visitations", $"resident_id=eq.{id}");
-        await db.DeleteAsync("education_records", $"resident_id=eq.{id}");
-        await db.DeleteAsync("health_wellbeing_records", $"resident_id=eq.{id}");
-        await db.DeleteAsync("intervention_plans", $"resident_id=eq.{id}");
-        await db.DeleteAsync("incident_reports", $"resident_id=eq.{id}");
+        var childDeletes = new[]
+        {
+            ("process_recordings", $"resident_id=eq.{id}"),
+            ("home_visitations", $"resident_id=eq.{id}"),
+            ("education_records", $"resident_id=eq.{id}"),
+            ("health_wellbeing_records", $"resident_id=eq.{id}"),
+            ("intervention_plans", $"resident_id=eq.{id}"),
+            ("incident_reports", $"resident_id=eq.{id}")
+        };
+
+        foreach (var (table, filter) in childDeletes)
+        {
+            var childDeleted = await db.DeleteAsync(table, filter);
+            if (!childDeleted)
+                return BadRequest(new { message = $"Unable to delete related records from {table}." });
+        }
 
         var deleted = await db.DeleteAsync("residents", $"resident_id=eq.{id}");
         if (!deleted)

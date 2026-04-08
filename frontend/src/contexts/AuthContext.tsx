@@ -12,9 +12,9 @@ interface AuthCtx {
   login: (username: string, password: string) => Promise<void>
   loginWithData: (data: any) => void
   logout: () => void
-  /** Database role is exactly `admin` (case-insensitive). */
+  /** Internal user with full admin-panel access. */
   isAdmin: boolean
-  /** Staff or admin: uses /admin (matches default `staff` role in DB, not donors). */
+  /** Staff/admin internal user: uses /admin. */
   isInternalStaff: boolean
   isDonor: boolean
 }
@@ -61,11 +61,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const r = normalizeRole(user?.role)
+  const isInternalStaff = r === 'admin' || r === 'staff'
   return (
     <Ctx.Provider value={{
       user, loading, login, loginWithData, logout,
-      isAdmin: r === 'admin',
-      isInternalStaff: user != null && r !== '' && r !== 'donor',
+      isAdmin: isInternalStaff,
+      isInternalStaff,
       isDonor: r === 'donor'
     }}>
       {children}
