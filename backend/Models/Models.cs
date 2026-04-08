@@ -414,7 +414,47 @@ public record ResidentRequest(
 public record IncidentRequest(
     int? ResidentId, int? SafehouseId, string? IncidentDate, string? IncidentType,
     string? Severity, string? Description, string? ResponseTaken,
-    string? ReportedBy, bool? Resolved, bool? FollowUpRequired);
+    string? ReportedBy, bool? Resolved, bool? FollowUpRequired, string? ResolutionDate);
+
+public record SocialMediaPostRequest(
+    string? Platform,
+    string? PlatformPostId,
+    string? PostUrl,
+    string? CreatedAt,
+    string? DayOfWeek,
+    decimal? PostHour,
+    string? PostType,
+    string? MediaType,
+    string? Caption,
+    string? Hashtags,
+    decimal? NumHashtags,
+    decimal? MentionsCount,
+    bool? HasCallToAction,
+    string? CallToActionType,
+    string? ContentTopic,
+    string? SentimentTone,
+    decimal? CaptionLength,
+    bool? FeaturesResidentStory,
+    string? CampaignName,
+    bool? IsBoosted,
+    decimal? BoostBudgetPhp,
+    decimal? Impressions,
+    decimal? Reach,
+    decimal? Likes,
+    decimal? Comments,
+    decimal? Shares,
+    decimal? Saves,
+    decimal? ClickThroughs,
+    decimal? VideoViews,
+    decimal? EngagementRate,
+    decimal? ProfileVisits,
+    decimal? DonationReferrals,
+    decimal? EstimatedDonationValuePhp,
+    decimal? FollowerCountAtPost,
+    decimal? WatchTimeSeconds,
+    decimal? AvgViewDurationSeconds,
+    decimal? SubscriberCountAtPost,
+    decimal? Forwards);
 
 public record ProcessRecordingRequest(
     int? ResidentId, string? SessionDate, string? SocialWorker, string? SessionType,

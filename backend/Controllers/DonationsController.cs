@@ -317,11 +317,13 @@ public class DonationsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,staff")]
     public async Task<IActionResult> Delete(int id)
     {
         await db.DeleteAsync("in_kind_donation_items", $"donation_id=eq.{id}");
-        await db.DeleteAsync("donations", $"donation_id=eq.{id}");
+        var deleted = await db.DeleteAsync("donations", $"donation_id=eq.{id}");
+        if (!deleted)
+            return BadRequest(new { message = "Unable to delete donation. It may be linked to related records or blocked by database constraints." });
         return NoContent();
     }
 }

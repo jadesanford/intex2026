@@ -22,7 +22,7 @@ import {
   inKindLinesToPayload,
   inKindApiToFormLines
 } from '../../lib/inKindDonationItems'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, AlertTriangle } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 function formatPHP(n: number) {
@@ -65,6 +65,12 @@ function donationMatchesSearch(d: DonationRow, q: string): boolean {
   return false
 }
 
+function apiErrorMessage(err: unknown, fallback: string): string {
+  const d = (err as { response?: { data?: { message?: string; detail?: string; title?: string } } })?.response?.data
+  if (!d) return fallback
+  return d.message || d.detail || d.title || fallback
+}
+
 export default function Donations() {
   const qc = useQueryClient()
   const [typeFilter, setTypeFilter] = useState<string>('')
@@ -73,6 +79,8 @@ export default function Donations() {
   const [showModal, setShowModal] = useState(false)
   const [editRow, setEditRow] = useState<DonationRow | null>(null)
   const [editError, setEditError] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<DonationRow | null>(null)
+  const [deleteError, setDeleteError] = useState('')
 
   const editingInKind = !!editRow && donationTypeIsInKind(editRow.donationType)
   const { data: editDonationDetail, isLoading: editDetailLoading, isError: editDetailError } = useQuery({
@@ -169,9 +177,11 @@ export default function Donations() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['all-donations'] })
       qc.invalidateQueries({ queryKey: ['donation-summary'] })
+      setDeleteTarget(null)
+      setDeleteError('')
     },
-    onError: (err: { response?: { data?: { message?: string } } }) => {
-      window.alert(err?.response?.data?.message || 'Unable to delete donation.')
+    onError: (err: unknown) => {
+      setDeleteError(apiErrorMessage(err, 'Unable to delete donation.'))
     }
   })
 
@@ -179,11 +189,6 @@ export default function Donations() {
     if (!editRow) return
     setEditError('')
     update.mutate({ id: editRow.donationId, form: f })
-  }
-
-  const confirmDelete = (d: DonationRow) => {
-    if (!window.confirm(`Delete donation #${d.donationId}? This cannot be undone.`)) return
-    remove.mutate(d.donationId)
   }
 
   const chartData = (summary?.monthly ?? []).map((m: { month: string; total: number }) => ({
@@ -313,7 +318,10 @@ export default function Donations() {
                               <button
                                 type="button"
                                 className="btn btn-danger btn-sm"
-                                onClick={() => confirmDelete(d)}
+                                onClick={() => {
+                                  setDeleteError('')
+                                  setDeleteTarget(d)
+                                }}
                                 disabled={remove.isPending}
                               >
                                 Delete
@@ -358,6 +366,49 @@ export default function Donations() {
         onSave={f => createFull.mutate(f)}
         isPending={createFull.isPending}
       />
+
+      {deleteTarget && (
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setDeleteTarget(null)
+            setDeleteError('')
+          }}
+        >
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 999, display: 'grid', placeItems: 'center', background: '#fee2e2', color: '#b91c1c' }}>
+                <AlertTriangle size={18} />
+              </div>
+              <h2 style={{ margin: 0, fontSize: 20 }}>Delete donation</h2>
+            </div>
+            <p style={{ margin: 0, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+              This will permanently delete donation #{deleteTarget.donationId}. This action cannot be undone.
+            </p>
+            {deleteError && <p style={{ margin: '12px 0 0', color: '#b91c1c', fontSize: 13 }}>{deleteError}</p>}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => {
+                  setDeleteTarget(null)
+                  setDeleteError('')
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                disabled={remove.isPending}
+                onClick={() => remove.mutate(deleteTarget.donationId)}
+              >
+                {remove.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

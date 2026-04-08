@@ -10,6 +10,12 @@ namespace OpenArms.Api.Controllers;
 [Authorize]
 public class SafehousesController(SupabaseService db) : ControllerBase
 {
+    private async Task<int> NextSafehouseIdAsync()
+    {
+        var latest = await db.GetAllAsync<Safehouse>("safehouses", "select=safehouse_id&order=safehouse_id.desc&limit=1");
+        return latest.Count == 0 ? 1 : latest[0].SafehouseId + 1;
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -34,21 +40,28 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] SafehouseRequest req)
     {
-        var result = await db.InsertAsync<Safehouse>("safehouses", new
+        if (string.IsNullOrWhiteSpace(req.Name))
+            return BadRequest(new { message = "Name is required." });
+
+        var id = await NextSafehouseIdAsync();
+        var (result, err) = await db.TryInsertAsync<Safehouse>("safehouses", new
         {
-            name = req.Name,
+            safehouse_id = id,
+            name = req.Name.Trim(),
             safehouse_code = req.SafehouseCode,
             region = req.Region,
             city = req.City,
             province = req.Province,
             country = "Philippines",
-            open_date = req.OpenDate,
+            open_date = string.IsNullOrWhiteSpace(req.OpenDate) ? null : req.OpenDate,
             status = req.Status ?? "Active",
             capacity_girls = req.CapacityGirls,
             capacity_staff = req.CapacityStaff,
             current_occupancy = req.CurrentOccupancy ?? 0,
             notes = req.Notes
         });
+        if (result == null)
+            return BadRequest(new { message = err ?? "Unable to create safehouse." });
         return Ok(result);
     }
 
@@ -73,10 +86,12 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,staff")]
     public async Task<IActionResult> Delete(int id)
     {
-        await db.DeleteAsync("safehouses", $"safehouse_id=eq.{id}");
+        var ok = await db.DeleteAsync("safehouses", $"safehouse_id=eq.{id}");
+        if (!ok)
+            return Conflict(new { message = "Unable to delete this safehouse. It may still be linked to residents or other records." });
         return NoContent();
     }
 }

@@ -24,9 +24,11 @@ import Donations from './pages/admin/Donations'
 import DonationDetail from './pages/admin/DonationDetail'
 import Safehouses from './pages/admin/Safehouses'
 import Partners from './pages/admin/Partners'
+import PartnerDetail from './pages/admin/PartnerDetail'
 import Incidents from './pages/admin/Incidents'
 import Analytics from './pages/admin/Analytics'
 import SocialMedia from './pages/admin/SocialMedia'
+import SocialMediaPostDetail from './pages/admin/SocialMediaPostDetail'
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } })
 
@@ -69,9 +71,11 @@ function AppRoutes() {
       <Route path="/admin/donations/:id" element={<RequireAuth><AdminLayout><DonationDetail /></AdminLayout></RequireAuth>} />
       <Route path="/admin/safehouses" element={<RequireAuth><AdminLayout><Safehouses /></AdminLayout></RequireAuth>} />
       <Route path="/admin/partners" element={<RequireAuth><AdminLayout><Partners /></AdminLayout></RequireAuth>} />
+      <Route path="/admin/partners/:id" element={<RequireAuth><AdminLayout><PartnerDetail /></AdminLayout></RequireAuth>} />
       <Route path="/admin/incidents" element={<RequireAuth><AdminLayout><Incidents /></AdminLayout></RequireAuth>} />
       <Route path="/admin/analytics" element={<RequireAuth><AdminLayout><Analytics /></AdminLayout></RequireAuth>} />
       <Route path="/admin/social-media" element={<RequireAuth><AdminLayout><SocialMedia /></AdminLayout></RequireAuth>} />
+      <Route path="/admin/social-media/:id" element={<RequireAuth><AdminLayout><SocialMediaPostDetail /></AdminLayout></RequireAuth>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

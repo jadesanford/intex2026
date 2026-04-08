@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSafehouses, createSafehouse, updateSafehouse } from '../../lib/api'
-import { Plus, Building2, MapPin } from 'lucide-react'
+import { getSafehouses, createSafehouse, updateSafehouse, deleteSafehouse } from '../../lib/api'
+import { Plus, MapPin, AlertTriangle } from 'lucide-react'
+
+function apiErrorMessage(err: unknown, fallback: string): string {
+  const d = (err as { response?: { data?: { message?: string; detail?: string; title?: string } } })?.response?.data
+  if (!d) return fallback
+  return d.message || d.detail || d.title || fallback
+}
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -55,6 +61,8 @@ type SafehouseType = {
 export default function Safehouses() {
   const qc = useQueryClient()
   const [showModal, setShowModal] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<SafehouseType | null>(null)
+  const [deleteError, setDeleteError] = useState('')
   const [editId, setEditId] = useState<number | null>(null)
   const [form, setForm] = useState({
     name: '', safehouseCode: '', region: 'Luzon', city: '', province: '',
@@ -73,7 +81,10 @@ export default function Safehouses() {
       currentOccupancy: form.currentOccupancy ? +form.currentOccupancy : 0,
       status: form.status, openDate: form.openDate || null, notes: form.notes
     }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['safehouses'] }); setShowModal(false); resetForm() }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['safehouses'] }); setShowModal(false); resetForm() },
+    onError: (err: { response?: { data?: { message?: string } } }) => {
+      window.alert(err?.response?.data?.message || 'Unable to create safehouse.')
+    }
   })
 
   const update = useMutation({
@@ -85,7 +96,22 @@ export default function Safehouses() {
       currentOccupancy: form.currentOccupancy ? +form.currentOccupancy : 0,
       status: form.status, openDate: form.openDate || null, notes: form.notes
     }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['safehouses'] }); setShowModal(false); setEditId(null); resetForm() }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['safehouses'] }); setShowModal(false); setEditId(null); resetForm() },
+    onError: (err: { response?: { data?: { message?: string } } }) => {
+      window.alert(err?.response?.data?.message || 'Unable to update safehouse.')
+    }
+  })
+
+  const remove = useMutation({
+    mutationFn: (id: number) => deleteSafehouse(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['safehouses'] })
+      setDeleteTarget(null)
+      setDeleteError('')
+    },
+    onError: (err: unknown) => {
+      setDeleteError(apiErrorMessage(err, 'Unable to delete safehouse.'))
+    }
   })
 
   function resetForm() {
@@ -194,9 +220,23 @@ export default function Safehouses() {
                     {occupancy}% occupied · {s.region}
                   </div>
 
-                  <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'center' }} onClick={() => openEdit(s)}>
-                    Edit
-                  </button>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn btn-ghost btn-sm" style={{ flex: 1, justifyContent: 'center' }} onClick={() => openEdit(s)}>
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      style={{ flex: 1, justifyContent: 'center' }}
+                      onClick={() => {
+                        setDeleteError('')
+                        setDeleteTarget(s)
+                      }}
+                      disabled={remove.isPending}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               )
             })}
@@ -236,6 +276,63 @@ export default function Safehouses() {
               <button className="btn btn-primary" onClick={() => editId ? update.mutate() : create.mutate()}
                 disabled={!form.name || create.isPending || update.isPending}>
                 {(create.isPending || update.isPending) ? 'Saving...' : editId ? 'Save Changes' : 'Add Safehouse'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setDeleteTarget(null)
+            setDeleteError('')
+          }}
+        >
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 999,
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: '#fee2e2',
+                  color: '#b91c1c'
+                }}
+              >
+                <AlertTriangle size={18} />
+              </div>
+              <h2 style={{ margin: 0, fontSize: 20 }}>Delete safehouse</h2>
+            </div>
+            <p style={{ margin: 0, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+              This will permanently remove <strong>{deleteTarget.name}</strong>
+              {deleteTarget.city ? ` (${deleteTarget.city})` : ''}. You cannot undo this. If residents or other
+              records still reference this location, deletion will be blocked.
+            </p>
+            {deleteError && (
+              <p style={{ margin: '12px 0 0', color: '#b91c1c', fontSize: 13 }}>{deleteError}</p>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => {
+                  setDeleteTarget(null)
+                  setDeleteError('')
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                disabled={remove.isPending}
+                onClick={() => remove.mutate(deleteTarget.safehouseId)}
+              >
+                {remove.isPending ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>
