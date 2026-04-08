@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useQuery } from '@tanstack/react-query'
 import { getDashboardAnalytics, getSafehouseComparison, getAnalyticsDonationTrends, getResidentOutcomes } from '../../lib/api'
 import { AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'

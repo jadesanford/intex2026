@@ -229,7 +229,7 @@ export default function Donations() {
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `₱${v}K`} />
-              <Tooltip formatter={(v: number) => [`₱${v}K`, 'Total']} />
+              <Tooltip formatter={v => [`₱${Number(v ?? 0)}K`, 'Total']} />
               <Bar dataKey="amount" fill="var(--terracotta)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

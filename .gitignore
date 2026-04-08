@@ -7,6 +7,9 @@ out-tsc
 *.tsbuildinfo
 .expo
 .expo-shared
+frontend/dist/
+backend/deploy/
+backend/publish/
 
 # dependencies
 node_modules

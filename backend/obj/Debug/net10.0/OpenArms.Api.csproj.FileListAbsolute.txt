@@ -166,3 +166,4 @@
 /Users/jadesanford/Downloads/IntexCursor copy/backend/obj/Debug/net10.0/OpenArms.Api.pdb
 /Users/jadesanford/Downloads/IntexCursor copy/backend/obj/Debug/net10.0/OpenArms.Api.genruntimeconfig.cache
 /Users/jadesanford/Downloads/IntexCursor copy/backend/obj/Debug/net10.0/ref/OpenArms.Api.dll
+/Users/jadesanford/Downloads/IntexCursor copy/backend/bin/Debug/net10.0/web.config

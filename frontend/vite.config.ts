@@ -1,8 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Must match backend Program.cs default (BACKEND_PORT ?? PORT ?? "8082")
-const backendPort = process.env.BACKEND_PORT || '8082'
+const aspNetCoreUrls = process.env.ASPNETCORE_URLS
+const firstAspNetUrl = aspNetCoreUrls?.split(';').map(s => s.trim()).find(Boolean)
+const backendTarget =
+  process.env.VITE_API_BASE_URL ||
+  process.env.BACKEND_URL ||
+  firstAspNetUrl ||
+  `http://localhost:${process.env.BACKEND_PORT || '5215'}`
 
 export default defineConfig({
   plugins: [react()],
@@ -12,7 +17,7 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       '/api': {
-        target: `http://localhost:${backendPort}`,
+        target: backendTarget,
         changeOrigin: true,
       },
     },
