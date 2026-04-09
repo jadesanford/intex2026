@@ -10,10 +10,13 @@ const backendTarget =
   `http://localhost:${process.env.BACKEND_PORT || '5215'}`
 
 export default defineConfig({
+  appType: 'spa',
   plugins: [react()],
   server: {
     host: '0.0.0.0',
+    /** Must match backend FrontendBaseUrl (OAuth redirect). If this fails, free the port: lsof -i :5173 */
     port: parseInt(process.env.PORT || '5173'),
+    strictPort: true,
     allowedHosts: true,
     proxy: {
       '/api': {

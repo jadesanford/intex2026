@@ -10,6 +10,7 @@ import Home from './pages/Home'
 import Impact from './pages/Impact'
 import Awareness from './pages/Awareness'
 import Login from './pages/Login'
+import GoogleOAuthHandler from './components/GoogleOAuthHandler'
 import Privacy from './pages/Privacy'
 import Signup from './pages/Signup'
 import Donate from './pages/Donate'
@@ -90,6 +91,7 @@ export default function App() {
     <QueryClientProvider client={qc}>
       <AuthProvider>
         <BrowserRouter>
+          <GoogleOAuthHandler />
           <LanguageProvider>
             <AppRoutes />
           </LanguageProvider>
