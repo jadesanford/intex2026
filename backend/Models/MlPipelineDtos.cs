@@ -21,7 +21,9 @@ public record OccupancyLocationResult(
     string Name,
     int Capacity,
     int Current,
-    double UtilizationPercent);
+    double UtilizationPercent,
+    double? StrainProbabilityPercent = null,
+    double? StrainForecastValue = null);
 
 public record OccupancyPipelineResult(
     IReadOnlyList<OccupancyLocationResult> Locations,
