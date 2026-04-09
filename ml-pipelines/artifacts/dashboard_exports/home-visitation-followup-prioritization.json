@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "pipeline_id": "home-visitation-followup-prioritization",
+    "display_name": "Home visitation follow-up prioritization",
+    "task": "binary_classification",
+    "generated_at_utc": "2026-04-09T17:43:13.042594+00:00"
+  },
+  "metrics": {
+    "holdout_roc_auc": 0.5661592505854801,
+    "holdout_pr_auc": 0.32877735982554535
+  },
+  "charts": [
+    {
+      "id": "home-visitation-followup-prioritization-imp",
+      "type": "bar_horizontal",
+      "title": "Top predictive drivers (Random Forest importance)",
+      "labels": [
+        "num__follow_num",
+        "cat__family_cooperation_level_Neutral",
+        "num__safehouse_id",
+        "cat__present_age_19 Years 1 months",
+        "cat__visit_type_Post-Placement Monitoring",
+        "cat__visit_type_Reintegration Assessment",
+        "cat__family_cooperation_level_Cooperative",
+        "cat__visit_type_Routine Follow-Up",
+        "cat__family_cooperation_level_Uncooperative",
+        "cat__present_age_10 Years 5 months"
+      ],
+      "values": [
+        0.2580202494218514,
+        0.06731396466391917,
+        0.04789081143693451,
+        0.04753819364129772,
+        0.04707285555291151,
+        0.04377355596129757,
+        0.04228947491700439,
+        0.029110106116568474,
+        0.028760591755478605,
+        0.026438723352447128
+      ],
+      "value_label": "importance"
+    },
+    {
+      "id": "home-visitation-followup-prioritization-coef",
+      "type": "bar_horizontal",
+      "title": "Top explanatory associations (logistic |coefficient|)",
+      "labels": [
+        "cat__present_age_18 Years 1 months",
+        "cat__present_age_17 Years 5 months",
+        "cat__present_age_11 Years 1 months",
+        "cat__present_age_17 Years 6 months",
+        "cat__present_age_13 Years 1 months",
+        "cat__present_age_13 Years 8 months",
+        "cat__present_age_11 Years 8 months",
+        "cat__present_age_15 Years 9 months",
+        "cat__present_age_17 Years 1 months",
+        "cat__present_age_14 Years 3 months"
+      ],
+      "values": [
+        1.3844210425477197,
+        0.9599139900536022,
+        0.81305015043844,
+        0.7936670358765584,
+        0.7589496400539715,
+        0.7550157287906245,
+        0.7524779805706517,
+        0.6530816989289348,
+        0.6166369562487667,
+        0.5604037678737842
+      ],
+      "value_label": "|coef|"
+    },
+    {
+      "id": "home-visitation-followup-prioritization-proba",
+      "type": "histogram",
+      "title": "Distribution of predicted scores (holdout)",
+      "bin_edges": [
+        0.03380732105468574,
+        0.07204574617627915,
+        0.11028417129787256,
+        0.14852259641946597,
+        0.1867610215410594,
+        0.2249994466626528,
+        0.2632378717842462,
+        0.3014762969058396,
+        0.339714722027433,
+        0.37795314714902645,
+        0.41619157227061987,
+        0.45442999739221324,
+        0.49266842251380666,
+        0.5309068476354001,
+        0.5691452727569934,
+        0.6073836978785869,
+        0.6456221230001803,
+        0.6838605481217737,
+        0.7220989732433671,
+        0.7603373983649605,
+        0.798575823486554
+      ],
+      "counts": [
+        10,
+        13,
+        51,
+        53,
+        33,
+        23,
+        23,
+        20,
+        30,
+        32,
+        11,
+        7,
+        11,
+        2,
+        5,
+        2,
+        4,
+        1,
+        1,
+        3
+      ]
+    }
+  ],
+  "insights": [
+    "Prioritizes visits where adverse follow-on risk (safety/cooperation proxy) is elevated.",
+    "The random forest puts the most weight on **num__follow_num** when ranking adverse visit-level proxy outcome.",
+    "The logistic model associates higher **cat__present_age_18 Years 1 months** with decreases odds of the positive class (linear association, not necessarily causal)."
+  ],
+  "rows_sample": [
+    {
+      "y_true": 0,
+      "score": 0.514715211889144
+    },
+    {
+      "y_true": 0,
+      "score": 0.1574650518558989
+    },
+    {
+      "y_true": 0,
+      "score": 0.1265129788723798
+    },
+    {
+      "y_true": 0,
+      "score": 0.3862400550891232
+    },
+    {
+      "y_true": 1,
+      "score": 0.2761213522878848
+    },
+    {
+      "y_true": 1,
+      "score": 0.047162347247823186
+    },
+    {
+      "y_true": 0,
+      "score": 0.1429029525552303
+    },
+    {
+      "y_true": 0,
+      "score": 0.36956648387472035
+    },
+    {
+      "y_true": 0,
+      "score": 0.19495999820060764
+    },
+    {
+      "y_true": 0,
+      "score": 0.1329975601655862
+    },
+    {
+      "y_true": 1,
+      "score": 0.15896994800630262
+    },
+    {
+      "y_true": 0,
+      "score": 0.4054358780295295
+    },
+    {
+      "y_true": 0,
+      "score": 0.347561930154794
+    },
+    {
+      "y_true": 1,
+      "score": 0.4311209965309437
+    },
+    {
+      "y_true": 0,
+      "score": 0.3657667423366057
+    }
+  ],
+  "export_path": "C:\\Users\\hoope\\OneDrive\\Desktop\\ml-pipelines\\ml-pipelines\\artifacts\\dashboard_exports\\home-visitation-followup-prioritization.json"
+}

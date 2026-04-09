@@ -1,0 +1,402 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "pipeline_id": "case-escalation-risk",
+    "display_name": "Case escalation risk",
+    "task": "binary_classification",
+    "generated_at_utc": "2026-04-09T17:43:43.460083+00:00"
+  },
+  "metrics": {
+    "holdout_roc_auc": 0.5,
+    "holdout_pr_auc": 0.2
+  },
+  "charts": [
+    {
+      "id": "case-escalation-risk-imp",
+      "type": "bar_horizontal",
+      "title": "Top predictive drivers (Random Forest importance)",
+      "labels": [
+        "num__avg_family_cooperation",
+        "cat__initial_risk_level_High",
+        "num__follow_up_needed_rate",
+        "num__referral_rate",
+        "num__sessions_180d",
+        "num__visits_180d",
+        "num__progress_noted_rate",
+        "num__safety_concerns_rate",
+        "num__concerns_flagged_rate",
+        "num__avg_session_minutes"
+      ],
+      "values": [
+        0.10102299629362477,
+        0.09979334562621334,
+        0.0943708819776459,
+        0.07039771898085785,
+        0.06972043738042234,
+        0.0685467771003706,
+        0.063912394099997,
+        0.05855278714886826,
+        0.056491368859572684,
+        0.052602320958419824
+      ],
+      "value_label": "importance"
+    },
+    {
+      "id": "case-escalation-risk-coef",
+      "type": "bar_horizontal",
+      "title": "Top explanatory associations (logistic |coefficient|)",
+      "labels": [
+        "num__follow_up_needed_rate",
+        "num__avg_family_cooperation",
+        "cat__initial_risk_level_High",
+        "num__energy_score_mean",
+        "num__concerns_flagged_rate",
+        "num__health_score_mean",
+        "num__nutrition_score_mean",
+        "cat__present_age_16 Years 1 months",
+        "cat__length_of_stay_1 Years 7 months",
+        "num__visits_180d"
+      ],
+      "values": [
+        0.6849351034422356,
+        0.657687056031535,
+        0.6435012594650601,
+        0.5303195501135677,
+        0.5064419638922458,
+        0.4719355727616191,
+        0.44837637745580805,
+        0.4206863137416455,
+        0.4206863137416455,
+        0.412313344005948
+      ],
+      "value_label": "|coef|"
+    },
+    {
+      "id": "case-escalation-risk-proba",
+      "type": "histogram",
+      "title": "Distribution of predicted scores (holdout)",
+      "bin_edges": [
+        0.16841458635699738,
+        0.1779652827550413,
+        0.18751597915308527,
+        0.1970666755511292,
+        0.20661737194917312,
+        0.21616806834721708,
+        0.225718764745261,
+        0.23526946114330494,
+        0.2448201575413489,
+        0.25437085393939285,
+        0.2639215503374368,
+        0.2734722467354807,
+        0.28302294313352466,
+        0.29257363953156856,
+        0.3021243359296125,
+        0.3116750323276565,
+        0.32122572872570043,
+        0.33077642512374433,
+        0.3403271215217883,
+        0.3498778179198322,
+        0.35942851431787615
+      ],
+      "counts": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        2,
+        2,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2
+      ]
+    },
+    {
+      "id": "esc-thresholds",
+      "type": "line_multi",
+      "title": "Precision / recall vs threshold",
+      "x_key": "x",
+      "series": [
+        {
+          "name": "precision",
+          "points": [
+            {
+              "x": 0.25,
+              "y": 0.16666666666666666
+            },
+            {
+              "x": 0.2,
+              "y": 0.125
+            },
+            {
+              "x": 0.3,
+              "y": 0.0
+            },
+            {
+              "x": 0.35,
+              "y": 0.0
+            },
+            {
+              "x": 0.39999999999999997,
+              "y": 0.0
+            },
+            {
+              "x": 0.44999999999999996,
+              "y": 0.0
+            },
+            {
+              "x": 0.49999999999999994,
+              "y": 0.0
+            },
+            {
+              "x": 0.5499999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.5999999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.6499999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.7,
+              "y": 0.0
+            },
+            {
+              "x": 0.7499999999999998,
+              "y": 0.0
+            },
+            {
+              "x": 0.7999999999999998,
+              "y": 0.0
+            }
+          ]
+        },
+        {
+          "name": "recall",
+          "points": [
+            {
+              "x": 0.25,
+              "y": 1.0
+            },
+            {
+              "x": 0.2,
+              "y": 1.0
+            },
+            {
+              "x": 0.3,
+              "y": 0.0
+            },
+            {
+              "x": 0.35,
+              "y": 0.0
+            },
+            {
+              "x": 0.39999999999999997,
+              "y": 0.0
+            },
+            {
+              "x": 0.44999999999999996,
+              "y": 0.0
+            },
+            {
+              "x": 0.49999999999999994,
+              "y": 0.0
+            },
+            {
+              "x": 0.5499999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.5999999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.6499999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.7,
+              "y": 0.0
+            },
+            {
+              "x": 0.7499999999999998,
+              "y": 0.0
+            },
+            {
+              "x": 0.7999999999999998,
+              "y": 0.0
+            }
+          ]
+        },
+        {
+          "name": "mission_score",
+          "points": [
+            {
+              "x": 0.25,
+              "y": 0.75
+            },
+            {
+              "x": 0.2,
+              "y": 0.7374999999999999
+            },
+            {
+              "x": 0.3,
+              "y": 0.0
+            },
+            {
+              "x": 0.35,
+              "y": 0.0
+            },
+            {
+              "x": 0.39999999999999997,
+              "y": 0.0
+            },
+            {
+              "x": 0.44999999999999996,
+              "y": 0.0
+            },
+            {
+              "x": 0.49999999999999994,
+              "y": 0.0
+            },
+            {
+              "x": 0.5499999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.5999999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.6499999999999999,
+              "y": 0.0
+            },
+            {
+              "x": 0.7,
+              "y": 0.0
+            },
+            {
+              "x": 0.7499999999999998,
+              "y": 0.0
+            },
+            {
+              "x": 0.7999999999999998,
+              "y": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "esc-corr",
+      "type": "bar_horizontal",
+      "title": "Numeric correlations with escalation label",
+      "labels": [
+        "follow_up_needed_rate",
+        "health_score_mean",
+        "nutrition_score_mean",
+        "incidents_total_180d",
+        "incidents_severe_180d",
+        "energy_score_mean",
+        "visits_180d",
+        "concerns_flagged_rate"
+      ],
+      "values": [
+        -0.3293697901908363,
+        -0.3131485319984795,
+        -0.28140165439080694,
+        -0.2581988897471612,
+        -0.22249707974499247,
+        0.21618946936326586,
+        -0.2138804254063238,
+        -0.2089222366747692
+      ],
+      "value_label": "correlation"
+    },
+    {
+      "id": "esc-family-imp",
+      "type": "bar_horizontal",
+      "title": "Importance by coarse feature family (RF)",
+      "labels": [
+        "avg",
+        "initial",
+        "follow",
+        "referral",
+        "sessions",
+        "case",
+        "visits",
+        "progress"
+      ],
+      "values": [
+        0.1536253172520446,
+        0.13848293951487955,
+        0.0943708819776459,
+        0.07039771898085785,
+        0.06972043738042234,
+        0.06869328353308188,
+        0.0685467771003706,
+        0.063912394099997
+      ],
+      "value_label": "value"
+    }
+  ],
+  "insights": [
+    "Estimates probability of an incident in the next 30 days after the snapshot for triage.",
+    "The random forest puts the most weight on **num__avg_family_cooperation** when ranking an incident in the forward window.",
+    "The logistic model associates higher **num__follow_up_needed_rate** with decreases odds of the positive class (linear association, not necessarily causal).",
+    "Operational alert threshold near **0.25** is a starting point; adjust for staffing.",
+    "Incident-risk drivers cluster in **avg** (RF) \u2014 align extra visits or supervision accordingly."
+  ],
+  "rows_sample": [
+    {
+      "y_true": 0,
+      "score": 0.25010307035111684
+    },
+    {
+      "y_true": 1,
+      "score": 0.25587083372328073
+    },
+    {
+      "y_true": 0,
+      "score": 0.35840783181409414
+    },
+    {
+      "y_true": 0,
+      "score": 0.27543355346553705
+    },
+    {
+      "y_true": 0,
+      "score": 0.35942851431787615
+    },
+    {
+      "y_true": 0,
+      "score": 0.24564629511616867
+    },
+    {
+      "y_true": 0,
+      "score": 0.22050696558970637
+    },
+    {
+      "y_true": 0,
+      "score": 0.16841458635699738
+    },
+    {
+      "y_true": 0,
+      "score": 0.262798760460887
+    }
+  ],
+  "export_path": "C:\\Users\\hoope\\OneDrive\\Desktop\\ml-pipelines\\ml-pipelines\\artifacts\\dashboard_exports\\case-escalation-risk.json"
+}

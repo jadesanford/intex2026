@@ -1,0 +1,181 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "pipeline_id": "health-deterioration-alert",
+    "display_name": "Health deterioration alert",
+    "task": "binary_classification",
+    "generated_at_utc": "2026-04-09T17:43:18.411847+00:00"
+  },
+  "metrics": {
+    "holdout_roc_auc": 0.971578947368421,
+    "holdout_pr_auc": 0.8818637989690621
+  },
+  "charts": [
+    {
+      "id": "health-deterioration-alert-imp",
+      "type": "bar_horizontal",
+      "title": "Top predictive drivers (Random Forest importance)",
+      "labels": [
+        "num__general_health_score",
+        "num__energy_level_score",
+        "num__nutrition_score",
+        "num__bmi",
+        "num__sleep_quality_score",
+        "num__sessions_count",
+        "num__incidents_count"
+      ],
+      "values": [
+        0.7757502440213497,
+        0.0639445374202228,
+        0.04523248675386946,
+        0.03708060427533171,
+        0.035804636326638405,
+        0.03343396586737325,
+        0.008753525335214616
+      ],
+      "value_label": "importance"
+    },
+    {
+      "id": "health-deterioration-alert-coef",
+      "type": "bar_horizontal",
+      "title": "Top explanatory associations (logistic |coefficient|)",
+      "labels": [
+        "num__general_health_score",
+        "num__incidents_count",
+        "num__sleep_quality_score",
+        "num__energy_level_score",
+        "num__bmi",
+        "num__nutrition_score",
+        "num__sessions_count"
+      ],
+      "values": [
+        4.807968572704325,
+        0.29537930517357386,
+        0.1979340334064911,
+        0.1676077672616087,
+        0.16193583600797548,
+        0.09712269485495317,
+        0.04690908494952992
+      ],
+      "value_label": "|coef|"
+    },
+    {
+      "id": "health-deterioration-alert-proba",
+      "type": "histogram",
+      "title": "Distribution of predicted scores (holdout)",
+      "bin_edges": [
+        0.0003742443865164065,
+        0.05017765189934486,
+        0.09998105941217332,
+        0.14978446692500175,
+        0.19958787443783021,
+        0.24939128195065868,
+        0.2991946894634871,
+        0.34899809697631556,
+        0.39880150448914403,
+        0.4486049120019725,
+        0.49840831951480097,
+        0.5482117270276294,
+        0.5980151345404578,
+        0.6478185420532864,
+        0.6976219495661148,
+        0.7474253570789433,
+        0.7972287645917717,
+        0.8470321721046001,
+        0.8968355796174287,
+        0.9466389871302571,
+        0.9964423946430856
+      ],
+      "counts": [
+        86,
+        7,
+        0,
+        1,
+        0,
+        0,
+        1,
+        2,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        5,
+        0,
+        1,
+        2,
+        0,
+        11
+      ]
+    }
+  ],
+  "insights": [
+    "Flags likely short-term decline in self-reported general health scores.",
+    "The random forest puts the most weight on **num__general_health_score** when ranking health score decline on the next record.",
+    "The logistic model associates higher **num__general_health_score** with decreases odds of the positive class (linear association, not necessarily causal)."
+  ],
+  "rows_sample": [
+    {
+      "y_true": 0,
+      "score": 0.0026242609096659856
+    },
+    {
+      "y_true": 0,
+      "score": 0.012035978057553747
+    },
+    {
+      "y_true": 0,
+      "score": 0.0021435937278198917
+    },
+    {
+      "y_true": 0,
+      "score": 0.06229508377445885
+    },
+    {
+      "y_true": 0,
+      "score": 0.0009524984258651362
+    },
+    {
+      "y_true": 0,
+      "score": 0.0030520709636155993
+    },
+    {
+      "y_true": 1,
+      "score": 0.05806267422943343
+    },
+    {
+      "y_true": 0,
+      "score": 0.0018158715766396385
+    },
+    {
+      "y_true": 0,
+      "score": 0.0017011733110920521
+    },
+    {
+      "y_true": 0,
+      "score": 0.001196744766714253
+    },
+    {
+      "y_true": 0,
+      "score": 0.0018449856022753428
+    },
+    {
+      "y_true": 0,
+      "score": 0.0021334440958686654
+    },
+    {
+      "y_true": 0,
+      "score": 0.36273036904598127
+    },
+    {
+      "y_true": 1,
+      "score": 0.35684527451570547
+    },
+    {
+      "y_true": 1,
+      "score": 0.9964423946430856
+    }
+  ],
+  "export_path": "C:\\Users\\hoope\\OneDrive\\Desktop\\ml-pipelines\\ml-pipelines\\artifacts\\dashboard_exports\\health-deterioration-alert.json"
+}
