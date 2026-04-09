@@ -56,18 +56,23 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest req)
     {
+        var (isValid, errors) = AuthService.ValidatePassword(req.Password);
+        if (!isValid)
+            return BadRequest(new { message = "Password does not meet requirements", errors });
+
         var existing = await db.GetOneAsync<User>("users", $"username=eq.{req.Username}");
         if (existing != null)
             return Conflict(new { message = "Username already exists" });
 
         var hash = AuthService.HashPassword(req.Password);
+        var role = AuthService.NormalizeRole(req.Role);
         var user = await db.InsertAsync<User>("users", new
         {
             username = req.Username,
             password_hash = hash,
             display_name = req.DisplayName ?? req.Username,
             email = req.Email,
-            role = req.Role
+            role = string.IsNullOrWhiteSpace(role) ? "staff" : role
         });
         return Ok(user);
     }
@@ -82,6 +87,10 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
         {
             return BadRequest(new { message = "Supporter type, email, and password are required" });
         }
+
+        var (isValid, errors) = AuthService.ValidatePassword(req.Password);
+        if (!isValid)
+            return BadRequest(new { message = "Password does not meet requirements", errors });
 
         var username = string.IsNullOrWhiteSpace(req.Username) ? req.Email.Trim() : req.Username.Trim();
         var email = req.Email.Trim();

@@ -8,7 +8,7 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "InternalStaff")]
 public class ResidentsController(SupabaseService db) : ControllerBase
 {
     private static string? CalculateYearsMonths(string? fromDate, string? toDate)
@@ -253,6 +253,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create([FromBody] ResidentRequest req)
     {
         var residentId = await NextResidentIdAsync();
@@ -319,6 +320,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Update(int id, [FromBody] ResidentRequest req)
     {
         var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
@@ -382,9 +384,12 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "InternalStaff")]
-    public async Task<IActionResult> Delete(int id)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Delete(int id, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         // Delete child records first to avoid FK violations and orphaned data.
         var childDeletes = new[]
         {
@@ -420,6 +425,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost("{id}/recordings")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> AddRecording(int id, [FromBody] ProcessRecordingRequest req)
     {
         var rec = await db.InsertAsync<ProcessRecording>("process_recordings", new
@@ -446,6 +452,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}/recordings/{recordingId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateRecording(int id, int recordingId, [FromBody] ProcessRecordingRequest req)
     {
         var rec = await db.UpdateAsync<ProcessRecording>(
@@ -473,8 +480,12 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}/recordings/{recordingId}")]
-    public async Task<IActionResult> DeleteRecording(int id, int recordingId)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> DeleteRecording(int id, int recordingId, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         var deleted = await db.DeleteAsync("process_recordings", $"resident_id=eq.{id}&recording_id=eq.{recordingId}");
         if (!deleted)
             return BadRequest(new { message = "Unable to delete process recording." });
@@ -491,6 +502,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost("{id}/visitations")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> AddVisitation(int id, [FromBody] HomeVisitationRequest req)
     {
         var visit = await db.InsertAsync<HomeVisitation>("home_visitations", new
@@ -516,6 +528,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}/visitations/{visitationId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateVisitation(int id, int visitationId, [FromBody] HomeVisitationRequest req)
     {
         var visit = await db.UpdateAsync<HomeVisitation>(
@@ -542,8 +555,12 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}/visitations/{visitationId}")]
-    public async Task<IActionResult> DeleteVisitation(int id, int visitationId)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> DeleteVisitation(int id, int visitationId, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         var deleted = await db.DeleteAsync("home_visitations", $"resident_id=eq.{id}&visitation_id=eq.{visitationId}");
         if (!deleted)
             return BadRequest(new { message = "Unable to delete home visitation." });
@@ -560,6 +577,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost("{id}/health")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> AddHealth(int id, [FromBody] HealthWellbeingRequest req)
     {
         if (string.IsNullOrWhiteSpace(req.RecordDate))
@@ -584,6 +602,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}/health/{healthRecordId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateHealth(int id, int healthRecordId, [FromBody] HealthWellbeingRequest req)
     {
         var record = await db.UpdateAsync<HealthWellbeingRecord>(
@@ -610,8 +629,12 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}/health/{healthRecordId}")]
-    public async Task<IActionResult> DeleteHealth(int id, int healthRecordId)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> DeleteHealth(int id, int healthRecordId, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         var deleted = await db.DeleteAsync("health_wellbeing_records", $"resident_id=eq.{id}&health_record_id=eq.{healthRecordId}");
         if (!deleted)
             return BadRequest(new { message = "Unable to delete health record." });
@@ -628,6 +651,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost("{id}/education")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> AddEducation(int id, [FromBody] EducationRecordRequest req)
     {
         if (string.IsNullOrWhiteSpace(req.RecordDate))
@@ -652,6 +676,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}/education/{educationRecordId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateEducation(int id, int educationRecordId, [FromBody] EducationRecordRequest req)
     {
         var record = await db.UpdateAsync<EducationRecord>(
@@ -674,8 +699,12 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}/education/{educationRecordId}")]
-    public async Task<IActionResult> DeleteEducation(int id, int educationRecordId)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> DeleteEducation(int id, int educationRecordId, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         var deleted = await db.DeleteAsync("education_records", $"resident_id=eq.{id}&education_record_id=eq.{educationRecordId}");
         if (!deleted)
             return BadRequest(new { message = "Unable to delete education record." });
@@ -692,6 +721,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost("{id}/interventions")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> AddIntervention(int id, [FromBody] InterventionPlanRequest req)
     {
         var plan = await db.InsertAsync<InterventionPlan>("intervention_plans", new
@@ -712,6 +742,7 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}/interventions/{planId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateIntervention(int id, int planId, [FromBody] InterventionPlanRequest req)
     {
         var plan = await db.UpdateAsync<InterventionPlan>(
@@ -733,8 +764,12 @@ public class ResidentsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}/interventions/{planId}")]
-    public async Task<IActionResult> DeleteIntervention(int id, int planId)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> DeleteIntervention(int id, int planId, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         var deleted = await db.DeleteAsync("intervention_plans", $"resident_id=eq.{id}&plan_id=eq.{planId}");
         if (!deleted)
             return BadRequest(new { message = "Unable to delete intervention plan." });

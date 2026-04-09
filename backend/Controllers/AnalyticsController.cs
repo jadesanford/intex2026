@@ -7,7 +7,7 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "InternalStaff")]
 public class AnalyticsController(SupabaseService db) : ControllerBase
 {
     [HttpGet("dashboard")]

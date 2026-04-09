@@ -26,7 +26,9 @@ var supabaseUrl = Environment.GetEnvironmentVariable("SUPABASE_URL")
     ?? builder.Configuration["Supabase:Url"] ?? "";
 var supabaseKey = Environment.GetEnvironmentVariable("SUPABASE_SERVICE_ROLE_KEY")
     ?? builder.Configuration["Supabase:ServiceRoleKey"] ?? "";
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "OpenArms_SuperSecretKey_2024_MustBeAtLeast32CharsLong!";
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
+    ?? builder.Configuration["Jwt:Key"]
+    ?? "";
 
 builder.Services.AddSingleton(new SupabaseService(supabaseUrl, supabaseKey));
 builder.Services.AddSingleton(new AuthService(jwtKey,
@@ -67,7 +69,26 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAssertion(context =>
             context.User.Claims.Any(claim =>
                 claim.Type == ClaimTypes.Role &&
-                (string.Equals(claim.Value?.Trim(), "admin", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(claim.Value?.Trim(), "staff", StringComparison.OrdinalIgnoreCase)));
+    });
+
+    options.AddPolicy("DonorOnly", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireAssertion(context =>
+            context.User.Claims.Any(claim =>
+                claim.Type == ClaimTypes.Role &&
+                string.Equals(claim.Value?.Trim(), "donor", StringComparison.OrdinalIgnoreCase)));
+    });
+
+    options.AddPolicy("DonorOrInternalStaff", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireAssertion(context =>
+            context.User.Claims.Any(claim =>
+                claim.Type == ClaimTypes.Role &&
+                (string.Equals(claim.Value?.Trim(), "donor", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(claim.Value?.Trim(), "admin", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(claim.Value?.Trim(), "staff", StringComparison.OrdinalIgnoreCase))));
     });
 });
@@ -87,9 +108,26 @@ var app = builder.Build();
 
 app.UseCors("AllowFrontend");
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Content-Security-Policy"] =
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.azurewebsites.net;";
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    await next();
+});
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

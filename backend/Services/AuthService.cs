@@ -25,7 +25,7 @@ public class AuthService
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var normalizedRole = (user.Role ?? "").Trim().ToLowerInvariant();
+        var normalizedRole = NormalizeRole(user.Role);
 
         var claims = new[]
         {
@@ -50,6 +50,14 @@ public class AuthService
     public static string HashPassword(string password) =>
         BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
 
+    public static string NormalizeRole(string? role)
+    {
+        var normalized = (role ?? "").Trim().ToLowerInvariant();
+        if (normalized == "admin")
+            return "staff";
+        return normalized;
+    }
+
     public static bool VerifyPassword(string password, string hash)
     {
         // Normalize PHP-style $2y$ and $2x$ hashes to $2a$ which BCrypt.Net supports
@@ -63,5 +71,23 @@ public class AuthService
         {
             return false;
         }
+    }
+
+    public static (bool IsValid, string[] Errors) ValidatePassword(string password)
+    {
+        var errors = new List<string>();
+
+        if (password.Length < 14)
+            errors.Add("Password must be at least 14 characters long.");
+        if (!password.Any(char.IsUpper))
+            errors.Add("Password must contain at least one uppercase letter.");
+        if (!password.Any(char.IsLower))
+            errors.Add("Password must contain at least one lowercase letter.");
+        if (!password.Any(char.IsDigit))
+            errors.Add("Password must contain at least one digit.");
+        if (!password.Any(c => !char.IsLetterOrDigit(c)))
+            errors.Add("Password must contain at least one non-alphanumeric character.");
+
+        return (errors.Count == 0, errors.ToArray());
     }
 }

@@ -7,7 +7,7 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "InternalStaff")]
 public class PartnersController(SupabaseService db) : ControllerBase
 {
     private async Task<int> NextPartnerIdAsync()
@@ -58,6 +58,7 @@ public class PartnersController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create([FromBody] PartnerRequest req)
     {
         if (string.IsNullOrWhiteSpace(req.PartnerName))
@@ -85,6 +86,7 @@ public class PartnersController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Update(int id, [FromBody] PartnerRequest req)
     {
         var result = await db.UpdateAsync<Partner>("partners", $"partner_id=eq.{id}", new
@@ -105,9 +107,12 @@ public class PartnersController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "InternalStaff")]
-    public async Task<IActionResult> Delete(int id)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Delete(int id, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         await db.DeleteAsync("partner_assignments", $"partner_id=eq.{id}");
         var deleted = await db.DeleteAsync("partners", $"partner_id=eq.{id}");
         if (!deleted)

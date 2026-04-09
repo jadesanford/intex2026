@@ -7,7 +7,7 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "InternalStaff")]
 public class SafehousesController(SupabaseService db) : ControllerBase
 {
     private async Task<int> NextSafehouseIdAsync()
@@ -38,6 +38,7 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create([FromBody] SafehouseRequest req)
     {
         if (string.IsNullOrWhiteSpace(req.Name))
@@ -66,6 +67,7 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Update(int id, [FromBody] SafehouseRequest req)
     {
         var result = await db.UpdateAsync<Safehouse>("safehouses", $"safehouse_id=eq.{id}", new
@@ -86,9 +88,12 @@ public class SafehousesController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "InternalStaff")]
-    public async Task<IActionResult> Delete(int id)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Delete(int id, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         var ok = await db.DeleteAsync("safehouses", $"safehouse_id=eq.{id}");
         if (!ok)
             return Conflict(new { message = "Unable to delete this safehouse. It may still be linked to residents or other records." });

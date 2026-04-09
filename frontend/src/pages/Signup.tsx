@@ -67,7 +67,7 @@ const t = {
     emailRequired: 'Email address is required',
     acquisitionRequired: 'Please tell us how you found us',
     passwordRequired: 'Password is required',
-    passwordMin: 'Password must be at least 6 characters',
+    passwordMin: 'Password must be at least 14 characters and include uppercase, lowercase, a number, and a symbol',
     passwordMismatch: 'Passwords do not match',
     registerFailed: 'Registration failed. Please try again.',
     step0Title: 'How do you support Open Arms?',
@@ -97,7 +97,7 @@ const t = {
     yourEmailAddress: 'your email address',
     accountSummary: 'Account summary',
     password: 'Password *',
-    passwordPlaceholder: 'Minimum 6 characters',
+    passwordPlaceholder: '14+ chars, upper/lower, number, symbol',
     confirmPassword: 'Confirm Password *',
     confirmPasswordPlaceholder: 'Repeat your password',
   },
@@ -117,7 +117,7 @@ const t = {
     emailRequired: 'Kinakailangan ang email address',
     acquisitionRequired: 'Pakisabi kung paano mo kami nalaman',
     passwordRequired: 'Kinakailangan ang password',
-    passwordMin: 'Ang password ay dapat hindi bababa sa 6 na character',
+    passwordMin: 'Ang password ay dapat may 14+ na character at may malaking titik, maliit na titik, numero, at simbolo',
     passwordMismatch: 'Hindi magkapareho ang password',
     registerFailed: 'Hindi nagtagumpay ang pagrehistro. Pakisubukan muli.',
     step0Title: 'Paano mo sinusuportahan ang Open Arms?',
@@ -147,7 +147,7 @@ const t = {
     yourEmailAddress: 'iyong email address',
     accountSummary: 'Buod ng account',
     password: 'Password *',
-    passwordPlaceholder: 'Minimum 6 na character',
+    passwordPlaceholder: '14+ na character, may upper/lower, numero, simbolo',
     confirmPassword: 'Kumpirmahin ang Password *',
     confirmPasswordPlaceholder: 'Ulitin ang iyong password',
   }
@@ -240,7 +240,13 @@ export default function Signup({ lang }: { lang: 'en' | 'tl' }) {
     }
     if (step === 2) {
       if (!form.password) { setError(tx.passwordRequired); return false }
-      if (form.password.length < 6) { setError(tx.passwordMin); return false }
+      const strongEnough =
+        form.password.length >= 14 &&
+        /[A-Z]/.test(form.password) &&
+        /[a-z]/.test(form.password) &&
+        /\d/.test(form.password) &&
+        /[^A-Za-z0-9]/.test(form.password)
+      if (!strongEnough) { setError(tx.passwordMin); return false }
       if (form.password !== form.confirmPassword) { setError(tx.passwordMismatch); return false }
     }
     return true
@@ -273,7 +279,10 @@ export default function Signup({ lang }: { lang: 'en' | 'tl' }) {
       loginWithData(data)
       navigate('/donor')
     } catch (err: any) {
-      const msg = err?.response?.data?.message || tx.registerFailed
+      const details = err?.response?.data?.errors
+      const msg = Array.isArray(details) && details.length > 0
+        ? details.join(' ')
+        : (err?.response?.data?.message || tx.registerFailed)
       setError(msg)
     } finally {
       setLoading(false)
