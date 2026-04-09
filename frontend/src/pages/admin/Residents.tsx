@@ -167,26 +167,26 @@ export default function Residents() {
             <input
               placeholder="Search case no. or code..." value={filters.search}
               onChange={e => setFilters(p => ({ ...p, search: e.target.value }))}
-              style={{ paddingLeft: 36, width: '100%', padding: '8px 8px 8px 36px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14 }}
+              style={{ paddingLeft: 36, width: '100%', padding: '8px 8px 8px 36px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}
             />
           </div>
           <select value={filters.safehouseId} onChange={e => setFilters(p => ({ ...p, safehouseId: e.target.value }))}
-            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}>
             <option value="">All Safehouses</option>
             {(safehouses ?? []).map((s: SafehouseRow) => <option key={s.safehouseId} value={s.safehouseId}>{s.name}</option>)}
           </select>
           <select value={filters.status} onChange={e => setFilters(p => ({ ...p, status: e.target.value }))}
-            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}>
             <option value="">All Status</option>
             {['Active', 'Closed', 'Transferred'].map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <select value={filters.riskLevel} onChange={e => setFilters(p => ({ ...p, riskLevel: e.target.value }))}
-            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}>
             <option value="">All Risk Levels</option>
             {['Low', 'Medium', 'High', 'Critical'].map(r => <option key={r} value={r}>{r}</option>)}
           </select>
           <select value={filters.caseCategory} onChange={e => setFilters(p => ({ ...p, caseCategory: e.target.value }))}
-            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}>
             <option value="">All Categories</option>
             {CASE_CATEGORY_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
           </select>

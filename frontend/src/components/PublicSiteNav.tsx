@@ -20,7 +20,7 @@ const t = {
   tl: {
     home: 'Tahanan',
     impact: 'Aming Epekto',
-    awareness: 'Stories',
+    awareness: 'Mga Kuwento',
     login: 'Login',
     donate: 'Mag-donate',
     signup: 'Gumawa ng Account',
@@ -290,7 +290,7 @@ export default function PublicSiteNav() {
               <div className="public-nav-mobile-footer-links">
                 <Link to="/privacy">Privacy Policy</Link>
                 <Link to="/impact">Our Impact</Link>
-                <Link to="/awareness">Stories</Link>
+                <Link to="/awareness">{tx.awareness}</Link>
                 <Link to="/donate">Donate</Link>
                 <a href="mailto:info@openarms.org">Contact</a>
               </div>

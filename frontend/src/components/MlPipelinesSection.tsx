@@ -199,9 +199,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
       <div style={{ padding: '8px 0' }}>
         <ResponsiveContainer width="100%" height={h}>
           <ComposedChart data={pts}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₱${v}K`} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickFormatter={(v) => `₱${v}K`} />
             <Tooltip
               formatter={(v, name) =>
                 name === 'actualK'
@@ -283,9 +283,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
       <div style={{ padding: '8px 0' }}>
         <ResponsiveContainer width="100%" height={h}>
           <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} />
-            <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickFormatter={(v) => `${v}%`} />
+            <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
             <Tooltip
               formatter={(v, name) => [`${Number(v)}%`, name === 'utilization' ? 'Utilization (incl. model blend)' : 'Strain probability (model)']}
               labelFormatter={(_, payload) => {
@@ -337,9 +337,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
       <div style={{ padding: '8px 0' }}>
         <ResponsiveContainer width="100%" height={Math.min(200, h * 0.55)}>
           <BarChart data={summary}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} allowDecimals={false} />
             <Tooltip />
             <Bar dataKey="value" fill="var(--terracotta)" name="Supporters" radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -357,9 +357,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
         {recent.length > 0 ? (
           <ResponsiveContainer width="100%" height={Math.min(160, h * 0.45)}>
             <BarChart data={recent}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₱${v}K`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+              <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickFormatter={(v) => `₱${v}K`} />
               <Tooltip formatter={(v) => [`₱${Number(v)}K`, 'Monetary']} />
               <Bar dataKey="totalK" fill="#4b6c8c" name="Last 6 mo (₱K)" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -380,9 +380,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
       <div style={{ padding: '8px 0' }}>
         <ResponsiveContainer width="100%" height={Math.min(220, h * 0.6)}>
           <BarChart data={bars}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} allowDecimals={false} />
             <Tooltip />
             <Bar dataKey="value" fill="var(--sage)" radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -411,10 +411,10 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
     return (
       <ResponsiveContainer width="100%" height={h}>
         <ComposedChart data={monthly}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-          <YAxis yAxisId="left" tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
-          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} allowDecimals={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+          <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+          <YAxis yAxisId="left" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
+          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} allowDecimals={false} />
           <Tooltip />
           <Legend />
           <Line yAxisId="left" type="monotone" dataKey="avgProgress" stroke="var(--navy)" name="Avg progress %" strokeWidth={2} />
@@ -437,9 +437,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
       <div style={{ padding: '8px 0' }}>
         <ResponsiveContainer width="100%" height={Math.min(180, h * 0.5)}>
           <BarChart data={summary}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} allowDecimals={false} />
             <Tooltip />
             <Bar dataKey="value" fill="#d4856e" radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -471,9 +471,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
         </p>
         <ResponsiveContainer width="100%" height={h}>
           <BarChart data={outcome} layout="vertical" margin={{ left: 8, right: 16 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
-            <YAxis dataKey="name" type="category" width={140} tick={{ fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} allowDecimals={false} />
+            <YAxis dataKey="name" type="category" width={140} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
             <Tooltip />
             <Bar dataKey="value" fill="#4b6c8c" radius={[0, 4, 4, 0]} />
           </BarChart>
@@ -496,9 +496,9 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
               namedValueFromApi(x as { name?: string; Name?: string; value?: number; Value?: number }),
             )}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} allowDecimals={false} />
             <Tooltip />
             <Bar dataKey="value" fill="var(--terracotta)" radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -566,12 +566,12 @@ function MlSampleTable({
           overflowY: 'auto',
           border: '1px solid var(--border)',
           borderRadius: 8,
-          background: 'white',
+          background: 'var(--surface-1)',
         }}
       >
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
           <thead>
-            <tr style={{ background: '#f0f0f0' }}>
+            <tr style={{ background: 'var(--surface-2)' }}>
               {keys.map((k) => (
                 <th
                   key={k}
@@ -581,7 +581,8 @@ function MlSampleTable({
                     borderBottom: '1px solid var(--border)',
                     position: 'sticky',
                     top: 0,
-                    background: '#f0f0f0',
+                    background: 'var(--surface-2)',
+                    color: 'var(--text-muted)',
                   }}
                 >
                   {k}
@@ -591,11 +592,11 @@ function MlSampleTable({
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              <tr key={i} style={{ background: i % 2 ? '#fafafa' : 'white' }}>
+              <tr key={i} style={{ background: i % 2 ? 'var(--analytics-inset)' : 'var(--surface-1)' }}>
                 {keys.map((k) => (
                   <td
                     key={k}
-                    style={{ padding: '6px 8px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}
+                    style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', color: 'var(--text)' }}
                   >
                     {formatSampleCell(row[k])}
                   </td>
@@ -641,7 +642,7 @@ export default function MlPipelinesSection() {
             marginBottom: 14,
             lineHeight: 1.65,
             padding: '10px 12px',
-            background: '#f7f7f7',
+            background: 'var(--surface-2)',
             borderRadius: 8,
             border: '1px solid var(--border)',
           }}

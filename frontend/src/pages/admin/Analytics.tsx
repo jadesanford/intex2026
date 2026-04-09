@@ -128,14 +128,11 @@ export default function Analytics() {
 
       {showingSampleData && (
         <div
-          className="card"
+          className="card analytics-sample-banner"
           style={{
             marginBottom: 20,
             padding: '12px 16px',
-            background: '#fffbeb',
-            borderColor: '#fcd34d',
             fontSize: 13,
-            color: '#92400e',
           }}
         >
           Sample data is shown because the database returned no residents, donations, or safehouses yet. Figures will
@@ -164,9 +161,9 @@ export default function Analytics() {
           <h3 style={{ fontSize: 16, marginBottom: 20 }}>Donation Trend (₱ Thousands)</h3>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `₱${v}K`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+              <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+              <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickFormatter={v => `₱${v}K`} />
               <Tooltip formatter={(v) => [`₱${Number(v)}K`, 'Total']} />
               <Area type="monotone" dataKey="total" stroke="var(--terracotta)" fill="rgba(193,105,79,0.1)" strokeWidth={2} />
             </AreaChart>
@@ -206,9 +203,9 @@ export default function Analytics() {
           {safehouseData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={safehouseData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="capacity" fill="rgba(193,105,79,0.2)" name="Capacity (Girls)" radius={[4, 4, 0, 0]} />
@@ -227,9 +224,9 @@ export default function Analytics() {
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={categoryData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={100} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} width={100} />
                 <Tooltip />
                 <Bar dataKey="count" fill="var(--sage)" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -257,7 +254,7 @@ export default function Analytics() {
               { label: 'Reintegration In Progress', count: displayDash.residents.reintegrationInProgress, color: '#6b8f71' },
               { label: 'Reintegrated', count: displayDash.residents.reintegrationCompleted, color: 'var(--success)' },
             ].map(({ label, count, color }) => (
-              <div key={label} style={{ flex: 1, minWidth: 120, textAlign: 'center', padding: 16, borderRadius: 10, background: '#fafafa' }}>
+              <div key={label} style={{ flex: 1, minWidth: 120, textAlign: 'center', padding: 16, borderRadius: 10, background: 'var(--analytics-inset)' }}>
                 <div style={{ fontSize: 36, fontWeight: 700, color, fontFamily: 'Playfair Display, serif' }}>{count ?? 0}</div>
                 <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{label}</div>
               </div>
@@ -277,7 +274,7 @@ export default function Analytics() {
               { label: 'Physical Abuse', count: subCategories.physicalAbuse },
               { label: 'OSAEC/CSAEM', count: subCategories.osaec },
             ].map(({ label, count }) => (
-              <div key={label} style={{ flex: 1, minWidth: 120, textAlign: 'center', padding: 16, borderRadius: 10, background: '#fafafa', borderLeft: '3px solid var(--terracotta)' }}>
+              <div key={label} style={{ flex: 1, minWidth: 120, textAlign: 'center', padding: 16, borderRadius: 10, background: 'var(--analytics-inset)', borderLeft: '3px solid var(--terracotta)' }}>
                 <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--terracotta)' }}>{count ?? 0}</div>
                 <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{label}</div>
               </div>

@@ -54,7 +54,7 @@ export default function Dashboard() {
         <div className="admin-kpi-grid" style={{ marginBottom: 24 }}>
           <StatCard label="Active Residents" value={dash.residents.active} sub={`${dash.residents.total} total`} icon={<Users size={22} />} />
           <StatCard label="Reintegrated" value={dash.residents.reintegrationCompleted} sub="completed reintegration" icon={<Heart size={22} />} color="var(--sage)" />
-          <StatCard label="This Month" value={formatPHP(dash.donations.thisMonth)} sub={`${dash.donations.count} total records`} icon={<TrendingUp size={22} />} color="#1e2d4a" />
+          <StatCard label="This Month" value={formatPHP(dash.donations.thisMonth)} sub={`${dash.donations.count} total records`} icon={<TrendingUp size={22} />} color="var(--dashboard-this-month-accent)" />
           <StatCard label="High Risk Cases" value={dash.residents.highRisk} sub={`${dash.residents.critical} critical`} icon={<AlertTriangle size={22} />} color={dash.residents.critical > 0 ? 'var(--danger)' : 'var(--warning)'} />
         </div>
       )}

@@ -1134,7 +1134,7 @@ export default function ResidentDetail() {
                     border: '1px solid var(--border)',
                     borderRadius: 8,
                     padding: '10px 12px',
-                    background: 'white'
+                    background: 'var(--surface-1)', color: 'var(--text)',
                   }}
                 >
                   <input
@@ -1218,7 +1218,7 @@ export default function ResidentDetail() {
                     border: '1px solid var(--border)',
                     borderRadius: 8,
                     padding: '10px 12px',
-                    background: 'white'
+                    background: 'var(--surface-1)', color: 'var(--text)',
                   }}
                 >
                   <input
@@ -1266,7 +1266,7 @@ export default function ResidentDetail() {
                     border: '1px solid var(--border)',
                     borderRadius: 999,
                     padding: '8px 12px',
-                    background: 'white'
+                    background: 'var(--surface-1)', color: 'var(--text)',
                   }}
                 >
                   <input
@@ -1615,7 +1615,7 @@ export default function ResidentDetail() {
                   border: '1px solid var(--border)',
                   borderRadius: 8,
                   padding: '10px 12px',
-                  background: 'white'
+                  background: 'var(--surface-1)', color: 'var(--text)',
                 }}
               >
                 <input
