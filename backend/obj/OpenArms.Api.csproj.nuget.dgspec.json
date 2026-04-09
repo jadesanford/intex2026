@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/jadesanford/Downloads/IntexCursor copy 2/backend/OpenArms.Api.csproj": {}
+    "/Users/nsaez/Desktop/extra-security/intex2026/backend/OpenArms.Api.csproj": {}
   },
   "projects": {
-    "/Users/jadesanford/Downloads/IntexCursor copy 2/backend/OpenArms.Api.csproj": {
+    "/Users/nsaez/Desktop/extra-security/intex2026/backend/OpenArms.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/jadesanford/Downloads/IntexCursor copy 2/backend/OpenArms.Api.csproj",
+        "projectUniqueName": "/Users/nsaez/Desktop/extra-security/intex2026/backend/OpenArms.Api.csproj",
         "projectName": "OpenArms.Api",
-        "projectPath": "/Users/jadesanford/Downloads/IntexCursor copy 2/backend/OpenArms.Api.csproj",
-        "packagesPath": "/Users/jadesanford/.nuget/packages/",
-        "outputPath": "/Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/",
+        "projectPath": "/Users/nsaez/Desktop/extra-security/intex2026/backend/OpenArms.Api.csproj",
+        "packagesPath": "/Users/nsaez/.nuget/packages/",
+        "outputPath": "/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/jadesanford/.nuget/NuGet/NuGet.Config"
+          "/Users/nsaez/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"

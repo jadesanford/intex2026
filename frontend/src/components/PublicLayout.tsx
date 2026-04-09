@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 import PublicSiteNav from './PublicSiteNav'
+import { initClarityIfConsented } from '../lib/clarity'
 
 interface Props {
   children: React.ReactNode
@@ -29,6 +30,7 @@ export default function PublicLayout({ children }: Props) {
   const setConsent = (value: 'all' | 'essential') => {
     localStorage.setItem('oa_cookie_consent', value)
     setCookieConsent(value)
+    if (value === 'all') initClarityIfConsented()
   }
 
   return (
