@@ -75,7 +75,8 @@ export const createResident = (body: Record<string, unknown>) =>
   api.post('/residents', body).then(r => r.data)
 export const updateResident = (id: number, body: Record<string, unknown>) =>
   api.patch(`/residents/${id}`, body).then(r => r.data)
-export const deleteResident = (id: number) => api.delete(`/residents/${id}`)
+export const deleteResident = (id: number) =>
+  api.delete(`/residents/${id}`, { data: { confirm: 'DELETE' } })
 
 export const getRecordings = (id: number) => api.get(`/residents/${id}/recordings`).then(r => r.data)
 export const addRecording = (id: number, body: Record<string, unknown>) =>
@@ -83,7 +84,7 @@ export const addRecording = (id: number, body: Record<string, unknown>) =>
 export const updateRecording = (residentId: number, recordingId: number, body: Record<string, unknown>) =>
   api.patch(`/residents/${residentId}/recordings/${recordingId}`, body).then(r => r.data)
 export const deleteRecording = (residentId: number, recordingId: number) =>
-  api.delete(`/residents/${residentId}/recordings/${recordingId}`)
+  api.delete(`/residents/${residentId}/recordings/${recordingId}`, { data: { confirm: 'DELETE' } })
 
 export const getVisitations = (id: number) => api.get(`/residents/${id}/visitations`).then(r => r.data)
 export const addVisitation = (id: number, body: Record<string, unknown>) =>
@@ -91,7 +92,7 @@ export const addVisitation = (id: number, body: Record<string, unknown>) =>
 export const updateVisitation = (residentId: number, visitationId: number, body: Record<string, unknown>) =>
   api.patch(`/residents/${residentId}/visitations/${visitationId}`, body).then(r => r.data)
 export const deleteVisitation = (residentId: number, visitationId: number) =>
-  api.delete(`/residents/${residentId}/visitations/${visitationId}`)
+  api.delete(`/residents/${residentId}/visitations/${visitationId}`, { data: { confirm: 'DELETE' } })
 
 export const getHealthRecords = (id: number) => api.get(`/residents/${id}/health`).then(r => r.data)
 export const addHealthRecord = (id: number, body: Record<string, unknown>) =>
@@ -99,7 +100,7 @@ export const addHealthRecord = (id: number, body: Record<string, unknown>) =>
 export const updateHealthRecord = (residentId: number, healthRecordId: number, body: Record<string, unknown>) =>
   api.patch(`/residents/${residentId}/health/${healthRecordId}`, body).then(r => r.data)
 export const deleteHealthRecord = (residentId: number, healthRecordId: number) =>
-  api.delete(`/residents/${residentId}/health/${healthRecordId}`)
+  api.delete(`/residents/${residentId}/health/${healthRecordId}`, { data: { confirm: 'DELETE' } })
 
 export const getEducationRecords = (id: number) => api.get(`/residents/${id}/education`).then(r => r.data)
 export const addEducationRecord = (id: number, body: Record<string, unknown>) =>
@@ -107,14 +108,14 @@ export const addEducationRecord = (id: number, body: Record<string, unknown>) =>
 export const updateEducationRecord = (residentId: number, educationRecordId: number, body: Record<string, unknown>) =>
   api.patch(`/residents/${residentId}/education/${educationRecordId}`, body).then(r => r.data)
 export const deleteEducationRecord = (residentId: number, educationRecordId: number) =>
-  api.delete(`/residents/${residentId}/education/${educationRecordId}`)
+  api.delete(`/residents/${residentId}/education/${educationRecordId}`, { data: { confirm: 'DELETE' } })
 export const getInterventionPlans = (id: number) => api.get(`/residents/${id}/interventions`).then(r => r.data)
 export const addInterventionPlan = (id: number, body: Record<string, unknown>) =>
   api.post(`/residents/${id}/interventions`, body).then(r => r.data)
 export const updateInterventionPlan = (residentId: number, planId: number, body: Record<string, unknown>) =>
   api.patch(`/residents/${residentId}/interventions/${planId}`, body).then(r => r.data)
 export const deleteInterventionPlan = (residentId: number, planId: number) =>
-  api.delete(`/residents/${residentId}/interventions/${planId}`)
+  api.delete(`/residents/${residentId}/interventions/${planId}`, { data: { confirm: 'DELETE' } })
 
 // Safehouses
 export const getSafehouses = () => api.get('/safehouses').then(r => r.data)
@@ -123,7 +124,8 @@ export const createSafehouse = (body: Record<string, unknown>) =>
   api.post('/safehouses', body).then(r => r.data)
 export const updateSafehouse = (id: number, body: Record<string, unknown>) =>
   api.patch(`/safehouses/${id}`, body).then(r => r.data)
-export const deleteSafehouse = (id: number) => api.delete(`/safehouses/${id}`)
+export const deleteSafehouse = (id: number) =>
+  api.delete(`/safehouses/${id}`, { data: { confirm: 'DELETE' } })
 
 // Supporters / Donors
 export const getSupporters = (params?: Record<string, string>) =>
@@ -133,7 +135,8 @@ export const createSupporter = (body: Record<string, unknown>) =>
   api.post('/supporters', body).then(r => r.data)
 export const updateSupporter = (id: number, body: Record<string, unknown>) =>
   api.patch(`/supporters/${id}`, body).then(r => r.data)
-export const deleteSupporter = (id: number) => api.delete(`/supporters/${id}`)
+export const deleteSupporter = (id: number) =>
+  api.delete(`/supporters/${id}`, { data: { confirm: 'DELETE' } })
 
 // Donations
 export const getDonations = (params?: Record<string, string | number>) =>
@@ -144,7 +147,8 @@ export const createDonation = (body: Record<string, unknown>) =>
   api.post('/donations', body).then(r => r.data)
 export const updateDonation = (id: number, body: Record<string, unknown>) =>
   api.patch(`/donations/${id}`, body).then(r => r.data)
-export const deleteDonation = (id: number) => api.delete(`/donations/${id}`)
+export const deleteDonation = (id: number) =>
+  api.delete(`/donations/${id}`, { data: { confirm: 'DELETE' } })
 
 /** Replaces all rows in in_kind_donation_items for this donation. */
 export const syncDonationInKindItems = (
@@ -167,7 +171,8 @@ export const createPartner = (body: Record<string, unknown>) =>
   api.post('/partners', body).then(r => r.data)
 export const updatePartner = (id: number, body: Record<string, unknown>) =>
   api.patch(`/partners/${id}`, body).then(r => r.data)
-export const deletePartner = (id: number) => api.delete(`/partners/${id}`)
+export const deletePartner = (id: number) =>
+  api.delete(`/partners/${id}`, { data: { confirm: 'DELETE' } })
 
 // Incidents
 export const getIncidents = (params?: Record<string, string | boolean>) =>
@@ -176,7 +181,8 @@ export const createIncident = (body: Record<string, unknown>) =>
   api.post('/incidents', body).then(r => r.data)
 export const updateIncident = (id: number, body: Record<string, unknown>) =>
   api.patch(`/incidents/${id}`, body).then(r => r.data)
-export const deleteIncident = (id: number) => api.delete(`/incidents/${id}`)
+export const deleteIncident = (id: number) =>
+  api.delete(`/incidents/${id}`, { data: { confirm: 'DELETE' } })
 
 // Analytics
 export const getDashboardAnalytics = () => api.get('/analytics/dashboard').then(r => r.data)
@@ -197,4 +203,5 @@ export const createSocialPost = (body: Record<string, unknown>) =>
   api.post('/social-media', body).then(r => r.data)
 export const updateSocialPost = (id: number, body: Record<string, unknown>) =>
   api.patch(`/social-media/${id}`, body).then(r => r.data)
-export const deleteSocialPost = (id: number) => api.delete(`/social-media/${id}`)
+export const deleteSocialPost = (id: number) =>
+  api.delete(`/social-media/${id}`, { data: { confirm: 'DELETE' } })

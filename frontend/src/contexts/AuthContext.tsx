@@ -3,7 +3,8 @@ import { login as loginApi } from '../lib/api'
 
 interface User { id: number; username: string; displayName: string; role: string; supporterId?: number }
 function normalizeRole(role: string | undefined) {
-  return (role ?? '').trim().toLowerCase()
+  const normalized = (role ?? '').trim().toLowerCase()
+  return normalized === 'admin' ? 'staff' : normalized
 }
 
 interface AuthCtx {

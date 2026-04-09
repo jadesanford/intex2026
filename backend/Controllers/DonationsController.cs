@@ -67,6 +67,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
     }
 
     [HttpGet("mine")]
+    [Authorize(Policy = "DonorOnly")]
     public async Task<IActionResult> GetMine()
     {
         var supporterId = await ResolveSupporterIdAsync();
@@ -80,6 +81,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
 
     /// <summary>Donor-facing detail for one of the signed-in supporter's donations (includes in-kind line items).</summary>
     [HttpGet("mine/{id:int}/details")]
+    [Authorize(Policy = "DonorOnly")]
     public async Task<IActionResult> GetMineById(int id)
     {
         var supporterId = await ResolveSupporterIdAsync();
@@ -112,6 +114,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "InternalStaff")]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? campaign,
         [FromQuery] string? channel,
@@ -160,6 +163,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
 
     /// <summary>Sub-path avoids route ambiguity with PATCH/DELETE on the same controller in some hosts.</summary>
     [HttpGet("{id:int}/details")]
+    [Authorize(Policy = "InternalStaff")]
     public async Task<IActionResult> GetById(int id)
     {
         var donation = await db.GetOneAsync<Donation>("donations", $"donation_id=eq.{id}&select=*");
@@ -199,6 +203,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
     }
 
     [HttpGet("summary")]
+    [Authorize(Policy = "InternalStaff")]
     public async Task<IActionResult> Summary()
     {
         var donations = await db.GetAllAsync<Donation>("donations",
@@ -231,6 +236,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "DonorOrInternalStaff")]
     public async Task<IActionResult> Create([FromBody] DonationRequest req)
     {
         var resolvedSupporterId = await ResolveSupporterIdAsync();
@@ -261,6 +267,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
 
     /// <summary>Replaces all line items for this donation (delete existing rows, then insert).</summary>
     [HttpPut("{donationId:int}/in-kind-items")]
+    [Authorize(Policy = "DonorOrInternalStaff")]
     public async Task<IActionResult> SyncInKindItems(int donationId, [FromBody] List<InKindItemUpsert>? items)
     {
         var donation = await db.GetOneAsync<Donation>("donations", $"donation_id=eq.{donationId}&select=donation_id");
@@ -296,6 +303,7 @@ public class DonationsController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Update(int id, [FromBody] DonationRequest req)
     {
         var result = await db.UpdateAsync<Donation>("donations", $"donation_id=eq.{id}", new
@@ -317,9 +325,12 @@ public class DonationsController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "InternalStaff")]
-    public async Task<IActionResult> Delete(int id)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Delete(int id, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         await db.DeleteAsync("in_kind_donation_items", $"donation_id=eq.{id}");
         var deleted = await db.DeleteAsync("donations", $"donation_id=eq.{id}");
         if (!deleted)

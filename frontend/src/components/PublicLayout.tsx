@@ -10,23 +10,25 @@ interface Props {
 
 const t = {
   en: {
-    cookieMsg: 'We use cookies to enhance your experience.',
-    accept: 'Accept'
+    cookieMsg: 'We use essential cookies to keep the site working. You can also allow optional analytics-style storage.',
+    accept: 'Accept All',
+    essentialOnly: 'Essential Only'
   },
   tl: {
-    cookieMsg: 'Gumagamit kami ng cookies upang mapabuti ang inyong karanasan.',
-    accept: 'Tanggapin'
+    cookieMsg: 'Gumagamit kami ng mahahalagang cookies upang mapatakbo ang site. Maaari din ninyong payagan ang optional analytics-style storage.',
+    accept: 'Tanggapin Lahat',
+    essentialOnly: 'Mahahalaga Lamang'
   }
 }
 
 export default function PublicLayout({ children }: Props) {
   const { lang } = useLanguage()
-  const [cookieAccepted, setCookieAccepted] = useState(() => localStorage.getItem('oa_cookie') === '1')
+  const [cookieConsent, setCookieConsent] = useState(() => localStorage.getItem('oa_cookie_consent'))
   const tx = t[lang]
 
-  const acceptCookie = () => {
-    localStorage.setItem('oa_cookie', '1')
-    setCookieAccepted(true)
+  const setConsent = (value: 'all' | 'essential') => {
+    localStorage.setItem('oa_cookie_consent', value)
+    setCookieConsent(value)
   }
 
   return (
@@ -70,7 +72,7 @@ export default function PublicLayout({ children }: Props) {
         <p style={{ fontSize: 12, marginTop: 16 }}>© 2024 Open Arms. All rights reserved.</p>
       </footer>
 
-      {!cookieAccepted && (
+      {!cookieConsent && (
         <div className="cookie-banner">
           <span>
             {tx.cookieMsg}{' '}
@@ -78,9 +80,14 @@ export default function PublicLayout({ children }: Props) {
               Learn more
             </Link>
           </span>
-          <button type="button" className="btn btn-primary btn-sm" onClick={acceptCookie}>
-            {tx.accept}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => setConsent('essential')}>
+              {tx.essentialOnly}
+            </button>
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => setConsent('all')}>
+              {tx.accept}
+            </button>
+          </div>
         </div>
       )}
     </div>

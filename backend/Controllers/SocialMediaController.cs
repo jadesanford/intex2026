@@ -7,7 +7,7 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/social-media")]
-[Authorize]
+[Authorize(Policy = "InternalStaff")]
 public class SocialMediaController(SupabaseService db) : ControllerBase
 {
     private async Task<int> NextPostIdAsync()
@@ -79,6 +79,7 @@ public class SocialMediaController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create([FromBody] SocialMediaPostRequest req)
     {
         if (string.IsNullOrWhiteSpace(req.Platform))
@@ -133,6 +134,7 @@ public class SocialMediaController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Update(int id, [FromBody] SocialMediaPostRequest req)
     {
         var patch = new Dictionary<string, object?>();
@@ -181,8 +183,12 @@ public class SocialMediaController(SupabaseService db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Delete(int id, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         var deleted = await db.DeleteAsync("social_media_posts", $"post_id=eq.{id}");
         if (!deleted) return BadRequest(new { message = "Unable to delete social media post." });
         return NoContent();

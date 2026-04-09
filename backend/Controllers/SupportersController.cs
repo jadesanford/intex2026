@@ -7,7 +7,7 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "InternalStaff")]
 public class SupportersController(SupabaseService db) : ControllerBase
 {
     private async Task<int> NextSupporterId()
@@ -66,6 +66,7 @@ public class SupportersController(SupabaseService db) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create([FromBody] SupporterRequest req)
     {
         var result = await db.InsertAsync<Supporter>("supporters", new
@@ -91,6 +92,7 @@ public class SupportersController(SupabaseService db) : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Update(int id, [FromBody] SupporterRequest req)
     {
         var result = await db.UpdateAsync<Supporter>("supporters", $"supporter_id=eq.{id}", new
@@ -116,8 +118,11 @@ public class SupportersController(SupabaseService db) : ControllerBase
 
     [HttpDelete("{id}")]
     [Authorize(Policy = "AdminOnly")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, [FromBody] DeleteRequest req)
     {
+        if (req?.Confirm != "DELETE")
+            return BadRequest(new { message = "Deletion must be confirmed by providing 'confirm': 'DELETE' in the request body." });
+
         var deleted = await db.DeleteAsync("supporters", $"supporter_id=eq.{id}");
         if (!deleted)
             return BadRequest(new { message = "Unable to delete supporter. They may have related donations, a linked login account, or database constraints prevented removal." });

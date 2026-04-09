@@ -480,3 +480,5 @@ public record EducationRecordRequest(
 public record InterventionPlanRequest(
     int? ResidentId, string? PlanCategory, string? PlanDescription, string? ServicesProvided,
     decimal? TargetValue, string? TargetDate, string? Status, string? CaseConferenceDate);
+
+public record DeleteRequest(string Confirm);
