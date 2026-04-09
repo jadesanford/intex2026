@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "pipeline_id": "education-progress-forecast",
+    "display_name": "Education progress forecast",
+    "task": "binary_classification",
+    "generated_at_utc": "2026-04-09T17:43:07.564924+00:00"
+  },
+  "metrics": {
+    "holdout_roc_auc": 0.7876811594202899,
+    "holdout_pr_auc": 0.8348431172572177
+  },
+  "charts": [
+    {
+      "id": "education-progress-forecast-imp",
+      "type": "bar_horizontal",
+      "title": "Top predictive drivers (Random Forest importance)",
+      "labels": [
+        "num__progress_percent",
+        "num__attendance_rate",
+        "num__h_sleep_quality_score",
+        "num__h_nutrition_score",
+        "num__h_general_health_score",
+        "cat__education_level_Secondary",
+        "cat__education_level_Primary",
+        "num__safehouse_id",
+        "cat__education_level_Vocational",
+        "cat__education_level_CollegePrep"
+      ],
+      "values": [
+        0.4200862661789687,
+        0.17231045117792682,
+        0.03635587389250311,
+        0.03631919522888555,
+        0.027827029769102136,
+        0.02355494215682834,
+        0.020189987916654193,
+        0.019174681803781776,
+        0.017103654854399245,
+        0.011216778813878179
+      ],
+      "value_label": "importance"
+    },
+    {
+      "id": "education-progress-forecast-coef",
+      "type": "bar_horizontal",
+      "title": "Top explanatory associations (logistic |coefficient|)",
+      "labels": [
+        "num__progress_percent",
+        "cat__present_age_14 Years 4 months",
+        "cat__present_age_16 Years 11 months",
+        "cat__present_age_17 Years 6 months",
+        "cat__present_age_13 Years 0 months",
+        "cat__length_of_stay_1 Years 9 months",
+        "cat__length_of_stay_0 Years 7 months",
+        "cat__length_of_stay_1 Years 8 months",
+        "cat__present_age_16 Years 1 months",
+        "cat__length_of_stay_0 Years 10 months"
+      ],
+      "values": [
+        1.6898567278414351,
+        1.4424761658466074,
+        1.2549443826375566,
+        1.13104202940515,
+        0.9890701094041966,
+        0.984475786246928,
+        0.9330893280398956,
+        0.7786572141931997,
+        0.7591124247838957,
+        0.7552237255251217
+      ],
+      "value_label": "|coef|"
+    },
+    {
+      "id": "education-progress-forecast-proba",
+      "type": "histogram",
+      "title": "Distribution of predicted scores (holdout)",
+      "bin_edges": [
+        0.01,
+        0.057375,
+        0.10475,
+        0.152125,
+        0.1995,
+        0.246875,
+        0.29425,
+        0.341625,
+        0.389,
+        0.436375,
+        0.48375,
+        0.5311250000000001,
+        0.5785,
+        0.625875,
+        0.67325,
+        0.7206250000000001,
+        0.768,
+        0.815375,
+        0.86275,
+        0.9101250000000001,
+        0.9575
+      ],
+      "counts": [
+        9,
+        13,
+        6,
+        6,
+        11,
+        8,
+        2,
+        8,
+        3,
+        3,
+        3,
+        4,
+        4,
+        1,
+        4,
+        6,
+        6,
+        7,
+        5,
+        10
+      ]
+    }
+  ],
+  "insights": [
+    "Flags residents at risk of stalled education progress (next-period stall proxy).",
+    "The random forest puts the most weight on **num__progress_percent** when ranking stalled or flat progress versus prior record.",
+    "The logistic model associates higher **num__progress_percent** with increases odds of the positive class (linear association, not necessarily causal)."
+  ],
+  "rows_sample": [
+    {
+      "y_true": 1,
+      "score": 0.955
+    },
+    {
+      "y_true": 0,
+      "score": 0.5325
+    },
+    {
+      "y_true": 1,
+      "score": 0.7275
+    },
+    {
+      "y_true": 1,
+      "score": 0.8725
+    },
+    {
+      "y_true": 1,
+      "score": 0.8125
+    },
+    {
+      "y_true": 1,
+      "score": 0.725
+    },
+    {
+      "y_true": 1,
+      "score": 0.9225
+    },
+    {
+      "y_true": 1,
+      "score": 0.21
+    },
+    {
+      "y_true": 0,
+      "score": 0.255
+    },
+    {
+      "y_true": 1,
+      "score": 0.075
+    },
+    {
+      "y_true": 1,
+      "score": 0.8225
+    },
+    {
+      "y_true": 0,
+      "score": 0.16
+    },
+    {
+      "y_true": 0,
+      "score": 0.6275
+    },
+    {
+      "y_true": 1,
+      "score": 0.94
+    },
+    {
+      "y_true": 1,
+      "score": 0.0375
+    }
+  ],
+  "export_path": "C:\\Users\\hoope\\OneDrive\\Desktop\\ml-pipelines\\ml-pipelines\\artifacts\\dashboard_exports\\education-progress-forecast.json"
+}

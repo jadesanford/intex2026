@@ -57,7 +57,19 @@ public class SupabaseService
                 _logger?.LogWarning("Supabase GET {Table} failed ({Status}): {Body}", table, (int)res.StatusCode, json);
                 return [];
             }
-            return JsonSerializer.Deserialize<List<T>>(SanitizeJson(json), _opts) ?? [];
+            var payload = SanitizeJson(json);
+            try
+            {
+                return JsonSerializer.Deserialize<List<T>>(payload, _opts) ?? [];
+            }
+            catch (JsonException jex)
+            {
+                var snippet = payload.Length > 400 ? payload[..400] + "…" : payload;
+                _logger?.LogWarning(jex, "Supabase JSON deserialize failed for {Table} → {Type}: {Snippet}", table, typeof(T).Name, snippet);
+                Console.Error.WriteLine(
+                    $"[SupabaseService] Deserialize {typeof(T).Name} from {table}: {jex.Message}. Snippet: {snippet}");
+                return [];
+            }
         }
         catch (Exception ex)
         {

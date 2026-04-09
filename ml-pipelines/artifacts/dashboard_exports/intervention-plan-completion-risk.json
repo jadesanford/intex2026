@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "pipeline_id": "intervention-plan-completion-risk",
+    "display_name": "Intervention plan completion risk",
+    "task": "binary_classification",
+    "generated_at_utc": "2026-04-09T17:43:26.530349+00:00"
+  },
+  "metrics": {
+    "holdout_roc_auc": 0.4087837837837838,
+    "holdout_pr_auc": 0.8333008084531053
+  },
+  "charts": [
+    {
+      "id": "intervention-plan-completion-risk-imp",
+      "type": "bar_horizontal",
+      "title": "Top predictive drivers (Random Forest importance)",
+      "labels": [
+        "num__days_to_target",
+        "num__safehouse_id",
+        "cat__case_category_Surrendered",
+        "cat__current_risk_level_High",
+        "cat__present_age_13 Years 2 months",
+        "cat__case_category_Abandoned",
+        "cat__plan_category_Safety",
+        "cat__current_risk_level_Low",
+        "cat__initial_risk_level_Medium",
+        "cat__plan_category_Education"
+      ],
+      "values": [
+        0.12530865722593326,
+        0.10076580147574436,
+        0.052129566438142205,
+        0.029873737656067753,
+        0.02948801450424237,
+        0.027379856310821092,
+        0.02668153418089272,
+        0.026550950994498754,
+        0.02641998493976566,
+        0.02331454030873617
+      ],
+      "value_label": "importance"
+    },
+    {
+      "id": "intervention-plan-completion-risk-coef",
+      "type": "bar_horizontal",
+      "title": "Top explanatory associations (logistic |coefficient|)",
+      "labels": [
+        "cat__present_age_13 Years 2 months",
+        "cat__present_age_13 Years 7 months",
+        "cat__length_of_stay_1 Years 4 months",
+        "cat__length_of_stay_0 Years 11 months",
+        "cat__present_age_17 Years 11 months",
+        "cat__length_of_stay_2 Years 9 months",
+        "cat__initial_risk_level_Critical",
+        "cat__present_age_18 Years 4 months",
+        "cat__length_of_stay_1 Years 11 months",
+        "cat__present_age_16 Years 8 months"
+      ],
+      "values": [
+        1.5795106804423165,
+        0.9741814250952101,
+        0.9741814250952101,
+        0.9318101453310155,
+        0.9195534464589042,
+        0.9195534464589042,
+        0.8875808155606554,
+        0.822715443035966,
+        0.8036779278353293,
+        0.7836690982697523
+      ],
+      "value_label": "|coef|"
+    },
+    {
+      "id": "intervention-plan-completion-risk-proba",
+      "type": "histogram",
+      "title": "Distribution of predicted scores (holdout)",
+      "bin_edges": [
+        0.33975029239928195,
+        0.366391377760332,
+        0.39303246312138207,
+        0.4196735484824321,
+        0.44631463384348213,
+        0.4729557192045322,
+        0.49959680456558225,
+        0.5262378899266323,
+        0.5528789752876824,
+        0.5795200606487324,
+        0.6061611460097824,
+        0.6328022313708326,
+        0.6594433167318825,
+        0.6860844020929326,
+        0.7127254874539827,
+        0.7393665728150327,
+        0.7660076581760829,
+        0.7926487435371328,
+        0.8192898288981829,
+        0.8459309142592331,
+        0.8725719996202831
+      ],
+      "counts": [
+        1,
+        0,
+        0,
+        2,
+        2,
+        2,
+        1,
+        3,
+        1,
+        1,
+        0,
+        3,
+        0,
+        4,
+        2,
+        4,
+        6,
+        4,
+        3,
+        6
+      ]
+    }
+  ],
+  "insights": [
+    "Identifies intervention plans at risk of missing completion relative to target dates.",
+    "The random forest puts the most weight on **num__days_to_target** when ranking plan still at risk of incompletion.",
+    "The logistic model associates higher **cat__present_age_13 Years 2 months** with decreases odds of the positive class (linear association, not necessarily causal)."
+  ],
+  "rows_sample": [
+    {
+      "y_true": 1,
+      "score": 0.48690348225327273
+    },
+    {
+      "y_true": 1,
+      "score": 0.586673636168789
+    },
+    {
+      "y_true": 0,
+      "score": 0.8379978552582634
+    },
+    {
+      "y_true": 1,
+      "score": 0.6458831673879669
+    },
+    {
+      "y_true": 1,
+      "score": 0.4463276268361755
+    },
+    {
+      "y_true": 1,
+      "score": 0.7593648508557699
+    },
+    {
+      "y_true": 0,
+      "score": 0.7003263355740764
+    },
+    {
+      "y_true": 1,
+      "score": 0.5592020580479921
+    },
+    {
+      "y_true": 1,
+      "score": 0.8567694057854406
+    },
+    {
+      "y_true": 1,
+      "score": 0.7889348732283064
+    },
+    {
+      "y_true": 1,
+      "score": 0.7296383012932649
+    },
+    {
+      "y_true": 1,
+      "score": 0.6944169233567553
+    },
+    {
+      "y_true": 1,
+      "score": 0.8476397137309024
+    },
+    {
+      "y_true": 1,
+      "score": 0.702210582170152
+    },
+    {
+      "y_true": 1,
+      "score": 0.8608327390532351
+    }
+  ],
+  "export_path": "C:\\Users\\hoope\\OneDrive\\Desktop\\ml-pipelines\\ml-pipelines\\artifacts\\dashboard_exports\\intervention-plan-completion-risk.json"
+}

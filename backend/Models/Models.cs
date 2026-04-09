@@ -335,6 +335,88 @@ public class SafehouseMonthlyMetric
     public string? Notes { get; set; }
 }
 
+/// <summary>Precomputed ML output table written by Python inference jobs.</summary>
+public class DonorChurnPrediction
+{
+    [JsonPropertyName("supporter_id")] public int SupporterId { get; set; }
+    [JsonPropertyName("churn_probability")] public decimal? ChurnProbability { get; set; }
+    [JsonPropertyName("churn_prediction")] public int? ChurnPrediction { get; set; }
+    [JsonPropertyName("risk_level")] public string? RiskLevel { get; set; }
+    [JsonPropertyName("scored_at")] public DateTime? ScoredAt { get; set; }
+    [JsonPropertyName("model_version")] public string? ModelVersion { get; set; }
+}
+
+public class CaseEscalationPredictionRow
+{
+    [JsonPropertyName("resident_id")] public int ResidentId { get; set; }
+    [JsonPropertyName("incident_probability")] public decimal? IncidentProbability { get; set; }
+    [JsonPropertyName("incident_prediction")] public int? IncidentPrediction { get; set; }
+    [JsonPropertyName("risk_tier")] public string? RiskTier { get; set; }
+    [JsonPropertyName("scored_at")] public DateTime? ScoredAt { get; set; }
+    [JsonPropertyName("model_version")] public string? ModelVersion { get; set; }
+}
+
+public class ReintegrationPredictionRow
+{
+    [JsonPropertyName("resident_id")] public int ResidentId { get; set; }
+    [JsonPropertyName("success_probability")] public decimal? SuccessProbability { get; set; }
+    [JsonPropertyName("success_prediction")] public int? SuccessPrediction { get; set; }
+    [JsonPropertyName("scored_at")] public DateTime? ScoredAt { get; set; }
+    [JsonPropertyName("model_version")] public string? ModelVersion { get; set; }
+}
+
+public class EducationProgressPredictionRow
+{
+    [JsonPropertyName("education_record_id")] public int EducationRecordId { get; set; }
+    [JsonPropertyName("resident_id")] public int ResidentId { get; set; }
+    [JsonPropertyName("record_date")] public string? RecordDate { get; set; }
+    [JsonPropertyName("predicted_progress")] public decimal? PredictedProgress { get; set; }
+    [JsonPropertyName("scored_at")] public DateTime? ScoredAt { get; set; }
+    [JsonPropertyName("model_version")] public string? ModelVersion { get; set; }
+}
+
+public class HealthAlertPredictionRow
+{
+    [JsonPropertyName("resident_id")] public int ResidentId { get; set; }
+    [JsonPropertyName("deterioration_probability")] public decimal? DeteriorationProbability { get; set; }
+    [JsonPropertyName("deterioration_prediction")] public int? DeteriorationPrediction { get; set; }
+    [JsonPropertyName("risk_level")] public string? RiskLevel { get; set; }
+    [JsonPropertyName("scored_at")] public DateTime? ScoredAt { get; set; }
+    [JsonPropertyName("model_version")] public string? ModelVersion { get; set; }
+}
+
+public class HomeVisitationPredictionRow
+{
+    [JsonPropertyName("visitation_id")] public int VisitationId { get; set; }
+    [JsonPropertyName("resident_id")] public int ResidentId { get; set; }
+    [JsonPropertyName("followup_priority_probability")] public decimal? FollowupPriorityProbability { get; set; }
+    [JsonPropertyName("followup_priority_prediction")] public int? FollowupPriorityPrediction { get; set; }
+    [JsonPropertyName("priority_tier")] public string? PriorityTier { get; set; }
+    [JsonPropertyName("scored_at")] public DateTime? ScoredAt { get; set; }
+    [JsonPropertyName("model_version")] public string? ModelVersion { get; set; }
+}
+
+public class InterventionPlanPredictionRow
+{
+    [JsonPropertyName("plan_id")] public int PlanId { get; set; }
+    [JsonPropertyName("resident_id")] public int ResidentId { get; set; }
+    [JsonPropertyName("completion_risk_probability")] public decimal? CompletionRiskProbability { get; set; }
+    [JsonPropertyName("completion_risk_prediction")] public int? CompletionRiskPrediction { get; set; }
+    [JsonPropertyName("risk_tier")] public string? RiskTier { get; set; }
+    [JsonPropertyName("scored_at")] public DateTime? ScoredAt { get; set; }
+    [JsonPropertyName("model_version")] public string? ModelVersion { get; set; }
+}
+
+public class SafehouseStrainPredictionRow
+{
+    [JsonPropertyName("safehouse_id")] public int SafehouseId { get; set; }
+    [JsonPropertyName("strain_forecast_value")] public decimal? StrainForecastValue { get; set; }
+    [JsonPropertyName("strain_probability")] public decimal? StrainProbability { get; set; }
+    [JsonPropertyName("strain_prediction")] public int? StrainPrediction { get; set; }
+    [JsonPropertyName("scored_at")] public DateTime? ScoredAt { get; set; }
+    [JsonPropertyName("model_version")] public string? ModelVersion { get; set; }
+}
+
 public class PublicImpactSnapshot
 {
     public int SnapshotId { get; set; }

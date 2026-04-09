@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "pipeline_id": "donor-churn-prediction",
+    "display_name": "Donor churn prediction",
+    "task": "binary_classification",
+    "generated_at_utc": "2026-04-09T17:42:54.495845+00:00"
+  },
+  "metrics": {
+    "holdout_roc_auc": 0.4444444444444444,
+    "holdout_pr_auc": 0.6329645662978998
+  },
+  "charts": [
+    {
+      "id": "donor-churn-prediction-imp",
+      "type": "bar_horizontal",
+      "title": "Top predictive drivers (Random Forest importance)",
+      "labels": [
+        "cat__supporter_type_InKindDonor",
+        "cat__region_Luzon",
+        "cat__acquisition_channel_SocialMedia",
+        "cat__supporter_type_SocialMediaAdvocate",
+        "cat__acquisition_channel_WordOfMouth",
+        "cat__supporter_type_MonetaryDonor",
+        "cat__region_Mindanao",
+        "cat__acquisition_channel_Website",
+        "cat__relationship_type_Local",
+        "cat__region_Visayas"
+      ],
+      "values": [
+        0.08846946647215262,
+        0.0815141624305033,
+        0.07008815995502932,
+        0.06281821178270143,
+        0.05962597372629422,
+        0.05776208851991284,
+        0.05464900301920765,
+        0.05254441776673252,
+        0.04892537560891672,
+        0.046865908743832264
+      ],
+      "value_label": "importance"
+    },
+    {
+      "id": "donor-churn-prediction-coef",
+      "type": "bar_horizontal",
+      "title": "Top explanatory associations (logistic |coefficient|)",
+      "labels": [
+        "cat__supporter_type_InKindDonor",
+        "cat__acquisition_channel_SocialMedia",
+        "cat__country_USA",
+        "cat__acquisition_channel_Website",
+        "cat__acquisition_channel_PartnerReferral",
+        "cat__acquisition_channel_Church",
+        "cat__supporter_type_PartnerOrganization",
+        "cat__region_Luzon",
+        "cat__supporter_type_Volunteer",
+        "cat__status_Inactive"
+      ],
+      "values": [
+        0.6806649831318904,
+        0.5371579274201962,
+        0.5159553057947084,
+        0.4880912259246584,
+        0.4576621658589307,
+        0.4523189171787333,
+        0.43947202012634373,
+        0.4348817630231093,
+        0.4164308859935841,
+        0.3910911246420836
+      ],
+      "value_label": "|coef|"
+    },
+    {
+      "id": "donor-churn-prediction-proba",
+      "type": "histogram",
+      "title": "Distribution of predicted scores (holdout)",
+      "bin_edges": [
+        0.3175,
+        0.350375,
+        0.38325,
+        0.416125,
+        0.449,
+        0.481875,
+        0.51475,
+        0.547625,
+        0.5805,
+        0.613375,
+        0.64625,
+        0.679125,
+        0.712,
+        0.744875,
+        0.77775,
+        0.810625,
+        0.8435,
+        0.876375,
+        0.90925,
+        0.942125,
+        0.975
+      ],
+      "counts": [
+        2,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        1,
+        2,
+        0,
+        2,
+        0,
+        1
+      ]
+    }
+  ],
+  "insights": [
+    "Estimates probability a supporter will not give again within 90 days (fundraising stewardship).",
+    "The random forest puts the most weight on **cat__supporter_type_InKindDonor** when ranking churn (no recent gift in window).",
+    "The logistic model associates higher **cat__supporter_type_InKindDonor** with increases odds of the positive class (linear association, not necessarily causal)."
+  ],
+  "rows_sample": [
+    {
+      "y_true": 0,
+      "score": 0.3175
+    },
+    {
+      "y_true": 1,
+      "score": 0.34430273874032935
+    },
+    {
+      "y_true": 0,
+      "score": 0.435902169479505
+    },
+    {
+      "y_true": 0,
+      "score": 0.8234444444444443
+    },
+    {
+      "y_true": 1,
+      "score": 0.535
+    },
+    {
+      "y_true": 1,
+      "score": 0.49844444444444447
+    },
+    {
+      "y_true": 1,
+      "score": 0.8819474283044743
+    },
+    {
+      "y_true": 0,
+      "score": 0.8374046415661232
+    },
+    {
+      "y_true": 1,
+      "score": 0.7615266362252663
+    },
+    {
+      "y_true": 1,
+      "score": 0.7181683046041445
+    },
+    {
+      "y_true": 1,
+      "score": 0.6863709677419355
+    },
+    {
+      "y_true": 1,
+      "score": 0.7463709677419356
+    },
+    {
+      "y_true": 0,
+      "score": 0.9077707006369427
+    },
+    {
+      "y_true": 1,
+      "score": 0.975
+    },
+    {
+      "y_true": 0,
+      "score": 0.7825
+    }
+  ],
+  "export_path": "C:\\Users\\hoope\\OneDrive\\Desktop\\ml-pipelines\\ml-pipelines\\artifacts\\dashboard_exports\\donor-churn-prediction.json"
+}

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using OpenArms.Api.Services;
@@ -14,11 +15,15 @@ var aspNetCoreUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
 
 if (string.IsNullOrWhiteSpace(iisAssignedPort) && string.IsNullOrWhiteSpace(aspNetCoreUrls))
 {
-    var port = configuredPort ?? "8082";
+    var port = configuredPort ?? "5215";
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(o =>
+{
+    o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
@@ -127,7 +132,11 @@ if (!app.Environment.IsDevelopment())
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
-app.UseHttpsRedirection();
+// Only redirect to HTTPS when HTTPS is actually configured. Dev runs HTTP-only (see launchSettings);
+// UseHttpsRedirection here breaks /api calls from the Vite proxy and logs "Failed to determine the https port".
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

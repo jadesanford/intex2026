@@ -1,0 +1,215 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "pipeline_id": "safehouse-capacity-strain-forecast",
+    "display_name": "Safehouse capacity & strain",
+    "task": "regression_plus_binary",
+    "generated_at_utc": "2026-04-09T17:43:00.347581+00:00"
+  },
+  "metrics": {
+    "holdout_mae": 0.31833512272373227,
+    "holdout_r2": 2.6320261990897542e-05,
+    "strain_holdout_roc_auc": null
+  },
+  "charts": [
+    {
+      "id": "safehouse-capacity-strain-forecast-yhat",
+      "type": "histogram",
+      "title": "Distribution of predictions (holdout)",
+      "bin_edges": [
+        -0.03337055239400215,
+        0.06534490668804509,
+        0.1640603657700923,
+        0.2627758248521395,
+        0.3614912839341868,
+        0.46020674301623404,
+        0.5589222020982813,
+        0.6576376611803285,
+        0.7563531202623758,
+        0.855068579344423,
+        0.9537840384264703,
+        1.0524994975085173,
+        1.1512149565905645,
+        1.2499304156726119,
+        1.348645874754659,
+        1.4473613338367064,
+        1.5460767929187536,
+        1.6447922520008007,
+        1.743507711082848,
+        1.8422231701648952,
+        1.9409386292469426
+      ],
+      "counts": [
+        50,
+        22,
+        8,
+        6,
+        7,
+        0,
+        4,
+        5,
+        2,
+        2,
+        2,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "safehouse-capacity-strain-forecast-resid",
+      "type": "histogram",
+      "title": "Residuals (y - y_hat)",
+      "bin_edges": [
+        -1.9409386292469426,
+        -1.7089548811375248,
+        -1.476971133028107,
+        -1.2449873849186894,
+        -1.0130036368092716,
+        -0.7810198886998538,
+        -0.5490361405904363,
+        -0.31705239248101846,
+        -0.08506864437160067,
+        0.1469151037378169,
+        0.37889885184723493,
+        0.6108825999566525,
+        0.8428663480660701,
+        1.074850096175488,
+        1.3068338442849057,
+        1.5388175923943237,
+        1.7708013405037413,
+        2.002785088613159,
+        2.2347688367225764,
+        2.466752584831995,
+        2.698736332941412
+      ],
+      "counts": [
+        1,
+        0,
+        0,
+        1,
+        2,
+        6,
+        7,
+        23,
+        54,
+        3,
+        0,
+        4,
+        5,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "safehouse-strain-imp",
+      "type": "bar_horizontal",
+      "title": "Strain classifier \u2014 top importances",
+      "labels": [
+        "num__active_residents",
+        "num__avg_education_progress",
+        "num__avg_health_score",
+        "num__process_recording_count",
+        "num__home_visitation_count",
+        "num__incident_count",
+        "num__capacity_girls",
+        "num__current_occupancy",
+        "cat__region_Luzon",
+        "cat__region_Mindanao"
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "value_label": "value"
+    }
+  ],
+  "insights": [
+    "Forecasts next-period incident load (regression) and classifies high strain (RF).",
+    "Holdout MAE is **0.318** and R\u00b2 is **0.000**. Use with caution for planning; validate on fresh months.",
+    "Strain classifier complements the regression by flagging binary high-load months for operations alerts.",
+    "Strain (high-load) classifier holdout ROC-AUC \u2248 **nan** when two classes exist."
+  ],
+  "rows_sample": [
+    {
+      "y_true": 1.0,
+      "y_pred": -0.028272302676595217
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": 0.010741066141724038
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": -0.021967549557303657
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": 0.3447879822823355
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": 0.010741066141724038
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": 0.010741066141724038
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": 0.046464511252565996
+    },
+    {
+      "y_true": 2.0,
+      "y_pred": 0.7613714742160373
+    },
+    {
+      "y_true": 3.0,
+      "y_pred": 0.30126366705858804
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": 0.010741066141724038
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": 0.023443798937803413
+    },
+    {
+      "y_true": 1.0,
+      "y_pred": 0.20641362382848813
+    },
+    {
+      "y_true": 1.0,
+      "y_pred": 0.06618768982638382
+    },
+    {
+      "y_true": 1.0,
+      "y_pred": 0.6967082530261314
+    },
+    {
+      "y_true": 0.0,
+      "y_pred": 0.05743669405842028
+    }
+  ],
+  "export_path": "C:\\Users\\hoope\\OneDrive\\Desktop\\ml-pipelines\\ml-pipelines\\artifacts\\dashboard_exports\\safehouse-capacity-strain-forecast.json"
+}
