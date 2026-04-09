@@ -465,7 +465,7 @@ export default function MlPipelinesSection() {
           marginBottom: 20,
           borderRadius: 10,
           border: '1px solid var(--border)',
-          background: '#fafafa',
+          background: 'var(--surface-2)',
           padding: '12px 16px 20px',
         }}
       >
@@ -486,7 +486,7 @@ export default function MlPipelinesSection() {
               border: '1px solid var(--border)',
               borderRadius: 8,
               padding: '8px 10px',
-              background: 'white',
+              background: 'var(--surface-1)',
               fontSize: 14,
               color: 'var(--text)',
             }}

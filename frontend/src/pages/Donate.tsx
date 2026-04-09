@@ -439,7 +439,7 @@ export default function Donate({ lang }: { lang: 'en' | 'tl' }) {
                 placeholder="e.g. 123"
               />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: isRecurring ? 'rgba(193,105,79,0.06)' : '#f9fafb', borderRadius: 10, border: '1px solid var(--border)', cursor: 'pointer', marginBottom: 16 }}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: isRecurring ? 'rgba(193,105,79,0.06)' : 'var(--surface-2)', borderRadius: 10, border: '1px solid var(--border)', cursor: 'pointer', marginBottom: 16 }}
               onClick={() => setIsRecurring(r => !r)}
               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsRecurring(r => !r) } }}
               role="button"
