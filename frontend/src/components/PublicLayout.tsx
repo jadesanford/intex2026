@@ -13,12 +13,14 @@ const t = {
   en: {
     cookieMsg: 'We use essential cookies to keep the site working. You can also allow optional analytics-style storage.',
     accept: 'Accept All',
-    essentialOnly: 'Essential Only'
+    essentialOnly: 'Essential Only',
+    stories: 'Stories'
   },
   tl: {
     cookieMsg: 'Gumagamit kami ng mahahalagang cookies upang mapatakbo ang site. Maaari din ninyong payagan ang optional analytics-style storage.',
     accept: 'Tanggapin Lahat',
-    essentialOnly: 'Mahahalaga Lamang'
+    essentialOnly: 'Mahahalaga Lamang',
+    stories: 'Mga Kuwento'
   }
 }
 
@@ -62,7 +64,7 @@ export default function PublicLayout({ children }: Props) {
             Our Impact
           </Link>
           <Link to="/awareness" style={{ color: 'var(--footer-link)' }}>
-            Stories
+            {tx.stories}
           </Link>
           <Link to="/donate" style={{ color: 'var(--footer-link)' }}>
             Donate
