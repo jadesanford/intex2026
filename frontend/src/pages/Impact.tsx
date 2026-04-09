@@ -63,7 +63,7 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
       <section
         style={{
           backgroundImage:
-            "linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.70)), url('/impact-hero.png')",
+            "linear-gradient(rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.28)), url('/impact-hero.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -72,7 +72,7 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
           color: 'white',
         }}
       >
-        <h1 className="impact-title">{tx.title}</h1>
+        <h1 className="impact-title" style={{ color: 'var(--text)' }}>{tx.title}</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
       </section>
 
@@ -98,11 +98,11 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
             <div className="impact-chart-wrap">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-3)" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} minTickGap={24} />
                 <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `₱${v}K`} />
                 <Tooltip formatter={v => [`₱${Number(v ?? 0)}K`, 'Total']} />
-                <Area type="monotone" dataKey="total" stroke="#c1694f" fill="rgba(193,105,79,0.1)" strokeWidth={2} />
+                <Area type="monotone" dataKey="total" stroke="#c1694f" fill="rgba(193,105,79,0.18)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -152,7 +152,7 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
                     <span style={{ color: 'var(--text-muted)' }}>Capacity: {s.capacityGirls ?? 0}</span>
                     <span style={{ color: 'var(--terracotta)', fontWeight: 600 }}>{s.currentOccupancy ?? 0} in care</span>
                   </div>
-                  <div style={{ height: 4, background: '#f3f4f6', borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{ height: 4, background: 'var(--surface-3)', borderRadius: 2, overflow: 'hidden' }}>
                     <div style={{
                       height: '100%', borderRadius: 2,
                       background: pct > 85 ? 'var(--danger)' : 'var(--terracotta)',

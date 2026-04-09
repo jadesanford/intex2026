@@ -10,6 +10,8 @@ out-tsc
 frontend/dist/
 backend/deploy/
 backend/publish/
+backend/bin/
+backend/obj/
 backend/appsettings.Development.json
 
 # dependencies

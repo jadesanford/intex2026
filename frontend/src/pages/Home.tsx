@@ -90,7 +90,7 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
       {/* Hero */}
       <section style={{
         position: 'relative', overflow: 'hidden',
-        background: 'linear-gradient(135deg, var(--beige) 0%, #fff 60%)',
+        background: 'linear-gradient(135deg, var(--beige) 0%, var(--surface-1) 60%)',
         padding: '100px 24px 80px', textAlign: 'center'
       }}>
         <img
@@ -171,7 +171,7 @@ export default function Home({ lang }: { lang: 'en' | 'tl' }) {
       </section>
 
       {/* Mission */}
-      <section className="home-mission-section" style={{ background: 'white' }}>
+      <section className="home-mission-section" style={{ background: 'var(--surface-1)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <div className="mission-grid">
             <div className="mission-content">

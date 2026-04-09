@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 import PublicSiteNav from './PublicSiteNav'
+import { initClarityIfConsented } from '../lib/clarity'
 
 interface Props {
   children: React.ReactNode
@@ -29,6 +30,7 @@ export default function PublicLayout({ children }: Props) {
   const setConsent = (value: 'all' | 'essential') => {
     localStorage.setItem('oa_cookie_consent', value)
     setCookieConsent(value)
+    if (value === 'all') initClarityIfConsented()
   }
 
   return (
@@ -39,33 +41,33 @@ export default function PublicLayout({ children }: Props) {
 
       <footer
         style={{
-          background: 'var(--navy)',
-          color: 'rgba(255,255,255,0.7)',
+          background: 'var(--footer-bg)',
+          color: 'var(--footer-text)',
           padding: '40px 24px',
           textAlign: 'center'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
           <Heart size={16} color="var(--terracotta)" fill="var(--terracotta)" />
-          <span style={{ fontFamily: 'Playfair Display, serif', color: 'white', fontSize: 18 }}>Open Arms</span>
+          <span style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text)', fontSize: 18 }}>Open Arms</span>
         </div>
         <p style={{ fontSize: 13, marginBottom: 12 }}>
           Supporting survivors of sexual abuse and trafficking in the Philippines.
         </p>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', fontSize: 13 }}>
-          <Link to="/privacy" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <Link to="/privacy" style={{ color: 'var(--footer-link)' }}>
             Privacy Policy
           </Link>
-          <Link to="/impact" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <Link to="/impact" style={{ color: 'var(--footer-link)' }}>
             Our Impact
           </Link>
-          <Link to="/awareness" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <Link to="/awareness" style={{ color: 'var(--footer-link)' }}>
             Stories
           </Link>
-          <Link to="/donate" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <Link to="/donate" style={{ color: 'var(--footer-link)' }}>
             Donate
           </Link>
-          <a href="mailto:info@openarms.org" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <a href="mailto:info@openarms.org" style={{ color: 'var(--footer-link)' }}>
             Contact
           </a>
         </div>

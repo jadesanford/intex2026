@@ -88,7 +88,7 @@ export default function InKindLineItemsEditor({
               border: '1px solid var(--border)',
               borderRadius: 8,
               padding: 12,
-              background: '#fafafa'
+              background: 'var(--surface-2)'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>

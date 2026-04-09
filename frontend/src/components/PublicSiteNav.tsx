@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Globe, Heart, Menu, X } from 'lucide-react'
+import { Globe, Heart, Menu, Moon, Sun, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
+import { getCookie, setCookie } from '../lib/cookies'
 
 const t = {
   en: {
@@ -37,12 +38,22 @@ export default function PublicSiteNav() {
   const navigate = useNavigate()
   const tx = t[lang]
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => (getCookie('oa_theme') === 'dark' ? 'dark' : 'light'))
 
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+
   const toggleLang = () => setLang(lang === 'en' ? 'tl' : 'en')
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    setCookie('oa_theme', next, { sameSite: 'Lax', path: '/', days: 365 })
+  }
 
   const accountLinks = (
     <>
@@ -93,8 +104,8 @@ export default function PublicSiteNav() {
     <>
       <nav
         style={{
-          background: 'white',
-          borderBottom: '1px solid #e5e7eb',
+          background: 'var(--nav-bg)',
+          borderBottom: '1px solid var(--border)',
           padding: '0 24px',
           display: 'flex',
           alignItems: 'center',
@@ -147,6 +158,26 @@ export default function PublicSiteNav() {
           <Link to="/donate" className="btn btn-primary btn-sm">
             {tx.donate}
           </Link>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'transparent',
+              color: 'var(--text)',
+              border: '1px solid var(--border)',
+              cursor: 'pointer'
+            }}
+          >
+            {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
+          </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <Globe size={16} aria-hidden="true" />
             <button
@@ -220,6 +251,13 @@ export default function PublicSiteNav() {
               <Link to="/donate" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}>
                 {tx.donate}
               </Link>
+              <button
+                type="button"
+                className="public-nav-mobile-link public-nav-mobile-button"
+                onClick={toggleTheme}
+              >
+                {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              </button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
