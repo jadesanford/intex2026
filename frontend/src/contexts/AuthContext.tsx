@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { flushSync } from 'react-dom'
 import { login as loginApi } from '../lib/api'
 
 interface User { id: number; username: string; displayName: string; role: string; supporterId?: number }
@@ -43,7 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     localStorage.setItem('oa_token', data.token)
     localStorage.setItem('oa_user', JSON.stringify(u))
-    setUser(u)
+    // So callers (e.g. Google OAuth) can navigate immediately; otherwise RequireDonor still sees user === null.
+    flushSync(() => setUser(u))
   }
 
   const login = async (username: string, password: string) => {

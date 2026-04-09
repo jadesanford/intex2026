@@ -1,8 +1,11 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using OpenArms.Api;
 using OpenArms.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,13 +38,23 @@ var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
     ?? builder.Configuration["Jwt:Key"]
     ?? "";
 
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+var googleConfigured = !string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret);
+
 builder.Services.AddSingleton(new SupabaseService(supabaseUrl, supabaseKey));
 builder.Services.AddSingleton(new AuthService(jwtKey,
     builder.Configuration["Jwt:Issuer"] ?? "OpenArmsApi",
     builder.Configuration["Jwt:Audience"] ?? "OpenArmsClient",
     int.Parse(builder.Configuration["Jwt:ExpiryHours"] ?? "168")));
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+var authenticationBuilder = builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+});
+
+authenticationBuilder
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -54,7 +67,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
+    })
+    .AddCookie(AuthSchemes.ExternalCookie, options =>
+    {
+        options.Cookie.Name = "OpenArms.OAuth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        options.SlidingExpiration = false;
     });
+
+if (googleConfigured)
+{
+    authenticationBuilder.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+    {
+        options.ClientId = googleClientId!;
+        options.ClientSecret = googleClientSecret!;
+        options.SignInScheme = AuthSchemes.ExternalCookie;
+        options.CallbackPath = "/signin-google";
+    });
+}
 
 builder.Services.AddAuthorization(options =>
 {

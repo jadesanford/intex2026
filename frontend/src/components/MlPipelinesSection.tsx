@@ -108,6 +108,8 @@ type MlBundle = {
     lapsing: number
     neverDonated: number
     recentMonthly: MonthlyPoint[]
+    /** Same shape as donorChurnPrediction when API only returns donorChurn */
+    modelRiskByLevel?: { name: string; value: number }[] | null
   }
   caseEscalationRisk: {
     byLevel: { level: string; count: number }[]
@@ -321,7 +323,7 @@ function PipelinePreview({ pipelineId, data }: { pipelineId: string; data: MlBun
       { name: 'Lapsing', value: d.lapsing },
       { name: 'Never donated', value: d.neverDonated },
     ]
-    const modelMix = 'modelRiskByLevel' in d ? d.modelRiskByLevel : null
+    const modelMix = d.modelRiskByLevel ?? null
     const summary =
       modelMix && modelMix.length > 0
         ? modelMix.map((x) =>
