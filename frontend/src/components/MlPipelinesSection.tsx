@@ -116,7 +116,14 @@ type MlBundle = {
     highOrCriticalActive: number
   }
   safehouseCapacityStrainForecast: {
-    locations: { name: string; capacity: number; current: number; utilizationPercent: number }[]
+    locations: {
+      name: string
+      capacity: number
+      current: number
+      utilizationPercent: number
+      strainProbabilityPercent?: number | null
+      strainForecastValue?: number | null
+    }[]
     avgUtilization: number
   }
   donorChurnPrediction: {
