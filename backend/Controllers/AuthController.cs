@@ -7,8 +7,23 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(SupabaseService db, AuthService auth) : ControllerBase
+public class AuthController(
+    SupabaseService db,
+    AuthService auth,
+    IWebHostEnvironment env,
+    IConfiguration configuration) : ControllerBase
 {
+    private void AppendAuthCookie(string token) =>
+        Response.Cookies.Append(
+            AuthSessionCookie.Name,
+            token,
+            AuthSessionCookie.CreateAppendOptions(configuration, env, Request));
+
+    private void ClearAuthCookie() =>
+        Response.Cookies.Delete(
+            AuthSessionCookie.Name,
+            AuthSessionCookie.CreateDeleteOptions(configuration, env, Request));
+
     private static string Esc(string value) => Uri.EscapeDataString(value);
     private static string? NormalizeRegion(string? region)
     {
@@ -43,13 +58,22 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
             return Unauthorized(new { message = "Invalid username or password" });
 
         var token = auth.GenerateToken(user);
+        AppendAuthCookie(token);
         return Ok(new LoginResponse(
-            token,
+            "",
             user.Username,
             user.DisplayName ?? user.Username,
             user.Role,
             user.Id,
             user.SupporterId));
+    }
+
+    [HttpPost("logout")]
+    [AllowAnonymous]
+    public IActionResult Logout()
+    {
+        ClearAuthCookie();
+        return Ok();
     }
 
     [HttpPost("register")]
@@ -146,8 +170,9 @@ public class AuthController(SupabaseService db, AuthService auth) : ControllerBa
             return BadRequest(new { message = "Unable to create account after supporter profile was created." });
 
         var token = auth.GenerateToken(user);
+        AppendAuthCookie(token);
         return Ok(new LoginResponse(
-            token,
+            "",
             user.Username,
             user.DisplayName ?? user.Username,
             user.Role,

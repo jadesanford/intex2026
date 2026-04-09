@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.IdentityModel.Tokens;
 using OpenArms.Api.Services;
 
@@ -36,6 +38,12 @@ builder.Services.AddSingleton(new AuthService(jwtKey,
     builder.Configuration["Jwt:Audience"] ?? "OpenArmsClient",
     int.Parse(builder.Configuration["Jwt:ExpiryHours"] ?? "168")));
 
+// Auth session cookie: HttpOnly JWT (see AuthSessionCookie). Not ASP.NET Identity — there is no ConfigureApplicationCookie here.
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.HttpOnly = HttpOnlyPolicy.Always;
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -48,6 +56,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (string.IsNullOrEmpty(context.Token) &&
+                    context.Request.Cookies.TryGetValue(AuthSessionCookie.Name, out var fromCookie) &&
+                    !string.IsNullOrEmpty(fromCookie))
+                    context.Token = fromCookie;
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -107,6 +126,8 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("AllowFrontend");
+
+app.UseCookiePolicy();
 
 app.Use(async (context, next) =>
 {

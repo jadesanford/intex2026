@@ -210,3 +210,46 @@
 /Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.pdb
 /Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/OpenArms.Api.genruntimeconfig.cache
 /Users/jadesanford/Downloads/IntexCursor copy 2/backend/obj/Debug/net10.0/ref/OpenArms.Api.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/refint/OpenArms.Api.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.pdb
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/web.config
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/OpenArms.Api.staticwebassets.endpoints.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/appsettings.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/OpenArms.Api
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/OpenArms.Api.deps.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/OpenArms.Api.runtimeconfig.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/OpenArms.Api.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/OpenArms.Api.pdb
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/BCrypt.Net-Next.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.AspNetCore.OpenApi.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Abstractions.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Logging.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.IdentityModel.Tokens.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/Microsoft.OpenApi.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/bin/Debug/net10.0/System.IdentityModel.Tokens.Jwt.dll
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.csproj.AssemblyReference.cache
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/rpswa.dswa.cache.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.GeneratedMSBuildEditorConfig.editorconfig
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.AssemblyInfoInputs.cache
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.AssemblyInfo.cs
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.csproj.CoreCompileInputs.cache
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.MvcApplicationPartsAssemblyInfo.cs
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.MvcApplicationPartsAssemblyInfo.cache
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.sourcelink.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/rjimswa.dswa.cache.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/rjsmrazor.dswa.cache.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/rjsmcshtml.dswa.cache.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/scopedcss/bundle/OpenArms.Api.styles.css
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/staticwebassets.build.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/staticwebassets.build.json.cache
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/staticwebassets.development.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/staticwebassets.build.endpoints.json
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/swae.build.ex.cache
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.6F0FF192.Up2Date
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/OpenArms.Api.genruntimeconfig.cache
+/Users/nsaez/Desktop/extra-security/intex2026/backend/obj/Debug/net10.0/ref/OpenArms.Api.dll

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import { login as loginApi } from '../lib/api'
+import { getMe, login as loginApi, logoutRequest } from '../lib/api'
 
 interface User { id: number; username: string; displayName: string; role: string; supporterId?: number }
 function normalizeRole(role: string | undefined) {
@@ -12,7 +12,7 @@ interface AuthCtx {
   loading: boolean
   login: (username: string, password: string) => Promise<void>
   loginWithData: (data: any) => void
-  logout: () => void
+  logout: () => Promise<void>
   /** Internal user with full admin-panel access. */
   isAdmin: boolean
   /** Staff/admin internal user: uses /admin. */
@@ -27,12 +27,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const stored = localStorage.getItem('oa_user')
-    const token = localStorage.getItem('oa_token')
-    if (stored && token) {
-      try { setUser(JSON.parse(stored)) } catch { /* ignore */ }
-    }
-    setLoading(false)
+    let cancelled = false
+    ;(async () => {
+      try {
+        const me = await getMe()
+        if (cancelled) return
+        const u: User = {
+          id: Number(me.id),
+          username: me.username,
+          displayName: me.displayName ?? me.username,
+          role: me.role,
+          supporterId: me.supporterId != null && me.supporterId !== ''
+            ? Number(me.supporterId)
+            : undefined,
+        }
+        setUser(u)
+        localStorage.setItem('oa_user', JSON.stringify(u))
+      } catch {
+        if (!cancelled) {
+          localStorage.removeItem('oa_user')
+          setUser(null)
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
   }, [])
 
   const setUserFromData = (data: any) => {
@@ -41,7 +61,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       displayName: data.displayName, role: data.role,
       supporterId: data.supporterId ?? undefined
     }
-    localStorage.setItem('oa_token', data.token)
     localStorage.setItem('oa_user', JSON.stringify(u))
     setUser(u)
   }
@@ -54,8 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithData = (data: any) => setUserFromData(data)
 
-  const logout = () => {
-    localStorage.removeItem('oa_token')
+  const logout = async () => {
+    try { await logoutRequest() } catch { /* ignore network errors */ }
     localStorage.removeItem('oa_user')
     setUser(null)
     window.location.href = '/'
