@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Heart, AlertCircle } from 'lucide-react'
+import { googleLoginUrl } from '../lib/api'
 
 const t = {
   en: {
@@ -153,7 +154,7 @@ export default function Login({ lang }: { lang: 'en' | 'tl' }) {
             className="btn btn-outline"
             style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: 15, gap: 10, marginBottom: 12 }}
             onClick={() => {
-              window.location.assign('/api/auth/login-google')
+              window.location.assign(googleLoginUrl)
             }}
           >
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
