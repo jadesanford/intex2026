@@ -7,7 +7,18 @@ interface Props {
   trend?: number
 }
 
+function accentIconBackground(accent: string): string {
+  if (accent.startsWith('var(')) {
+    return `color-mix(in srgb, ${accent} 22%, transparent)`
+  }
+  if (accent.startsWith('#') && accent.length === 7) {
+    return `${accent}18`
+  }
+  return accent
+}
+
 export default function StatCard({ label, value, sub, icon, color = 'var(--terracotta)', trend }: Props) {
+  const iconBg = accentIconBackground(color)
   return (
     <div className="card" style={{ position: 'relative', overflow: 'hidden' }}>
       <div style={{
@@ -28,7 +39,7 @@ export default function StatCard({ label, value, sub, icon, color = 'var(--terra
         {icon && (
           <div style={{
             width: 48, height: 48, borderRadius: 12,
-            background: color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', color
+            background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color
           }}>{icon}</div>
         )}
       </div>

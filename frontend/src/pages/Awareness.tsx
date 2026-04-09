@@ -123,14 +123,15 @@ export default function Awareness({ lang }: { lang: 'en' | 'tl' }) {
 
       <section style={{ padding: '0 24px 80px' }}>
         <div
+          className="story-share-panel"
           style={{
             maxWidth: 900,
             margin: '0 auto',
             borderRadius: 18,
-            background: 'var(--navy)',
-            color: 'white',
             padding: '42px 28px',
             textAlign: 'center',
+            border: '1px solid rgba(255,255,255,0.12)',
+            boxShadow: 'var(--card-shadow)',
           }}
         >
           <div style={{ display: 'flex', gap: 22, alignItems: 'center', flexWrap: 'wrap' }}>

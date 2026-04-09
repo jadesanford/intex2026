@@ -243,7 +243,7 @@ export default function SocialMedia() {
             <button key={p} onClick={() => setPlatform(p)} style={{
               padding: '6px 14px', borderRadius: 6, border: '1.5px solid', fontSize: 13, cursor: 'pointer',
               borderColor: platform === p ? 'var(--terracotta)' : 'var(--border)',
-              background: platform === p ? 'var(--beige)' : 'white',
+              background: platform === p ? 'var(--surface-2)' : 'var(--surface-1)',
               color: platform === p ? 'var(--terracotta)' : 'var(--text-muted)', fontWeight: platform === p ? 600 : 400
             }}>{p || 'All'}</button>
           ))}

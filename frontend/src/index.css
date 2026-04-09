@@ -9,6 +9,8 @@
   --beige: #f5f0e8;
   --beige-dark: #ede6d8;
   --sage: #6b8f71;
+  /* Brand navy: always the dark blue (headings in light mode use --navy; see dark overrides). */
+  --brand-navy: #1e2d4a;
   --navy: #1e2d4a;
   --navy-light: #2d4169;
   --text: #2c2c2c;
@@ -32,12 +34,25 @@
   --footer-text: rgba(255,255,255,0.7);
   --footer-link: rgba(255,255,255,0.7);
   --card-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+  --cookie-banner-bg: var(--brand-navy);
+  --admin-sidebar-bg: var(--brand-navy);
+  --admin-main-bg: #f9fafb;
+  --chart-grid: #f0f0f0;
+  --analytics-inset: #fafafa;
+  --btn-on-primary: #ffffff;
+  --sample-banner-bg: #fffbeb;
+  --sample-banner-border: #fcd34d;
+  --sample-banner-text: #92400e;
+  /* Admin dashboard “This Month” / donations KPI accent */
+  --dashboard-this-month-accent: #1e2d4a;
 }
 
 /* Dark mode theme overrides (activated by JS setting data-theme on <html>) */
 :root[data-theme='dark'] {
   --beige: #0b1220;
   --beige-dark: #0f1a2f;
+  /* Light text for headings/body on dark surfaces (--brand-navy stays dark for chrome). */
   --navy: #e5e7eb;
   --navy-light: #cbd5e1;
   --text: #e5e7eb;
@@ -47,7 +62,7 @@
 
   --surface-1: #0b1220;
   --surface-2: #0f1a2f;
-  --surface-3: rgba(255,255,255,0.06);
+  --surface-3: rgba(255,255,255,0.08);
   --overlay: rgba(0,0,0,0.6);
 
   --nav-bg: var(--surface-1);
@@ -55,6 +70,18 @@
   --footer-text: rgba(229,231,235,0.72);
   --footer-link: rgba(229,231,235,0.72);
   --card-shadow: 0 12px 30px rgba(0,0,0,0.35);
+
+  --brand-navy: #111827;
+  --cookie-banner-bg: #0f172a;
+  --admin-sidebar-bg: #0f172a;
+  --admin-main-bg: #0b1220;
+  --chart-grid: rgba(255,255,255,0.1);
+  --analytics-inset: rgba(255,255,255,0.06);
+  --btn-on-primary: #ffffff;
+  --sample-banner-bg: rgba(251, 191, 36, 0.12);
+  --sample-banner-border: rgba(251, 191, 36, 0.35);
+  --sample-banner-text: #fcd34d;
+  --dashboard-this-month-accent: #5e88b8;
 }
 
 body {
@@ -98,7 +125,7 @@ input, select, textarea {
 
 .btn-primary {
   background: var(--terracotta);
-  color: var(--white);
+  color: var(--btn-on-primary);
   border: none;
 }
 .btn-primary:hover { background: var(--terracotta-dark); }
@@ -198,7 +225,7 @@ th {
 }
 td {
   padding: 14px 16px;
-  border-bottom: 1px solid var(--surface-3);
+  border-bottom: 1px solid var(--border);
   color: var(--text);
   vertical-align: middle;
 }
@@ -328,8 +355,8 @@ tbody tr:hover { background: var(--surface-2); }
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--navy);
-  color: white;
+  background: var(--cookie-banner-bg);
+  color: rgba(255, 255, 255, 0.92);
   padding: 16px 24px;
   display: flex;
   align-items: center;
@@ -337,6 +364,43 @@ tbody tr:hover { background: var(--surface-2); }
   gap: 16px;
   z-index: 999;
   font-size: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cookie-banner a {
+  color: #93c5fd;
+}
+
+/* Admin shell */
+.admin-sidebar-inner {
+  background: var(--admin-sidebar-bg);
+}
+
+.admin-main-content {
+  background: var(--admin-main-bg) !important;
+}
+
+/* Story CTA & other panels that should stay “brand dark” in both themes */
+.story-share-panel {
+  background: var(--brand-navy);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.story-share-panel h2 {
+  color: #fff;
+}
+
+/* Analytics sample / warning strip */
+.analytics-sample-banner {
+  background: var(--sample-banner-bg);
+  border-color: var(--sample-banner-border) !important;
+  color: var(--sample-banner-text);
+}
+
+/* ML pipeline preview well */
+.ml-pipeline-preview-well {
+  background: var(--surface-2);
+  border-color: var(--border);
 }
 
 .public-nav-link-btn {
@@ -522,6 +586,18 @@ tbody tr:hover { background: var(--surface-2); }
   .mission-quote-card {
     padding: 28px 20px;
   }
+}
+
+/* Impact page hero: bright clouds in light mode; stronger veil in dark mode */
+.impact-hero-section {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.72)), url('/impact-hero.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+:root[data-theme='dark'] .impact-hero-section {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.4)), url('/impact-hero.png');
 }
 
 .impact-title {

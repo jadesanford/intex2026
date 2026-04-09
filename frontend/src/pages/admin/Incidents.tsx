@@ -166,12 +166,12 @@ export default function Incidents() {
       <div className="card" style={{ marginBottom: 20, padding: 16 }}>
         <div style={{ display: 'flex', gap: 12 }}>
           <select value={filter.severity} onChange={e => setFilter(p => ({ ...p, severity: e.target.value }))}
-            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}>
             <option value="">All Severities</option>
             {['Low', 'Medium', 'High', 'Critical'].map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <select value={filter.resolved} onChange={e => setFilter(p => ({ ...p, resolved: e.target.value }))}
-            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}>
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}>
             <option value="">All Status</option>
             <option value="false">Open</option>
             <option value="true">Resolved</option>

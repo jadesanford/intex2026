@@ -142,14 +142,16 @@ export default function Donors() {
                 padding: '8px 8px 8px 36px',
                 border: '1.5px solid var(--border)',
                 borderRadius: 8,
-                fontSize: 14
+                fontSize: 14,
+                background: 'var(--surface-1)',
+                color: 'var(--text)',
               }}
             />
           </div>
           <select
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value)}
-            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}
           >
             <option value="">All Types</option>
             {[
@@ -168,7 +170,7 @@ export default function Donors() {
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'white' }}
+            style={{ padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 14, background: 'var(--surface-1)', color: 'var(--text)' }}
           >
             <option value="">All Status</option>
             {SUPPORTER_STATUS_OPTIONS.map(s => (

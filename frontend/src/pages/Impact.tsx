@@ -61,15 +61,10 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
   return (
     <div>
       <section
+        className="impact-hero-section"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.28)), url('/impact-hero.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
           padding: '80px 24px 60px',
           textAlign: 'center',
-          color: 'white',
         }}
       >
         <h1 className="impact-title" style={{ color: 'var(--text)' }}>{tx.title}</h1>

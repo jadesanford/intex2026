@@ -35,9 +35,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const sidebarContent = (
     <div
+      className="admin-sidebar-inner"
       style={{
         width: collapsed ? 64 : 240,
-        background: 'var(--navy)',
         minHeight: 0,
         height: '100%',
         display: 'flex',
@@ -169,7 +169,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
         <div className="admin-desktop-sidebar" style={{ display: 'flex', flexShrink: 0 }}>{sidebarContent}</div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0 }}>
-          <main ref={mainContentRef} className="admin-main-content" style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#f9fafb' }}>
+          <main ref={mainContentRef} className="admin-main-content" style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
             {children}
           </main>
         </div>
