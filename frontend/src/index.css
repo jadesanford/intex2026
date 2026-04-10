@@ -33,6 +33,8 @@
   --footer-bg: var(--navy);
   --footer-text: rgba(255,255,255,0.7);
   --footer-link: rgba(255,255,255,0.7);
+  /* Brand line on dark footer — not var(--text), which is dark in light mode */
+  --footer-brand: #e5e7eb;
   --card-shadow: 0 1px 3px rgba(0,0,0,0.05);
 
   --cookie-banner-bg: var(--brand-navy);
@@ -69,6 +71,7 @@
   --footer-bg: #070d18;
   --footer-text: rgba(229,231,235,0.72);
   --footer-link: rgba(229,231,235,0.72);
+  --footer-brand: #e5e7eb;
   --card-shadow: 0 12px 30px rgba(0,0,0,0.35);
 
   --brand-navy: #111827;
@@ -681,8 +684,47 @@ tbody tr:hover { background: var(--surface-2); }
   margin-bottom: 48px;
 }
 
+/* Homepage: annual donor drive (beige band; below mission) */
+.home-donation-drive-section {
+  padding: 72px 24px;
+  background: var(--beige);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.home-donation-progress-track {
+  height: 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--navy) 10%, transparent);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.home-donation-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--terracotta), color-mix(in srgb, var(--sage) 85%, var(--terracotta)));
+  transition: width 0.6s ease-out;
+}
+
 .home-mission-section {
   padding: 80px 24px;
+  background: #ffffff;
+}
+
+:root[data-theme='dark'] .home-mission-section {
+  background: var(--surface-1);
+}
+
+/* Homepage: “Be Part of the Story” CTA */
+.home-story-cta-section {
+  padding: 80px 24px;
+  text-align: center;
+  background: #ffffff;
+}
+
+:root[data-theme='dark'] .home-story-cta-section {
+  background: var(--surface-1);
 }
 
 .donations-kpi-grid {

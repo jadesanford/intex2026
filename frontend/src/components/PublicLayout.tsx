@@ -51,7 +51,7 @@ export default function PublicLayout({ children }: Props) {
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
           <Heart size={16} color="var(--terracotta)" fill="var(--terracotta)" />
-          <span style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text)', fontSize: 18 }}>Open Arms</span>
+          <span style={{ fontFamily: 'Playfair Display, serif', color: 'var(--footer-brand)', fontSize: 18 }}>Open Arms</span>
         </div>
         <p style={{ fontSize: 13, marginBottom: 12 }}>
           Supporting survivors of sexual abuse and trafficking in the Philippines.
