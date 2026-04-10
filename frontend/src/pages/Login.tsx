@@ -89,7 +89,8 @@ export default function Login({ lang }: { lang: 'en' | 'tl' }) {
 
   return (
     <div style={{
-      minHeight: '100vh', background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)',
+      minHeight: '100vh',
+      background: 'var(--beige)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24
     }}>
       <div style={{ width: '100%', maxWidth: 400 }}>
@@ -109,10 +110,7 @@ export default function Login({ lang }: { lang: 'en' | 'tl' }) {
 
         <div className="card" style={{ padding: 32 }}>
           {error && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10, background: '#fee2e2',
-              color: '#b91c1c', padding: '12px 16px', borderRadius: 8, marginBottom: 20, fontSize: 14
-            }}>
+            <div className="form-error-banner" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
               <AlertCircle size={16} /> {error}
             </div>
           )}

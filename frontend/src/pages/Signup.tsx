@@ -290,8 +290,15 @@ export default function Signup({ lang }: { lang: 'en' | 'tl' }) {
   }
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid var(--border)',
-    fontSize: 15, outline: 'none', background: 'white', boxSizing: 'border-box'
+    width: '100%',
+    padding: '10px 14px',
+    borderRadius: 10,
+    border: '1.5px solid var(--border)',
+    fontSize: 15,
+    outline: 'none',
+    background: 'var(--surface-1)',
+    color: 'var(--text)',
+    boxSizing: 'border-box',
   }
 
   return (
@@ -315,9 +322,9 @@ export default function Signup({ lang }: { lang: 'en' | 'tl' }) {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <div style={{
                   width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: i <= step ? 'var(--terracotta)' : 'white',
+                  background: i <= step ? 'var(--terracotta)' : 'var(--surface-1)',
                   border: `2px solid ${i <= step ? 'var(--terracotta)' : 'var(--border)'}`,
-                  color: i <= step ? 'white' : 'var(--text-muted)', fontWeight: 700, fontSize: 13, transition: 'all 0.2s'
+                  color: i <= step ? 'var(--btn-on-primary)' : 'var(--text-muted)', fontWeight: 700, fontSize: 13, transition: 'all 0.2s'
                 }}>{i + 1}</div>
                 <span style={{ fontSize: 11, color: i === step ? 'var(--terracotta)' : 'var(--text-muted)', fontWeight: i === step ? 600 : 400, whiteSpace: 'nowrap' }}>{label}</span>
               </div>
@@ -342,7 +349,9 @@ export default function Signup({ lang }: { lang: 'en' | 'tl' }) {
                       style={{
                         padding: '14px 16px', borderRadius: 12, border: '2px solid',
                         borderColor: form.supporterType === t.value ? 'var(--terracotta)' : 'var(--border)',
-                        background: form.supporterType === t.value ? 'rgba(193,105,79,0.06)' : 'white',
+                        background: form.supporterType === t.value
+                          ? 'color-mix(in srgb, var(--terracotta) 14%, var(--surface-1))'
+                          : 'var(--surface-1)',
                         cursor: 'pointer', transition: 'all 0.15s'
                       }}>
                       <div style={{ fontWeight: 600, fontSize: 13, color: form.supporterType === t.value ? 'var(--terracotta)' : 'var(--navy)', marginBottom: 2 }}>{t.label}</div>
@@ -439,7 +448,9 @@ export default function Signup({ lang }: { lang: 'en' | 'tl' }) {
                         style={{
                           padding: '10px 12px', borderRadius: 10, border: '2px solid', textAlign: 'center',
                           borderColor: form.acquisitionChannel === c.value ? 'var(--terracotta)' : 'var(--border)',
-                          background: form.acquisitionChannel === c.value ? 'rgba(193,105,79,0.06)' : 'white',
+                          background: form.acquisitionChannel === c.value
+                            ? 'color-mix(in srgb, var(--terracotta) 14%, var(--surface-1))'
+                            : 'var(--surface-1)',
                           cursor: 'pointer', fontSize: 13, fontWeight: form.acquisitionChannel === c.value ? 600 : 400,
                           color: form.acquisitionChannel === c.value ? 'var(--terracotta)' : 'var(--navy)',
                           transition: 'all 0.15s'
@@ -460,9 +471,9 @@ export default function Signup({ lang }: { lang: 'en' | 'tl' }) {
                   {tx.usernameWillBe} <strong>{form.email || tx.yourEmailAddress}</strong>
                 </p>
 
-                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 13 }}>
-                  <div style={{ fontWeight: 600, marginBottom: 4, color: '#166534' }}>{tx.accountSummary}</div>
-                  <div style={{ color: '#166534' }}>
+                <div className="signup-account-summary">
+                  <div style={{ fontWeight: 600, marginBottom: 4 }}>{tx.accountSummary}</div>
+                  <div>
                     {form.supporterType} · {isOrg ? form.organizationName : `${form.firstName} ${form.lastName}`} · {form.email}
                   </div>
                 </div>
@@ -479,7 +490,7 @@ export default function Signup({ lang }: { lang: 'en' | 'tl' }) {
             )}
 
             {error && (
-              <div style={{ background: '#fee2e2', color: '#dc2626', padding: '10px 14px', borderRadius: 8, fontSize: 14, marginTop: 16 }}>
+              <div className="form-error-banner form-error-banner--spaced">
                 {error}
               </div>
             )}
