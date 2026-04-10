@@ -275,7 +275,7 @@ export default function Donate({ lang }: { lang: 'en' | 'tl' }) {
 
   if (success) {
     return (
-        <div style={{ padding: '80px 24px', textAlign: 'center', maxWidth: 560, margin: '0 auto' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--beige)', padding: '80px 24px', textAlign: 'center', maxWidth: 560, margin: '0 auto' }}>
           <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
             <CheckCircle size={40} color="#16a34a" />
           </div>
@@ -310,7 +310,7 @@ export default function Donate({ lang }: { lang: 'en' | 'tl' }) {
   }
 
   return (
-      <div style={{ background: 'linear-gradient(135deg, var(--beige) 0%, white 100%)', padding: '60px 24px 80px' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--beige)', padding: '60px 24px 80px' }}>
       <div style={{ maxWidth: isInKind ? 720 : 640, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(193,105,79,0.1)', color: 'var(--terracotta)', padding: '6px 16px', borderRadius: 999, fontSize: 13, fontWeight: 500, marginBottom: 16 }}>
@@ -327,19 +327,22 @@ export default function Donate({ lang }: { lang: 'en' | 'tl' }) {
             <div className="card" style={{ marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, marginBottom: 16, color: 'var(--navy)' }}>{tx.chooseAmount}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
-                {PRESET_AMOUNTS.map(a => (
+                {PRESET_AMOUNTS.map(a => {
+                  const selected = amount === String(a) && !customAmount
+                  return (
                   <button key={a} type="button"
                     onClick={() => { setAmount(String(a)); setCustomAmount('') }}
                     style={{
                       padding: '12px 8px', borderRadius: 10, border: '2px solid',
-                      borderColor: amount === String(a) && !customAmount ? 'var(--terracotta)' : 'var(--border)',
-                      background: amount === String(a) && !customAmount ? 'var(--terracotta)' : 'white',
-                      color: amount === String(a) && !customAmount ? 'white' : 'var(--navy)',
+                      borderColor: selected ? 'var(--terracotta)' : 'var(--border)',
+                      background: selected ? 'var(--terracotta)' : 'var(--surface-1)',
+                      color: selected ? 'var(--btn-on-primary)' : 'var(--text)',
                       fontWeight: 600, fontSize: 14, cursor: 'pointer', transition: 'all 0.15s'
                     }}>
                     ₱{a >= 1000 ? `${a / 1000}K` : a}
                   </button>
-                ))}
+                  )
+                })}
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label style={{ fontSize: 13 }}>{tx.customAmount}</label>
@@ -445,8 +448,8 @@ export default function Donate({ lang }: { lang: 'en' | 'tl' }) {
               role="button"
               tabIndex={0}
             >
-                <div style={{ width: 20, height: 20, borderRadius: 4, border: '2px solid', borderColor: isRecurring ? 'var(--terracotta)' : '#d1d5db', background: isRecurring ? 'var(--terracotta)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {isRecurring && <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>✓</span>}
+                <div style={{ width: 20, height: 20, borderRadius: 4, border: '2px solid', borderColor: isRecurring ? 'var(--terracotta)' : 'var(--border)', background: isRecurring ? 'var(--terracotta)' : 'var(--surface-1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {isRecurring && <span style={{ color: 'var(--btn-on-primary)', fontSize: 13, fontWeight: 700 }}>✓</span>}
                 </div>
                 <div>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{tx.monthly}</div>
