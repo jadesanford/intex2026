@@ -48,6 +48,9 @@
   --sample-banner-text: #92400e;
   /* Admin dashboard “This Month” / donations KPI accent */
   --dashboard-this-month-accent: #1e2d4a;
+  /* Impact page: Safe Locations stat + Transferred pie slice (navy in light) */
+  --impact-safe-locations: #1e2d4a;
+  --impact-pie-transferred: #1e2d4a;
 }
 
 /* Dark mode theme overrides (activated by JS setting data-theme on <html>) */
@@ -85,6 +88,9 @@
   --sample-banner-border: rgba(251, 191, 36, 0.35);
   --sample-banner-text: #fcd34d;
   --dashboard-this-month-accent: #5e88b8;
+  /* Lighter blues on dark cards / chart */
+  --impact-safe-locations: #5e88b8;
+  --impact-pie-transferred: #5e88b8;
 }
 
 body {
@@ -139,6 +145,10 @@ input, select, textarea {
   border: 1.5px solid var(--terracotta);
 }
 .btn-outline:hover { background: var(--beige); }
+
+:root[data-theme='dark'] .btn-outline:hover {
+  background: var(--surface-2);
+}
 
 .btn-ghost {
   background: transparent;
@@ -207,6 +217,29 @@ input, select, textarea {
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: var(--terracotta);
+}
+
+/* Auth / signup: theme-aware alerts (no hardcoded light-only panels) */
+.form-error-banner {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--danger) 32%, var(--border));
+  color: var(--danger);
+}
+.form-error-banner--spaced {
+  margin-top: 16px;
+}
+
+.signup-account-summary {
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  background: color-mix(in srgb, var(--success) 14%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--success) 30%, var(--border));
+  color: var(--text);
 }
 
 .table-wrapper { overflow-x: auto; }
@@ -601,6 +634,14 @@ tbody tr:hover { background: var(--surface-2); }
 
 :root[data-theme='dark'] .impact-hero-section {
   background-image: linear-gradient(rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.4)), url('/impact-hero.png');
+}
+
+.impact-hero-subtitle {
+  color: var(--text-muted);
+}
+
+:root[data-theme='dark'] .impact-hero-subtitle {
+  color: var(--navy-light);
 }
 
 .impact-title {

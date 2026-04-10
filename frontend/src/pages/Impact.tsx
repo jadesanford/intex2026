@@ -40,7 +40,7 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
   const stats = [
     { label: tx.helped, value: snap?.totalResidentsHelped ?? '—', icon: <Users size={22} />, color: '#c1694f' },
     { label: tx.active, value: snap?.activeResidents ?? '—', icon: <Home size={22} />, color: '#6b8f71' },
-    { label: tx.locations, value: snap?.totalSafehouses ?? '—', icon: <Home size={22} />, color: '#1e2d4a' },
+    { label: tx.locations, value: snap?.totalSafehouses ?? '—', icon: <Home size={22} />, color: 'var(--impact-safe-locations)', cssVar: true as const },
     { label: tx.reintegration, value: snap ? snap.reintegrationRate + '%' : '—', icon: <TrendingUp size={22} />, color: '#d4856e' },
   ]
 
@@ -68,19 +68,24 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
         }}
       >
         <h1 className="impact-title" style={{ color: 'var(--text)' }}>{tx.title}</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
+        <p className="impact-hero-subtitle" style={{ fontSize: 18, maxWidth: 640, margin: '0 auto' }}>{tx.subtitle}</p>
       </section>
 
       <section style={{ padding: '0 24px', marginTop: -24 }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div className="impact-kpi-grid">
-            {stats.map(({ label, value, icon, color }) => (
+            {stats.map(({ label, value, icon, color, cssVar }) => {
+              const iconBg = cssVar
+                ? 'color-mix(in srgb, var(--impact-safe-locations) 20%, transparent)'
+                : `${color}18`
+              return (
               <div key={label} className="card" style={{ textAlign: 'center' }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', color, margin: '0 auto 12px' }}>{icon}</div>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color, margin: '0 auto 12px' }}>{icon}</div>
                 <div style={{ fontSize: 36, fontWeight: 700, color, fontFamily: 'Playfair Display, serif' }}>{value}</div>
                 <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>{label}</div>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -118,7 +123,15 @@ export default function Impact({ lang }: { lang: 'en' | 'tl' }) {
                     label={pieLabel}
                     labelLine
                   >
-                  {pieData.map((_: unknown, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {pieData.map((slice: { name?: string }, i: number) => {
+                    const transferred = (slice.name ?? '').trim().toLowerCase() === 'transferred'
+                    return (
+                      <Cell
+                        key={i}
+                        fill={transferred ? 'var(--impact-pie-transferred)' : COLORS[i % COLORS.length]}
+                      />
+                    )
+                  })}
                   </Pie>
                   <Tooltip />
                 </PieChart>
