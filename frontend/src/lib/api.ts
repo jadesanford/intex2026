@@ -13,21 +13,17 @@ export const googleLoginUrl = `${baseURL}/auth/login-google`
 export const api = axios.create({
   baseURL,
   headers: { 'Content-Type': 'application/json' },
-})
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('oa_token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
+  withCredentials: true,
 })
 
 api.interceptors.response.use(
   (r) => r,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('oa_token')
       localStorage.removeItem('oa_user')
-      if (!window.location.pathname.includes('/login')) {
+      const url = String(err.config?.url ?? '')
+      const isSessionProbe = url.includes('/auth/me')
+      if (!isSessionProbe && !window.location.pathname.includes('/login')) {
         window.location.href = '/login'
       }
     }
@@ -38,6 +34,8 @@ api.interceptors.response.use(
 // Auth
 export const login = (username: string, password: string) =>
   api.post('/auth/login', { username, password }).then(r => r.data)
+
+export const logoutRequest = () => api.post('/auth/logout').then(() => undefined)
 
 export const getMe = () => api.get('/auth/me').then(r => r.data)
 

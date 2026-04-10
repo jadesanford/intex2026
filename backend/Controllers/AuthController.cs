@@ -11,7 +11,11 @@ namespace OpenArms.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(SupabaseService db, AuthService auth, IConfiguration configuration) : ControllerBase
+public class AuthController(
+    SupabaseService db,
+    AuthService auth,
+    IWebHostEnvironment env,
+    IConfiguration configuration) : ControllerBase
 {
     private static bool GoogleConfigured(IConfiguration cfg) =>
         !string.IsNullOrWhiteSpace(cfg["Authentication:Google:ClientId"]) &&
@@ -26,6 +30,17 @@ public class AuthController(SupabaseService db, AuthService auth, IConfiguration
         }
         return null;
     }
+
+    private void AppendAuthCookie(string token) =>
+        Response.Cookies.Append(
+            AuthSessionCookie.Name,
+            token,
+            AuthSessionCookie.CreateAppendOptions(configuration, env, Request));
+
+    private void ClearAuthCookie() =>
+        Response.Cookies.Delete(
+            AuthSessionCookie.Name,
+            AuthSessionCookie.CreateDeleteOptions(configuration, env, Request));
 
     /// <summary>Starts Google OAuth. Browser redirect only (not for fetch/XHR).</summary>
     [HttpGet("login-google")]
@@ -72,9 +87,12 @@ public class AuthController(SupabaseService db, AuthService auth, IConfiguration
         await HttpContext.SignOutAsync(AuthSchemes.ExternalCookie);
 
         var token = auth.GenerateToken(user);
-        // Redirect to /#token= so the first request is GET / (always serves SPA). /auth/... deep links can 404 on some hosts.
-        return Redirect($"{frontend}/#token={Uri.EscapeDataString(token)}");
+        AppendAuthCookie(token);
+        var normalizedRole = (user.Role ?? "").Trim().ToLowerInvariant();
+        var target = normalizedRole == "donor" ? "/donor" : "/admin";
+        return Redirect($"{frontend}{target}");
     }
+
     private static string Esc(string value) => Uri.EscapeDataString(value);
     private static string? NormalizeRegion(string? region)
     {
@@ -109,13 +127,22 @@ public class AuthController(SupabaseService db, AuthService auth, IConfiguration
             return Unauthorized(new { message = "Invalid username or password" });
 
         var token = auth.GenerateToken(user);
+        AppendAuthCookie(token);
         return Ok(new LoginResponse(
-            token,
+            "",
             user.Username,
             user.DisplayName ?? user.Username,
             user.Role,
             user.Id,
             user.SupporterId));
+    }
+
+    [HttpPost("logout")]
+    [AllowAnonymous]
+    public IActionResult Logout()
+    {
+        ClearAuthCookie();
+        return Ok();
     }
 
     [HttpPost("register")]
@@ -212,8 +239,9 @@ public class AuthController(SupabaseService db, AuthService auth, IConfiguration
             return BadRequest(new { message = "Unable to create account after supporter profile was created." });
 
         var token = auth.GenerateToken(user);
+        AppendAuthCookie(token);
         return Ok(new LoginResponse(
-            token,
+            "",
             user.Username,
             user.DisplayName ?? user.Username,
             user.Role,
