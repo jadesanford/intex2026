@@ -59,6 +59,7 @@ export const getMyDonationDetails = (id: number) =>
 export const getImpactSnapshot = () => api.get('/public/impact-snapshot').then(r => r.data)
 export const getPublicSafehouses = () => api.get('/public/safehouses').then(r => r.data)
 export const getDonationTrends = () => api.get('/public/donation-trends').then(r => r.data)
+export const getDonationYearProgress = () => api.get('/public/donation-year-progress').then(r => r.data)
 export const getOutcomeMetrics = () => api.get('/public/outcome-metrics').then(r => r.data)
 export const sendQuickHelpRequest = (body: {
   name?: string

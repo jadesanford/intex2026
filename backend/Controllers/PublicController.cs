@@ -51,6 +51,42 @@ public class PublicController(SupabaseService db, IConfiguration config, ILogger
         });
     }
 
+    /// <summary>Monetary donations in the current calendar year (UTC) vs configured annual goal — for public fundraising UI.</summary>
+    [HttpGet("donation-year-progress")]
+    public async Task<IActionResult> DonationYearProgress()
+    {
+        var year = DateTime.UtcNow.Year;
+        var goalRaw = config["Public:AnnualDonationGoalPhp"];
+        var goal = long.TryParse(goalRaw, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var g) && g > 0
+            ? g
+            : 2_500_000L;
+
+        var donations = await db.GetAllAsync<Donation>("donations",
+            "select=amount,donation_date,donation_type&donation_type=eq.Monetary");
+
+        decimal raised = 0;
+        foreach (var d in donations)
+        {
+            if (string.IsNullOrWhiteSpace(d.DonationDate)) continue;
+            if (!DateTime.TryParse(d.DonationDate, System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out var dt))
+                continue;
+            if (dt.Year == year) raised += d.Amount ?? 0;
+        }
+
+        var raisedD = (double)raised;
+        var goalD = (double)goal;
+        var pct = goalD > 0 ? Math.Round(Math.Min(100.0, raisedD / goalD * 100.0), 1) : 0.0;
+
+        return Ok(new
+        {
+            year,
+            raisedPhp = raised,
+            goalPhp = goal,
+            percentTowardGoal = pct
+        });
+    }
+
     [HttpGet("safehouses")]
     public async Task<IActionResult> GetSafehouses()
     {
